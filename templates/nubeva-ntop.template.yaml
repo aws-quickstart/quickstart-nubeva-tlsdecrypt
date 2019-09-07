@@ -1,0 +1,292 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC to install into.
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+  PrivateSubnet1ID:
+    Description: Subnet Id for Private Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id
+  NumberOfNodes:
+    Description: 'The number of EC2 instances'
+    Type: Number
+    Default: 2
+  MaximumNodes:
+    Type: Number
+    Default: '6'
+    Description: Maximum number of instances that can be launched in your tool cluster.
+  NodeInstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.medium
+    AllowedValues: [t2.micro, t2.small, t2.medium, t2.large, t3.micro, t3.small, t3.medium,
+      t3.large, t3.xlarge, t3.2xlarge, m3.medium, m3.large, m3.xlarge, m3.2xlarge, m4.large,
+      m4.xlarge, m4.2xlarge, m4.4xlarge, m4.10xlarge, m5.large, m5.xlarge, m5.2xlarge,
+      m5.4xlarge, m5.12xlarge, m5.24xlarge, c4.large, c4.xlarge, c4.2xlarge, c4.4xlarge,
+      c4.8xlarge, c3.large, c3.xlarge, c3.2xlarge, c3.4xlarge, c3.8xlarge, r4.large, r4.xlarge,
+      r4.2xlarge, r4.4xlarge, r4.8xlarge, r5.large, r5.xlarge, r5.2xlarge, r5.4xlarge, r5.12xlarge,
+      r5.24xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge, i3.large, i3.xlarge, i3.2xlarge,
+      i3.4xlarge, i3.8xlarge, i3.16xlarge, c5.large, c5.xlarge, c5.2xlarge, c5.4xlarge, c5.9xlarge]
+    ConstraintDescription: Please choose a valid instance type.
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - NodeInstanceType
+          - NumberOfNodes
+          - MaximumNodes
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
+
+Resources:
+  # Security Groups
+  ToolSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Tool Security Group
+      VpcId: !Ref 'VPCID'
+  # Inbound- allow ssh
+  SecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Inbound- allow VXLAN from ONLY the VPC
+  ToolSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      CidrIp: 10.10.0.0/16
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  # Inbound- allow ntop
+  ToolSecurityGroupntopinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 3000
+      ToPort: 3000
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Outbound- allow all
+  ToolSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref IAMRole
+
+  IAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: asg
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'autoscaling:DescribeAutoScalingGroups'
+            - 'autoscaling:DescribeAutoScalingInstances'
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
+
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+      - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
+      LaunchConfigurationName: !Ref LaunchConfiguration
+      MinSize: '1'
+      MaxSize: !Ref 'MaximumNodes'
+      DesiredCapacity: !Ref 'NumberOfNodes'
+      MetricsCollection:
+      - Granularity: 1Minute
+        Metrics:
+        - GroupInServiceInstances
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+        PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: 0
+        Timeout: PT5M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: !Ref NumberOfNodes
+        MaxBatchSize: 1
+        PauseTime: PT5M
+        SuspendProcesses:
+        - AlarmNotification
+        WaitOnResourceSignals: true
+
+  LaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "configStartup"
+            - "addRepo"
+          Install:
+            - "installServices"
+            - "installNurxAgent"
+          Start:
+            - "startNtop"
+        configStartup:
+          commands:
+            01_addintrclocal:
+              command: "echo 'yum update -y' >> /etc/rc.local"
+            02_adduprclocal:
+              command: "echo 'sleep 60' >> /etc/rc.local"
+            03_adduprclocal:
+              command: "echo 'ntopng -i nurx0' >> /etc/rc.local"
+            04_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        addRepo:
+          commands:
+            01_wget:
+              command: "wget http://packages.ntop.org/centos-stable/ntop.repo -O /etc/yum.repos.d/ntop.repo"
+            02_sed:
+              command: "sed -i 's/$releasever/7/g' /etc/yum.repos.d/ntop.repo"
+        installServices:
+          packages:
+            yum:
+              pfring: []
+              n2disk: []
+              nprobe: []
+              ntopng: []
+              ntopng-data: []
+              cento: []
+              docker: []
+          services:
+            sysvinit:
+              redis:
+                enabled: true
+                ensureRunning: true
+              docker:
+                enabled: true
+                ensureRunning: true
+        installNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+
+
+        # Config key: startNtop
+        startNtop:
+          commands:
+            01_launchntop:
+              command: "ntopng -i nurx0"
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      SecurityGroups:
+      - !Ref "ToolSecurityGroup"
+      IamInstanceProfile: !Ref InstanceProfile
+      KeyName:
+        Ref: KeyPairName
+      AssociatePublicIpAddress: false
+
+
+#Outputs:
+#  URL:
+#    Description: "The URL of this instance's nTop Dashboard"
+#    Value: !Sub "http://${MyServerInstance.PublicIp}:3000"
