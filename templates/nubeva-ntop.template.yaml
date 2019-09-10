@@ -209,14 +209,14 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           Configure:
-            - "configStartup"
-            - "addRepo"
+            - "ConfigStartup"
+            - "AddRepo"
           Install:
-            - "installServices"
-            - "installNurxAgent"
+            - "InstallServices"
+            - "InstallNurxAgent"
           Start:
-            - "startNtop"
-        configStartup:
+            - "StartNtop"
+        ConfigStartup:
           commands:
             01_addintrclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
@@ -226,13 +226,13 @@ Resources:
               command: "echo 'ntopng -i nurx0' >> /etc/rc.local"
             04_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
-        addRepo:
+        AddRepo:
           commands:
             01_wget:
               command: "wget http://packages.ntop.org/centos-stable/ntop.repo -O /etc/yum.repos.d/ntop.repo"
             02_sed:
               command: "sed -i 's/$releasever/7/g' /etc/yum.repos.d/ntop.repo"
-        installServices:
+        InstallServices:
           packages:
             yum:
               pfring: []
@@ -250,16 +250,13 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-        installNurxAgent:
+        InstallNurxAgent:
           commands:
             01_download_and_install:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-
-
-        # Config key: startNtop
-        startNtop:
+        StartNtop:
           commands:
             01_launchntop:
               command: "ntopng -i nurx0"

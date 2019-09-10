@@ -93,7 +93,6 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  # The Security Group placed on the tools themselves
   ToolSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -206,26 +205,26 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           Configure:
-            - "configStartup"
+            - "ConfigStartup"
           Install:
-            - "installElasticsearch"
-            - "installServices"
-            - "installNurxAgent"
-            - "installMoloch"
+            - "InstallElasticsearch"
+            - "InstallServices"
+            - "InstallNurxAgent"
+            - "InstallMoloch"
           Start:
-            - "startMoloch"
+            - "StartMoloch"
 
-        configStartup:
+        ConfigStartup:
           commands:
             01_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
-        installElasticsearch:
+        InstallElasticsearch:
           commands:
             01_setES_pubkeys:
               command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
             02_get_repo_info:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
-        installServices:
+        InstallServices:
           packages:
             yum:
               perl-JSON: []
@@ -243,13 +242,13 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-        installNurxAgent:
+        InstallNurxAgent:
           commands:
             01_download_and_install:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-        installMoloch:
+        InstallMoloch:
           commands:
             01_wget:
               command: "wget -nv https://files.molo.ch/moloch-master.centos7.x86_64.rpm -O /tmp/moloch-master.centos7.x86_64.rpm"
@@ -275,7 +274,7 @@ Resources:
               command: "mkdir /data/moloch/raw"
             12_cleanup:
               command: "rm /tmp/moloch-master.centos7.x86_64.rpm"
-        startMoloch:
+        StartMoloch:
           commands:
             01_addsleeprclocal:
               command: "echo 'sleep 60' >> /etc/rc.local"
@@ -292,9 +291,7 @@ Resources:
           yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           yum update -y
           yum update -y aws-cfn-bootstrap
-          # how do I get correct region variable
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          # don't know how to get a signal # has something to do with minnimums on autoscale-0 works, 1 doesn't
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap

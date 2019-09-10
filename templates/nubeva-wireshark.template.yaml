@@ -208,14 +208,14 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           Configure:
-            - "configStartup"
+            - "ConfigStartup"
           Install:
-            - "installServices"
-            - "installNurxAgent"
+            - "InstallServices"
+            - "InstallNurxAgent"
           Start:
-            - "startUpdate"
+            - "StartUpdate"
 
-        configStartup:
+        ConfigStartup:
           commands:
             01_touch:
               command: "touch /etc/rc.local"
@@ -224,7 +224,7 @@ Resources:
             03_chmod:
               command: "chmod +x /etc/rc.local"
 
-        installServices:
+        InstallServices:
           packages:
             apt:
               wireshark: []
@@ -236,13 +236,13 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-        installNurxAgent:
+        InstallNurxAgent:
           commands:
             01_download_and_install:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-        startUpdate:
+        StartUpdate:
           commands:
             01_addsrclocalupdate:
               command: "echo 'apt-get update -y' >> /etc/rc.local"
@@ -255,11 +255,7 @@ Resources:
           apt-get update -y
           apt-get install python-pip -y
           pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
-
-          #yum update -y aws-cfn-bootstrap
-          # how do I get correct region variable
           cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          # don't know how to get a signal # has something to do with minnimums on autoscale-0 works, 1 doesn't
           cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
