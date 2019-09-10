@@ -7,9 +7,9 @@ Metadata:
         default: Nubeva configuration
       Parameters:
         - APIKey
-        - molochInstall
-        - ntopInstall
-        - wiresharkInstall
+        - MolochInstall
+        - NtopInstall
+        - WiresharkInstall
     - Label:
         default: Network configuration
       Parameters:
@@ -30,11 +30,11 @@ Metadata:
       - QSS3BucketName
       - QSS3KeyPrefix
     ParameterLabels:
-      molochInstall:
+      MolochInstall:
         default: Install Moloch ASG
-      ntopInstall:
+      NtopInstall:
         default: Install ntop ASG
-      wiresharkInstall:
+      WiresharkInstall:
         default: Install Wireshark ASG
       KeyPairName:
         default: SSH key name
@@ -60,26 +60,26 @@ Metadata:
         default: Nubeva Token
 
 Parameters:
-  molochInstall:    
+  MolochInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Installs Moloch Auto Scaling Group.
+    Description: Choose to install Moloch
     Type: String
-  ntopInstall:    
+  NtopInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Installs ntop Auto Scaling Group.
+    Description: Choose to install ntop
     Type: String
-  wiresharkInstall:
+  WiresharkInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Installs ntop Auto Scaling Group.
+    Description: Choose to install Wireshark
     Type: String
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
@@ -164,27 +164,24 @@ Parameters:
     Description: The ID of the private subnet in Availability Zone 2 in your existing VPC (e.g., subnet-be8b01ea)
 
 Conditions:
-  molochInstallTrue: !Equals
-    - !Ref molochInstall
+  MolochInstallTrue: !Equals
+    - !Ref MolochInstall
     - 'true'
-  ntopInstallTrue: !Equals
-    - !Ref ntopInstall
+  NtopInstallTrue: !Equals
+    - !Ref NtopInstall
     - 'true'
-  wiresharkInstallTrue: !Equals
-    - !Ref wiresharkInstall
+  WiresharkInstallTrue: !Equals
+    - !Ref WiresharkInstall
     - 'true'
-    
+
 Resources:
-  ntopStack:
-    Condition: ntopInstallTrue
+  NtopStack:
+    Condition: NtopInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
-      TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/nubeva-ntop.template.yaml'
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-ntop.template.yaml'
       Parameters:
         KeyPairName: !Ref KeyPairName
-        #QSS3BucketName: !Ref QSS3BucketName
-        #QSS3KeyPrefix: !Ref QSS3KeyPrefix
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
         PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
@@ -193,16 +190,13 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-  molochStack:
-    Condition: molochInstallTrue
+  MolochStack:
+    Condition: MolochInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
-      TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/nubeva-moloch.template.yaml'
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-moloch.template.yaml'
       Parameters:
         KeyPairName: !Ref KeyPairName
-        #QSS3BucketName: !Ref QSS3BucketName
-        #QSS3KeyPrefix: !Ref QSS3KeyPrefix
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
         PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
@@ -211,16 +205,13 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-  wiresharkStack:
-    Condition: wiresharkInstallTrue
+  WiresharkStack:
+    Condition: WiresharkInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
-      TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/nubeva-wireshark.template.yaml'
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-wireshark.template.yaml'
       Parameters:
         KeyPairName: !Ref KeyPairName
-        #QSS3BucketName: !Ref QSS3BucketName
-        #QSS3KeyPrefix: !Ref QSS3KeyPrefix
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
         PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
@@ -229,4 +220,3 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-#Outputs:

@@ -275,9 +275,7 @@ Resources:
       - DeviceName: "/dev/sda1"
         Ebs:
           VolumeSize: 100
-
-
-#Outputs:
-#  URL:
-#    Description: "The URL of this instance's Moloch Dashboard"
-#    Value: !Sub "http://${MyServerInstance.PublicIp}:8005"
+Outputs:
+  RDPLogin:
+    Description: The username & password defaults are in the documentation
+    Value: "https://docs.nubeva.com/wireshark"

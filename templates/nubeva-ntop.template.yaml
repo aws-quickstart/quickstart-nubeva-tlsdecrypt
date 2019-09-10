@@ -286,7 +286,10 @@ Resources:
       AssociatePublicIpAddress: false
 
 
-#Outputs:
-#  URL:
-#    Description: "The URL of this instance's nTop Dashboard"
-#    Value: !Sub "http://${MyServerInstance.PublicIp}:3000"
+Outputs:
+  Login:
+    Description: The username & password defaults are in the documentation
+    Value: "https://docs.nubeva.com/ntop"
+  URL:
+    Description: The URL for any instance's nTop Dashboard
+    Value: "http://{ntopinstance}:3000"

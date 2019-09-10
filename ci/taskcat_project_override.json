@@ -1,0 +1,10 @@
+[
+    {
+        "ParameterKey": "APIKey",
+        "ParameterValue": "1234567890"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": "nubevagtm"
+    }
+]

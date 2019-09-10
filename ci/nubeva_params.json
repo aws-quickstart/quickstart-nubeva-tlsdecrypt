@@ -5,7 +5,7 @@
     },
     {
         "ParameterKey": "APIKey",
-        "ParameterValue": "1234567890"
+        "ParameterValue": "$[taskcat_getkeypair]"
     },
     {
         "ParameterKey": "RemoteAccessCIDR",
@@ -13,7 +13,7 @@
     },
     {
         "ParameterKey": "KeyPairName",
-        "ParameterValue": "nubevagtm"
+        "ParameterValue": "$[taskcat_getkeypair]"
     },
     {
         "ParameterKey": "QSS3KeyPrefix",
