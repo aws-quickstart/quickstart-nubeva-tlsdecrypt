@@ -32,11 +32,31 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: t3.xlarge
-    AllowedValues: [t3.xlarge, t3.2xlarge, m5.xlarge, m5.2xlarge,
-      m5.4xlarge, m5.12xlarge, m5.24xlarge, c5.xlarge, c5.2xlarge, c5.4xlarge,
-      c5.9xlarge, r5.xlarge, r5.2xlarge, r5.4xlarge, r5.12xlarge,
-      r5.24xlarge, i3.xlarge, i3.2xlarge, i3.4xlarge, i3.8xlarge, i3.16xlarge]
+    Default: c5.large
+    AllowedValues:
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
 
 Metadata:

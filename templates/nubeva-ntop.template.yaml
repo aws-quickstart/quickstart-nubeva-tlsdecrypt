@@ -32,15 +32,31 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: t3.medium
-    AllowedValues: [t2.micro, t2.small, t2.medium, t2.large, t3.micro, t3.small, t3.medium,
-      t3.large, t3.xlarge, t3.2xlarge, m3.medium, m3.large, m3.xlarge, m3.2xlarge, m4.large,
-      m4.xlarge, m4.2xlarge, m4.4xlarge, m4.10xlarge, m5.large, m5.xlarge, m5.2xlarge,
-      m5.4xlarge, m5.12xlarge, m5.24xlarge, c4.large, c4.xlarge, c4.2xlarge, c4.4xlarge,
-      c4.8xlarge, c3.large, c3.xlarge, c3.2xlarge, c3.4xlarge, c3.8xlarge, r4.large, r4.xlarge,
-      r4.2xlarge, r4.4xlarge, r4.8xlarge, r5.large, r5.xlarge, r5.2xlarge, r5.4xlarge, r5.12xlarge,
-      r5.24xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge, i3.large, i3.xlarge, i3.2xlarge,
-      i3.4xlarge, i3.8xlarge, i3.16xlarge, c5.large, c5.xlarge, c5.2xlarge, c5.4xlarge, c5.9xlarge]
+    Default: c5.large
+    AllowedValues:
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
 Metadata:
   AWS::CloudFormation::Interface:
@@ -192,8 +208,8 @@ Resources:
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
-        Count: 0
-        Timeout: PT5M
+        Count: 1
+        Timeout: PT10M
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MinInstancesInService: !Ref NumberOfNodes

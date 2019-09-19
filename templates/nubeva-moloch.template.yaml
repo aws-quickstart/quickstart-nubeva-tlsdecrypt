@@ -29,14 +29,40 @@ Parameters:
     Type: Number
     Default: 6
     Description: Maximum number of instances that can be launched in your tool cluster.
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.10.0.0/16
+    Description: CIDR block for the VPC
+    Type: String
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: t3.xlarge
-    AllowedValues: [t3.xlarge, t3.2xlarge, m5.xlarge, m5.2xlarge,
-      m5.4xlarge, m5.12xlarge, m5.24xlarge, c5.xlarge, c5.2xlarge, c5.4xlarge,
-      c5.9xlarge, r5.xlarge, r5.2xlarge, r5.4xlarge, r5.12xlarge,
-      r5.24xlarge, i3.xlarge, i3.2xlarge, i3.4xlarge, i3.8xlarge, i3.16xlarge]
+    Default: c5.large
+    AllowedValues:
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
 
 Metadata:
@@ -93,6 +119,16 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
+  ESSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ElasticSearch Service Security Group
+      VpcId: !Ref 'VPCID'
+      SecurityGroupIngress:
+        - FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+          CidrIp: !Ref 'VPCCIDR'
   ToolSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -168,8 +204,46 @@ Resources:
             Resource:
             - '*'
 
+  MolochElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      DomainName: moloch-es
+      ElasticsearchVersion: '6.8'
+      ElasticsearchClusterConfig:
+        InstanceCount: !Ref NumberOfNodes
+        InstanceType: !Sub
+          - ${InstanceType}.elasticsearch
+          - InstanceType: !Ref NodeInstanceType
+        ZoneAwarenessEnabled: true
+        ZoneAwarenessConfig:
+          AvailabilityZoneCount: 2          
+      EBSOptions:
+        EBSEnabled: true
+        Iops: 0
+        VolumeSize: 100
+        VolumeType: standard
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: 0
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: '*'
+            Action: 'es:*'
+            Resource: '*'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: 'true'
+      VPCOptions:
+        SubnetIds:
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+        SecurityGroupIds:
+          - !Ref ESSecurityGroup
+
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: MolochElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
@@ -188,8 +262,8 @@ Resources:
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
-        Count: 0
-        Timeout: PT5M
+        Count: 1
+        Timeout: PT10M
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MinInstancesInService: !Ref NumberOfNodes
@@ -207,7 +281,6 @@ Resources:
           Configure:
             - "ConfigStartup"
           Install:
-            - "InstallElasticsearch"
             - "InstallServices"
             - "InstallNurxAgent"
             - "InstallMoloch"
@@ -218,12 +291,6 @@ Resources:
           commands:
             01_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
-        InstallElasticsearch:
-          commands:
-            01_setES_pubkeys:
-              command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-            02_get_repo_info:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
         InstallServices:
           packages:
             yum:
@@ -232,13 +299,11 @@ Resources:
               libyaml-devel: []
               java-1.8.0-openjdk: []
               wget: []
-              elasticsearch: []
+              perl-LWP-Protocol-https: []
+              perl-Crypt-SSLeay: []
               docker: []
           services:
             sysvinit:
-              elasticsearch:
-                enabled: true
-                ensureRunning: true
               docker:
                 enabled: true
                 ensureRunning: true
@@ -263,16 +328,22 @@ Resources:
             06_forceSleep:
               command: "sleep 60"
             07_setupNewDB:
-              command: "/data/moloch/db/db.pl http://localhost:9200 init"
-            08_createAdmin:
+              command: "/data/moloch/db/db.pl ${ESDomain} init"
+              env:
+                ESDomain: !Ref MolochElasticsearchDomain
+            08_updateConfig:
+              command: "echo ${ESDomain} >> /data/moloch/etc/config.ini"
+              env:
+                ESDomain: !Ref MolochElasticsearchDomain
+            09_createAdmin:
               command: "/data/moloch/bin/moloch_add_user.sh admin \"admin user\" G0Nub3va20[] --admin"
-            09_setupMolochGeoIP:
+            10_setupMolochGeoIP:
               command: "/data/moloch/bin/moloch_update_geo.sh"
-            10_setupMolochLogs:
-              command: "mkdir /data/moloch/logs"
             11_setupMolochLogs:
+              command: "mkdir /data/moloch/logs"
+            12_setupMolochLogs:
               command: "mkdir /data/moloch/raw"
-            12_cleanup:
+            13_cleanup:
               command: "rm /tmp/moloch-master.centos7.x86_64.rpm"
         StartMoloch:
           commands:
