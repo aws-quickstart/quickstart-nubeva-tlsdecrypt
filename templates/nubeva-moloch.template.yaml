@@ -3,6 +3,22 @@ Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
+  ToolAdmin:
+    Description: The user name that is associated with the admin account for the tools that are being created.
+    Type: String
+    Default: tooladmin
+    MinLength: 4
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
+  ToolPassword:
+    Description: The password that is associated with the master user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -15,6 +31,12 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
+  PublicSubnet1ID:
+    Description: Subnet Id for Public Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: Subnet Id for Public Subnet2
+    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
@@ -68,6 +90,12 @@ Parameters:
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
+      - Label:
+          default: Nubeva configuration
+        Parameters:
+        - APIKey
+        - ToolAdmin
+        - ToolPassword
       - Label:
           default: "Network Configuration"
         Parameters:
@@ -125,9 +153,9 @@ Resources:
       GroupDescription: ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
       SecurityGroupIngress:
-        - FromPort: 443
+        - FromPort: 80
           IpProtocol: tcp
-          ToPort: 443
+          ToPort: 80
           CidrIp: !Ref 'VPCCIDR'
   ToolSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -216,18 +244,16 @@ Resources:
           - InstanceType: !Ref NodeInstanceType
         ZoneAwarenessEnabled: true
         ZoneAwarenessConfig:
-          AvailabilityZoneCount: 2          
+          AvailabilityZoneCount: 2
       EBSOptions:
         EBSEnabled: true
-        Iops: 0
         VolumeSize: 100
-        VolumeType: standard
       SnapshotOptions:
         AutomatedSnapshotStartHour: 0
       AccessPolicies:
         Version: 2012-10-17
         Statement:
-          - Effect: Deny
+          - Effect: Allow
             Principal:
               AWS: '*'
             Action: 'es:*'
@@ -241,6 +267,49 @@ Resources:
         SecurityGroupIds:
           - !Ref ESSecurityGroup
 
+  MolochELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: MolochELB
+      Subnets:
+          - !Ref PublicSubnet1ID
+          - !Ref PublicSubnet2ID
+      Type: network
+
+  MolochViewerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref MolochELB
+      Port: 8005
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref MolochTargetGroup
+
+  #MolochCaptureListener:
+  #  Type: AWS::ElasticLoadBalancingV2::Listener
+  #  Properties:
+  #    LoadBalancerArn: !Ref MolochELB
+  #    Port: 4789
+  #    Protocol: UDP
+  #    DefaultActions:
+  #      - Type: forward
+  #        TargetGroupArn: !Ref MolochTargetGroup
+
+  MolochTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 8005
+      Protocol: TCP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+
+
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: MolochElasticsearchDomain
@@ -251,6 +320,8 @@ Resources:
       LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
+      TargetGroupARNs:
+        - !Ref MolochTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -325,33 +396,29 @@ Resources:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_moloch.sh -O /data/moloch/start_moloch.sh"
             05_allowExecute:
               command: "chmod +x /data/moloch/start_moloch.sh"
-            06_forceSleep:
-              command: "sleep 60"
-            07_setupNewDB:
-              command: "/data/moloch/db/db.pl ${ESDomain} init"
+            06_updateConfig:
+              command: "echo 'elasticsearch=http://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
-                ESDomain: !Ref MolochElasticsearchDomain
-            08_updateConfig:
-              command: "echo ${ESDomain} >> /data/moloch/etc/config.ini"
-              env:
-                ESDomain: !Ref MolochElasticsearchDomain
-            09_createAdmin:
-              command: "/data/moloch/bin/moloch_add_user.sh admin \"admin user\" G0Nub3va20[] --admin"
-            10_setupMolochGeoIP:
+                ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint
+            07_randomSleep:
+              command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
+            08_setupNewDB:
+              command: !Sub
+                - "/data/moloch/db/db.pl http://${ESDomain} info | grep -q '\\-1' && /data/moloch/db/db.pl ${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin"
+                - {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
+            09_setupMolochGeoIP:
               command: "/data/moloch/bin/moloch_update_geo.sh"
-            11_setupMolochLogs:
+            10_setupMolochLogs:
               command: "mkdir /data/moloch/logs"
-            12_setupMolochLogs:
+            11_setupMolochLogs:
               command: "mkdir /data/moloch/raw"
-            13_cleanup:
+            12_cleanup:
               command: "rm /tmp/moloch-master.centos7.x86_64.rpm"
         StartMoloch:
           commands:
-            01_addsleeprclocal:
-              command: "echo 'sleep 60' >> /etc/rc.local"
-            02_addMolochrclocal:
+            01_addMolochrclocal:
               command: "echo '/data/moloch/start_moloch.sh' >> /etc/rc.local"
-            03_startMoloch:
+            02_startMoloch:
               command: "/data/moloch/start_moloch.sh"
 
 
@@ -383,5 +450,7 @@ Outputs:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/moloch"
   URL:
-    Description: The URL for any instance's nTop Dashboard
-    Value: "http://{molochinstance}:8005"
+    Description: The URL for any instance's Moloch Dashboard
+    Value: !Sub
+        - "http://${MolochDNS}:8005"
+        - MolochDNS: !GetAtt MolochELB.DNSName

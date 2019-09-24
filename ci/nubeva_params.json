@@ -22,5 +22,25 @@
     {
         "ParameterKey": "QSS3BucketName",
         "ParameterValue": "$[taskcat_autobucket]"
+    },
+    {
+        "ParameterKey": "ToolAdmin",
+        "ParameterValue": "tooladmin"
+    },
+    {
+        "ParameterKey": "MolochInstall",
+        "ParameterValue": "true"
+    },
+    {
+        "ParameterKey": "NtopInstall",
+        "ParameterValue": "true"
+    },
+    {
+        "ParameterKey": "WiresharkInstall",
+        "ParameterValue": "true"
+    },
+    {
+        "ParameterKey": "ToolPassword",
+        "ParameterValue": "$[taskcat_getkeypair]"
     }
 ]

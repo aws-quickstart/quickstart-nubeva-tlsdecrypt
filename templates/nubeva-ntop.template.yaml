@@ -3,6 +3,22 @@ Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
+  ToolAdmin:
+    Description: The user name that is associated with the admin account for the tools that are being created.
+    Type: String
+    Default: tooladmin
+    MinLength: 4
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
+  ToolPassword:
+    Description: The password that is associated with the master user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -15,6 +31,12 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
+  PublicSubnet1ID:
+    Description: Subnet Id for Public Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: Subnet Id for Public Subnet2
+    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
@@ -61,6 +83,12 @@ Parameters:
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
+      - Label:
+          default: Nubeva configuration
+        Parameters:
+        - APIKey
+        - ToolAdmin
+        - ToolPassword
       - Label:
           default: "Network Configuration"
         Parameters:
@@ -188,6 +216,49 @@ Resources:
             Resource:
             - '*'
 
+  NtopELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: NtophELB
+      Subnets:
+          - !Ref PublicSubnet1ID
+          - !Ref PublicSubnet2ID
+      Type: network
+
+  NtopViewerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref NtopELB
+      Port: 3000
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref NtopTargetGroup
+
+  #MolochCaptureListener:
+  #  Type: AWS::ElasticLoadBalancingV2::Listener
+  #  Properties:
+  #    LoadBalancerArn: !Ref MolochELB
+  #    Port: 4789
+  #    Protocol: UDP
+  #    DefaultActions:
+  #      - Type: forward
+  #        TargetGroupArn: !Ref MolochTargetGroup
+
+  NtopTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 3000
+      Protocol: TCP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+
+
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -197,6 +268,8 @@ Resources:
       LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
+      TargetGroupARNs:
+        - !Ref NtopTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -214,7 +287,7 @@ Resources:
       AutoScalingRollingUpdate:
         MinInstancesInService: !Ref NumberOfNodes
         MaxBatchSize: 1
-        PauseTime: PT5M
+        PauseTime: PT10M
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
@@ -236,10 +309,7 @@ Resources:
           commands:
             01_addintrclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
-            02_adduprclocal:
-              command: "echo 'sleep 60' >> /etc/rc.local"
-            03_adduprclocal:
-              command: "echo 'ntopng -i nurx0' >> /etc/rc.local"
+          02_adduprclocal:
             04_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
         AddRepo:
@@ -251,12 +321,9 @@ Resources:
         InstallServices:
           packages:
             yum:
-              pfring: []
-              n2disk: []
-              nprobe: []
-              ntopng: []
-              ntopng-data: []
+              wget: []
               cento: []
+              redis: []
               docker: []
           services:
             sysvinit:
@@ -272,10 +339,49 @@ Resources:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+            #02_installconfig:
+            #  command: "wget -nv https://nubevalabs.s3.amazonaws.com/ntopng.conf -O /etc/ntopng/ntopng.conf"
+
+
         StartNtop:
+          packages:
+            yum:
+              pfring: []
+              n2disk: []
+              nprobe: []
+              ntopng: []
+              ntopng-data: []
+          services:
+            sysvinit:
+              ntopng:
+                enabled: true
+                ensureRunning: true
+
           commands:
-            01_launchntop:
-              command: "ntopng -i nurx0"
+            01_setupToolAdmin:
+              command: !Sub
+                - "echo -n \"${password}\" | md5sum | xargs -I {} redis-cli SET ntopng.user.${admin}.password {}"
+                - {admin: !Ref ToolAdmin, password: !Ref ToolPassword}
+            02_installconfig:
+              command: "wget -nv https://nubevalabs.s3.amazonaws.com/ntopng.conf -O /etc/ntopng/ntopng.conf"
+            03_restart:
+              command: "systemctl restart ntopng"
+
+                #sample command
+                #"/data/moloch/db/db.pl http://${ESDomain} info | grep -q '\\-1' && /data/moloch/db/db.pl ${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin"
+                #- {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
+
+  #Sample solution
+   #21   redis-cli SET ntopng.user.<username>.password <password md5>
+   #22
+   #23 Example of adding a user "utente" with password "password":
+   #24
+   #25   $ echo -n "password" | md5
+   #26   5f4dcc3b5aa765d61d8327deb882cf99
+   #27
+   #28   $ redis-cli SET ntopng.user.utente.password 5f4dcc3b5aa765d61d8327deb882cf99
+
+
 
     Properties:
       UserData:
@@ -304,5 +410,7 @@ Outputs:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/ntop"
   URL:
-    Description: The URL for any instance's nTop Dashboard
-    Value: "http://{ntopinstance}:3000"
+    Description: The URL for any instance's ntop Dashboard
+    Value: !Sub
+        - "http://${NtopDNS}:3000"
+        - NtopDNS: !GetAtt NtopELB.DNSName

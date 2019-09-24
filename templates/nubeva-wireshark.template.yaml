@@ -3,6 +3,22 @@ Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
+  ToolAdmin:
+    Description: The user name that is associated with the admin account for the tools that are being created.
+    Type: String
+    Default: tooladmin
+    MinLength: 4
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
+  ToolPassword:
+    Description: The password that is associated with the master user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -15,6 +31,12 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
+  PublicSubnet1ID:
+    Description: Subnet Id for Public Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: Subnet Id for Public Subnet2
+    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
@@ -191,6 +213,48 @@ Resources:
             Resource:
             - '*'
 
+  WiresharkELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: WiresharkELB
+      Subnets:
+          - !Ref PublicSubnet1ID
+          - !Ref PublicSubnet2ID
+      Type: network
+
+  WiresharkViewerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref WiresharkELB
+      Port: 3389
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref WiresharkTargetGroup
+
+  #WiresharkCaptureListener:
+  #  Type: AWS::ElasticLoadBalancingV2::Listener
+  #  Properties:
+  #    LoadBalancerArn: !Ref WiresharkELB
+  #    Port: 4789
+  #    Protocol: UDP
+  #    DefaultActions:
+  #      - Type: forward
+  #        TargetGroupArn: !Ref WiresharkTargetGroup
+
+  WiresharkTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 3389
+      Protocol: TCP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -200,6 +264,8 @@ Resources:
       LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
+      TargetGroupARNs:
+        - !Ref WiresharkTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -266,8 +332,16 @@ Resources:
           commands:
             01_addsrclocalupdate:
               command: "echo 'apt-get update -y' >> /etc/rc.local"
-
-
+            02_internetrando:
+              command: "touch /etc/security/opasswd"
+            02_addUser:
+              command: !Sub
+                - "useradd ${admin}"
+                - {admin: !Ref ToolAdmin}
+            #03_passwdUser: IN DEVELOPMENT
+              #command: !Sub
+                #- "echo -e '${password}\n${password}' | passwd ${admin}"
+                #- {password: !Ref ToolPassword, admin: !Ref ToolAdmin}
     Properties:
       UserData:
         Fn::Base64: !Sub |
@@ -293,5 +367,10 @@ Resources:
           VolumeSize: 100
 Outputs:
   RDPLogin:
-    Description: The username & password defaults are in the documentation
+    Description: See documentation for tool acceess details.
     Value: "https://docs.nubeva.com/wireshark"
+  URL:
+    Description: The RDP Connection for any instance's Wireshark
+    Value: !Sub
+      - "rdp://${WiresharkDNS}"
+      - WiresharkDNS: !GetAtt WiresharkELB.DNSName
