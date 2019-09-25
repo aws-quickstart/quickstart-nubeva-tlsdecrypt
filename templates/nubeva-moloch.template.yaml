@@ -286,22 +286,22 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref MolochTargetGroup
 
-  #MolochCaptureListener:
-  #  Type: AWS::ElasticLoadBalancingV2::Listener
-  #  Properties:
-  #    LoadBalancerArn: !Ref MolochELB
-  #    Port: 4789
-  #    Protocol: UDP
-  #    DefaultActions:
-  #      - Type: forward
-  #        TargetGroupArn: !Ref MolochTargetGroup
+  MolochCaptureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref MolochELB
+      Port: 4789
+      Protocol: UDP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref MolochTargetGroup
 
   MolochTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
       Port: 8005
-      Protocol: TCP
+      Protocol: TCP_UDP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
       HealthCheckProtocol: TCP

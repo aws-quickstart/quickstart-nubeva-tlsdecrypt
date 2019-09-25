@@ -232,22 +232,22 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref WiresharkTargetGroup
 
-  #WiresharkCaptureListener:
-  #  Type: AWS::ElasticLoadBalancingV2::Listener
-  #  Properties:
-  #    LoadBalancerArn: !Ref WiresharkELB
-  #    Port: 4789
-  #    Protocol: UDP
-  #    DefaultActions:
-  #      - Type: forward
-  #        TargetGroupArn: !Ref WiresharkTargetGroup
+  WiresharkCaptureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref WiresharkELB
+      Port: 4789
+      Protocol: UDP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref WiresharkTargetGroup
 
   WiresharkTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
       Port: 3389
-      Protocol: TCP
+      Protocol: TCP_UDP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
       HealthCheckProtocol: TCP
