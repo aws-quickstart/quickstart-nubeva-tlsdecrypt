@@ -358,6 +358,7 @@ Resources:
                 ensureRunning: true
 
           commands:
+            #Validae comment
             01_setupToolAdmin:
               command: !Sub
                 - "echo -n \"${password}\" | md5sum | xargs -I {} redis-cli SET ntopng.user.${admin}.password {}"
@@ -366,23 +367,6 @@ Resources:
               command: "wget -nv https://nubevalabs.s3.amazonaws.com/ntopng.conf -O /etc/ntopng/ntopng.conf"
             03_restart:
               command: "systemctl restart ntopng"
-
-                #sample command
-                #"/data/moloch/db/db.pl http://${ESDomain} info | grep -q '\\-1' && /data/moloch/db/db.pl ${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin"
-                #- {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-
-  #Sample solution
-   #21   redis-cli SET ntopng.user.<username>.password <password md5>
-   #22
-   #23 Example of adding a user "utente" with password "password":
-   #24
-   #25   $ echo -n "password" | md5
-   #26   5f4dcc3b5aa765d61d8327deb882cf99
-   #27
-   #28   $ redis-cli SET ntopng.user.utente.password 5f4dcc3b5aa765d61d8327deb882cf99
-
-
-
     Properties:
       UserData:
         Fn::Base64: !Sub |
