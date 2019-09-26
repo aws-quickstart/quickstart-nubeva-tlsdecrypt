@@ -404,7 +404,7 @@ Resources:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
               command: !Sub
-                - "/data/moloch/db/db.pl http://${ESDomain} info | grep -q '\\-1' && /data/moloch/db/db.pl ${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin"
+                - "/data/moloch/db/db.pl http://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl ${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
                 - {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
             09_setupMolochGeoIP:
               command: "/data/moloch/bin/moloch_update_geo.sh"

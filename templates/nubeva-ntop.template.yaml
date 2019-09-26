@@ -238,7 +238,7 @@ Resources:
   NtopCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      LoadBalancerArn: !Ref NtophELB
+      LoadBalancerArn: !Ref NtopELB
       Port: 4789
       Protocol: UDP
       DefaultActions:
