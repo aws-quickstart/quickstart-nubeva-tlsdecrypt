@@ -230,7 +230,7 @@ Resources:
       Protocol: TCP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref WiresharkTargetGroup
+          TargetGroupArn: !Ref WiresharkRDPTargetGroup
 
   WiresharkCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -240,20 +240,27 @@ Resources:
       Protocol: UDP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref WiresharkTargetGroup
+          TargetGroupArn: !Ref WiresharkVXLANTargetGroup
 
-  WiresharkTargetGroup:
+  WiresharkRDPTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
       Port: 3389
-      Protocol: TCP_UDP
+      Protocol: TCP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
       HealthCheckProtocol: TCP
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
+
+  WiresharkVXLANTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 4789
+      Protocol: UDP
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -265,7 +272,8 @@ Resources:
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
-        - !Ref WiresharkTargetGroup
+        - !Ref WiresharkRDPTargetGroup
+        - !Ref WiresharkVXLANTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -328,17 +336,30 @@ Resources:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+        #InstallVXLANInterface:
+        #  commands:
+        #    01_createVXLAN:
+        #      command: "ip link add vxlan333 type vxlan id 333 remote 0.0.0.0 dstport 4789"
+        #    02_interfaceUp:
+        #      command: "ip link set vxlan333 up"
+        #    03_autoLaunchVXLAN:
+        #      command: "echo 'ip link add vxlan333 type vxlan id 333 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #    04_addsmorerclocalupdate:
+        #      command: "echo 'ip link set vxlan333 up' >> /etc/rc.local"
         StartUpdate:
           commands:
             01_addsrclocalupdate:
               command: "echo 'apt-get update -y' >> /etc/rc.local"
-            02_internetrando:
-              command: "touch /etc/security/opasswd"
-            02_addUser:
+            02_addsmorerclocalupdate:
+              command: "echo 'apt-get upgrade -y' >> /etc/rc.local"
+            03_allowXRDP:
+              command: "sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config"
+            04_addUser:
               command: !Sub
                 - "useradd ${admin}"
                 - {admin: !Ref ToolAdmin}
-            #03_passwdUser: IN DEVELOPMENT
+            #IN DEVELOPMENT
+            #05_passwdUser:
               #command: !Sub
                 #- "echo -e '${password}\n${password}' | passwd ${admin}"
                 #- {password: !Ref ToolPassword, admin: !Ref ToolAdmin}
@@ -347,6 +368,7 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
           apt-get update -y
+          apt-get upgrade -y
           apt-get install python-pip -y
           pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
           cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start

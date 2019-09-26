@@ -276,7 +276,7 @@ Resources:
           - !Ref PublicSubnet2ID
       Type: network
 
-  MolochViewerListener:
+MolochViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       LoadBalancerArn: !Ref MolochELB
@@ -284,7 +284,7 @@ Resources:
       Protocol: TCP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref MolochTargetGroup
+          TargetGroupArn: !Ref MolochViewerTargetGroup
 
   MolochCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -294,9 +294,9 @@ Resources:
       Protocol: UDP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref MolochTargetGroup
+          TargetGroupArn: !Ref MolochVXLANTargetGroup
 
-  MolochTargetGroup:
+  MolochViewerTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
@@ -309,6 +309,12 @@ Resources:
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
 
+  MolochVXLANTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 4789
+      Protocol: UDP
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -321,7 +327,8 @@ Resources:
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
-        - !Ref MolochTargetGroup
+        - !Ref MolochVXLANTargetGroup
+        - !Ref MolochViewerTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -384,6 +391,16 @@ Resources:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+        #InstallVXLANInterface:
+        #  commands:
+        #    01_createVXLAN:
+        #      command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
+        #    02_interfaceUp:
+        #      command: "ip link set vxlan555 up"
+        #    03_autoLaunchVXLAN:
+        #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #    04_addsmorerclocalupdate:
+        #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
         InstallMoloch:
           commands:
             01_wget:
@@ -420,7 +437,6 @@ Resources:
               command: "echo '/data/moloch/start_moloch.sh' >> /etc/rc.local"
             02_startMoloch:
               command: "/data/moloch/start_moloch.sh"
-
 
     Properties:
       UserData:

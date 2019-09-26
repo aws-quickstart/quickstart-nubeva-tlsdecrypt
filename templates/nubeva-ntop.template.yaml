@@ -233,7 +233,7 @@ Resources:
       Protocol: TCP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref NtopTargetGroup
+          TargetGroupArn: !Ref NtopWWWTargetGroup
 
   NtopCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -243,9 +243,9 @@ Resources:
       Protocol: UDP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref NtopTargetGroup
+          TargetGroupArn: !Ref NtopVXLANTargetGroup
 
-  NtopTargetGroup:
+  NtopWWWTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
@@ -258,6 +258,12 @@ Resources:
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
 
+  NtopVXLANTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 4789
+      Protocol: UDP
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -269,7 +275,8 @@ Resources:
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
-        - !Ref NtopTargetGroup
+        - !Ref NtopWWWTargetGroup
+        - !Ref NtopVXLANTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -339,9 +346,16 @@ Resources:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-            #02_installconfig:
-            #  command: "wget -nv https://nubevalabs.s3.amazonaws.com/ntopng.conf -O /etc/ntopng/ntopng.conf"
-
+        #InstallVXLANInterface:
+        #  commands:
+        #    01_createVXLAN:
+        #      command: "ip link add vxlan111 type vxlan id 111 remote 0.0.0.0 dstport 4789"
+        #    02_interfaceUp:
+        #      command: "ip link set vxlan111 up"
+        #    03_autoLaunchVXLAN:
+        #      command: "echo 'ip link add vxlan111 type vxlan id 111 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #    04_addsmorerclocalupdate:
+        #      command: "echo 'ip link set vxlan111 up' >> /etc/rc.local"
 
         StartNtop:
           packages:
@@ -367,6 +381,8 @@ Resources:
               command: "wget -nv https://nubevalabs.s3.amazonaws.com/ntopng.conf -O /etc/ntopng/ntopng.conf"
             03_restart:
               command: "systemctl restart ntopng"
+            #Future Development. Auto update of .conf file for mesh connectivity
+
     Properties:
       UserData:
         Fn::Base64: !Sub |
