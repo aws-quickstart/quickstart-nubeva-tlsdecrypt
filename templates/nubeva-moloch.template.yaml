@@ -315,6 +315,13 @@ MolochViewerListener:
       VpcId: !Ref VPCID
       Port: 4789
       Protocol: UDP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      HealthCheckPort: 8005
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
