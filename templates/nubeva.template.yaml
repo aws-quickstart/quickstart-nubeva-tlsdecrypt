@@ -10,6 +10,8 @@ Metadata:
         - MolochInstall
         - NtopInstall
         - WiresharkInstall
+        - SuricataInstall
+        - ZeekInstall
         - ToolAdmin
         - ToolPassword
     - Label:
@@ -41,6 +43,10 @@ Metadata:
         default: Install ntop ASG
       WiresharkInstall:
         default: Install Wireshark ASG
+      SuricataInstall:
+        default: Install Suricata ASG
+      ZeekInstall:
+        default: Install Zeek ASG
       ToolAdmin:
         default: Username for tool administration
       ToolPassword:
@@ -95,6 +101,20 @@ Parameters:
     - true
     - false
     Description: Choose to install Wireshark
+    Type: String
+  SuricataInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Suricata
+    Type: String
+  ZeekInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Zeek
     Type: String
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
@@ -213,6 +233,13 @@ Conditions:
   WiresharkInstallTrue: !Equals
     - !Ref WiresharkInstall
     - 'true'
+  SuricataInstallTrue: !Equals
+    - !Ref SuricataInstall
+    - 'true'
+  ZeekInstallTrue: !Equals
+    - !Ref ZeekInstall
+    - 'true'
+
 
 Resources:
   NtopStack:
@@ -270,6 +297,46 @@ Resources:
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
+        APIKey: !Ref APIKey
+        ToolAdmin: !Ref ToolAdmin
+        ToolPassword: !Ref ToolPassword
+  SuricataStack:
+    Condition: SuricataInstallTrue
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-suricata.template.yaml'
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        PublicSubnet1ID: !Ref PublicSubnet1ID
+        PublicSubnet2ID: !Ref PublicSubnet2ID
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        NumberOfNodes: !Ref NumberOfNodes
+        MaximumNodes: !Ref MaximumNodes
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
+        APIKey: !Ref APIKey
+        ToolAdmin: !Ref ToolAdmin
+        ToolPassword: !Ref ToolPassword
+  ZeekStack:
+    Condition: ZeekInstallTrue
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-zeek.template.yaml'
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        PublicSubnet1ID: !Ref PublicSubnet1ID
+        PublicSubnet2ID: !Ref PublicSubnet2ID
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        NumberOfNodes: !Ref NumberOfNodes
+        MaximumNodes: !Ref MaximumNodes
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword

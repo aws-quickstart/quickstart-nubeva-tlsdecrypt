@@ -379,7 +379,7 @@ Resources:
                 ensureRunning: true
 
           commands:
-            #Validae comment
+            #This doesnt work at present
             01_setupToolAdmin:
               command: !Sub
                 - "echo -n \"${password}\" | md5sum | xargs -I {} redis-cli SET ntopng.user.${admin}.password {}"

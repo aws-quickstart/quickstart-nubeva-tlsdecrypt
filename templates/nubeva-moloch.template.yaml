@@ -147,10 +147,10 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  ESSecurityGroup:
+  MolochESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: ElasticSearch Service Security Group
+      GroupDescription: Moloch ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
       SecurityGroupIngress:
         - FromPort: 80
@@ -181,7 +181,7 @@ Resources:
       FromPort: 4789
       ToPort: 4789
   # Inbound- allow moloch
-  ToolSecurityGroupntopinbound:
+  ToolSecurityGroupMolochinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "ToolSecurityGroup"
@@ -265,7 +265,7 @@ Resources:
           - !Ref PrivateSubnet1ID
           - !Ref PrivateSubnet2ID
         SecurityGroupIds:
-          - !Ref ESSecurityGroup
+          - !Ref MolochESSecurityGroup
 
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer

@@ -29,15 +29,23 @@
     },
     {
         "ParameterKey": "MolochInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "NtopInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "WiresharkInstall",
+        "ParameterValue": "false"
+    },
+    {
+        "ParameterKey": "SuricataInstall",
         "ParameterValue": "true"
+    },
+    {
+        "ParameterKey": "ZeekInstall",
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "ToolPassword",

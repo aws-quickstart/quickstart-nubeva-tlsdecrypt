@@ -10,6 +10,8 @@ Metadata:
       - MolochInstall
       - NtopInstall
       - WiresharkInstall
+      - SuricataInstall
+      - ZeekInstall
       - ToolAdmin
       - ToolPassword
     - Label:
@@ -41,6 +43,10 @@ Metadata:
         default: Install ntop ASG
       WiresharkInstall:
         default: Install Wireshark ASG
+      SuricataInstall:
+        default: Install Suricata ASG
+      ZeekInstall:
+        default: Install Zeek ASG
       ToolAdmin:
         default: Username for tool administration
       ToolPassword:
@@ -94,6 +100,20 @@ Parameters:
     - true
     - false
     Description: Choose to install Wireshark
+    Type: String
+  SuricataInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Suricata
+    Type: String
+  ZeekInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Zeek
     Type: String
   ToolAdmin:
     Description: The user name that is associated with the admin account for the tools that are being created.
