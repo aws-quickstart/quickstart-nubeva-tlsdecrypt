@@ -60,7 +60,7 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: c5.large
+    Default: m5.large
     AllowedValues:
     - m5.large
     - m5.xlarge
@@ -276,7 +276,7 @@ Resources:
           - !Ref PublicSubnet2ID
       Type: network
 
-MolochViewerListener:
+  MolochViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       LoadBalancerArn: !Ref MolochELB
@@ -321,7 +321,16 @@ MolochViewerListener:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-      HealthCheckPort: 8005
+      HealthCheckPort: '8005'
+
+  #MolochELBTrafficMirrorTarget:
+  #  Type: AWS::EC2::TrafficMirrorTarget
+  #  Properties:
+  #    Description: "MolochELB"
+  #    NetworkLoadBalancerArn: !Ref MolochELB
+  #  Tags:
+  #    - Key: "Name"
+  #      Value: "MolochELBTMT"
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -374,7 +383,9 @@ MolochViewerListener:
 
         ConfigStartup:
           commands:
-            01_chmod:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
         InstallServices:
           packages:
@@ -440,9 +451,11 @@ MolochViewerListener:
               command: "rm /tmp/moloch-master.centos7.x86_64.rpm"
         StartMoloch:
           commands:
-            01_addMolochrclocal:
+            01_adddelayrclocal:
+              command: "echo 'sleep 30' >> /etc/rc.local"
+            02_addMolochrclocal:
               command: "echo '/data/moloch/start_moloch.sh' >> /etc/rc.local"
-            02_startMoloch:
+            03_startMoloch:
               command: "/data/moloch/start_moloch.sh"
 
     Properties:

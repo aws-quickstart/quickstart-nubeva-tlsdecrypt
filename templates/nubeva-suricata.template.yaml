@@ -60,7 +60,7 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: c5.large
+    Default: m5.large
     AllowedValues:
     - m5.large
     - m5.xlarge
@@ -289,7 +289,16 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-      HealthCheckPort: 8005
+      HealthCheckPort: '22'
+
+  #SuricataELBTrafficMirrorTarget:
+  #  Type: AWS::EC2::TrafficMirrorTarget
+  #  Properties:
+  #    Description: "SuricataELB"
+  #    NetworkLoadBalancerArn: !Ref SuricataELB
+  #  Tags:
+  #    - Key: "Name"
+  #      Value: "SuricataELBTMT"
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -315,7 +324,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: 1
-        Timeout: PT10M
+        Timeout: PT20M
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MinInstancesInService: !Ref NumberOfNodes
@@ -334,6 +343,7 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
+            - "SetupElastic"
             - "InstallNurxAgent"
             - "InstallSuricata"
           Start:
@@ -345,18 +355,26 @@ Resources:
               command: "chmod +x /etc/rc.d/rc.local"
             02_InstallLibraries:
               command: "amazon-linux-extras install epel"
+
         InstallServices:
           packages:
             yum:
               java-1.8.0-openjdk: []
               wget: []
-              suricata: []
               docker: []
           services:
             sysvinit:
               docker:
                 enabled: true
                 ensureRunning: true
+
+        SetupElastic:
+          commands:
+            01_setES_pubkeys:
+              command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+            02_get_repo_info:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
+
         InstallNurxAgent:
           commands:
             01_download_and_install:
@@ -373,16 +391,18 @@ Resources:
         #      command: "echo 'ip link add vxlan777 type vxlan id 777 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
         #    04_addsmorerclocalupdate:
         #      command: "echo 'ip link set vxlan777 up' >> /etc/rc.local"
-        UpdateSuricata:
+        InstallSuricata:
+          packages:
+            yum:
+              suricata: []
+              logstash: []
           commands:
-            01_DownloadRules:
-              command: "suricata-update enable-source oisf/trafficid && suricata-update enable-source sslbl/ssl-fp-blacklist && suricata-update enable-source ptresearch/attackdetection"
-            02_UpdateRules:
-              command: "suricata-update"
-            #03_installconfig:
-            #  command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/masterSuricataconfig.ini -O /data/Suricata/etc/config.ini"
-            #04_installStartScript:
-            #  command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_Suricata.sh -O /data/Suricata/start_Suricata.sh"
+            01_installConfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/logstash-suricata.conf"
+            02_installTempLAte:
+              command: "mkdir /etc/logstash/templates && wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata_template.json -O /etc/logstash/templates/suricata_template.json"
+            03_setupLogstash:
+              command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
             #05_allowExecute:
             #  command: "chmod +x /data/Suricata/start_Suricata.sh"
             #06_updateConfig:
@@ -405,11 +425,21 @@ Resources:
             #  command: "rm /tmp/Suricata-master.centos7.x86_64.rpm"
         StartSuricata:
           commands:
-            01_addUpdaterclocal:
+            #00_EnableFilebeatModule:
+            #  command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/logstash-suricata.conf"
+            #mkdir /etc/logstash/template
+            #wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata_template.json -O /etc/logstash/template/suricata_template.json
+            01_DownloadRules:
+              command: "suricata-update update-sources && suricata-update enable-source oisf/trafficid && suricata-update enable-source sslbl/ssl-fp-blacklist && suricata-update enable-source ptresearch/attackdetection"
+            02_UpdateRules:
+              command: "suricata-update"
+            03_addUpdaterclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
-            02_updateSuricata:
+            04_updateSuricata:
               command: "echo 'suricata-update' >> /etc/rc.local"
-            03_startSuricata:
+            05_autoStartSuricata:
+              command: "echo 'suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata' >> /etc/rc.local"
+            06_startSuricata:
               command: "suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata"
 
 

@@ -60,7 +60,7 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: c5.large
+    Default: m5.large
     AllowedValues:
     - m5.large
     - m5.xlarge
@@ -276,16 +276,6 @@ Resources:
           - !Ref PublicSubnet2ID
       Type: network
 
-ZeekViewerListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref ZeekELB
-      Port: 8005
-      Protocol: TCP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref ZeekViewerTargetGroup
-
   ZeekCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -295,19 +285,6 @@ ZeekViewerListener:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref ZeekVXLANTargetGroup
-
-  ZeekViewerTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VPCID
-      Port: 8005
-      Protocol: TCP_UDP
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
-      HealthCheckProtocol: TCP
-      HealthCheckTimeoutSeconds: 10
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
 
   ZeekVXLANTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -321,7 +298,16 @@ ZeekViewerListener:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-      HealthCheckPort: 8005
+      HealthCheckPort: '22'
+
+  #ZeekELBTrafficMirrorTarget:
+  #  Type: AWS::EC2::TrafficMirrorTarget
+  #  Properties:
+  #    Description: "ZeekELB"
+  #    NetworkLoadBalancerArn: !Ref ZeekELB
+  #  Tags:
+  #    - Key: "Name"
+  #      Value: "ZeekELBTMT"
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -335,7 +321,6 @@ ZeekViewerListener:
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
         - !Ref ZeekVXLANTargetGroup
-        - !Ref ZeekViewerTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute

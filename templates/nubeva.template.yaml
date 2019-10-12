@@ -161,7 +161,7 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.
     Type: String
   NodeInstanceType:
-    Default: c5.large
+    Default: m5.large
     AllowedValues:
     - m5.large
     - m5.xlarge
