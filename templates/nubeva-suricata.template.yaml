@@ -247,10 +247,17 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: '*'
+        #Condition:
+        #  IpAddress
+        #    aws: SourceIp
+        #    RemoteAccessCIDR
+        #    NATGateway1EIP: !GetAtt VPCStack.Outputs.NAT1EIP
+        #    NATGateway2EIP: !GetAtt VPCStack.Outputs.NAT2EIP
             Action: 'es:*'
             Resource: '*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
+      #Remove VPC options for "public" access that is ACLed to NAT1EIP + RemoteAccessCIDR
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
@@ -294,12 +301,11 @@ Resources:
   #SuricataELBTrafficMirrorTarget:
   #  Type: AWS::EC2::TrafficMirrorTarget
   #  Properties:
-  #    Description: "SuricataELB"
-  #    NetworkLoadBalancerArn: !Ref SuricataELB
-  #  Tags:
-  #    - Key: "Name"
-  #      Value: "SuricataELBTMT"
-
+  #    Description: "Suricata Load Balancer"
+  #    NetworkLoadBalancerArn:
+  #      - !Ref SuricataELB
+  #      This get me an error - Property validation failure:
+  #      [Value of property {/NetworkLoadBalancerArn} does not match type {String}]
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: SuricataElasticsearchDomain
@@ -398,37 +404,18 @@ Resources:
               logstash: []
           commands:
             01_installConfig:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/logstash-suricata.conf"
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/conf.d/logstash-suricata.conf"
             02_installTempLAte:
               command: "mkdir /etc/logstash/templates && wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata_template.json -O /etc/logstash/templates/suricata_template.json"
             03_setupLogstash:
               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
-            #05_allowExecute:
-            #  command: "chmod +x /data/Suricata/start_Suricata.sh"
-            #06_updateConfig:
-            #  command: "echo 'elasticsearch=http://'${ESDomain} >> /data/Suricata/etc/config.ini"
-            #  env:
-            #    ESDomain: !GetAtt SuricataElasticsearchDomain.DomainEndpoint
-            #07_randomSleep:
-            #  command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
-            #08_setupNewDB:
-            #  command: !Sub
-            #    - "/data/Suricata/db/db.pl http://${ESDomain} info | if grep -q '\\-1'; then /data/Suricata/db/db.pl ${ESDomain} init && /data/Suricata/bin/Suricata_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
-            #    - {ESDomain: !GetAtt SuricataElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            #09_setupSuricataGeoIP:
-            #  command: "/data/Suricata/bin/Suricata_update_geo.sh"
-            #10_setupSuricataLogs:
-            #  command: "mkdir /data/Suricata/logs"
-            #11_setupSuricataLogs:
-            #  command: "mkdir /data/Suricata/raw"
-            #12_cleanup:
-            #  command: "rm /tmp/Suricata-master.centos7.x86_64.rpm"
+          services:
+            sysvinit:
+              logstash:
+                enabled: true
+                ensureRunning: true
         StartSuricata:
           commands:
-            #00_EnableFilebeatModule:
-            #  command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/logstash-suricata.conf"
-            #mkdir /etc/logstash/template
-            #wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata_template.json -O /etc/logstash/template/suricata_template.json
             01_DownloadRules:
               command: "suricata-update update-sources && suricata-update enable-source oisf/trafficid && suricata-update enable-source sslbl/ssl-fp-blacklist && suricata-update enable-source ptresearch/attackdetection"
             02_UpdateRules:

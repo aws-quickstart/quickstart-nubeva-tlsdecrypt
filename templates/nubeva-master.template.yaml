@@ -317,6 +317,8 @@ Resources:
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        #NATGateway1EIP: !GetAtt VPCStack.Outputs.NAT1EIP
+        #NATGateway2EIP: !GetAtt VPCStack.Outputs.NAT2EIP
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
