@@ -403,7 +403,7 @@ Resources:
                 !Sub |
                   echo 'REGION='${AWS::Region} >> /etc/default/logstash
             03_setLogstashES:
-              command: "echo 'SURICATA_ES_HOST='${ESDomain} >> /etc/default/logstash"
+              command: "echo 'ES_HOST='${ESDomain} >> /etc/default/logstash"
               env:
                 ESDomain: !GetAtt SuricataElasticsearchDomain.DomainEndpoint
             04_installConfig:

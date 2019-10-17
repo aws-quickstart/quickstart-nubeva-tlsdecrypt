@@ -41,11 +41,11 @@
     },
     {
         "ParameterKey": "SuricataInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "ZeekInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "ToolPassword",

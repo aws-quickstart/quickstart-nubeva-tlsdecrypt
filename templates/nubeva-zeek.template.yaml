@@ -235,7 +235,7 @@ Resources:
   ZeekElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     Properties:
-      DomainName: Zeek-es
+      DomainName: zeek-es
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes
@@ -352,6 +352,7 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
+            - "SetupElastic"
             - "InstallNurxAgent"
             - "InstallZeek"
           Start:
@@ -364,19 +365,26 @@ Resources:
         InstallServices:
           packages:
             yum:
-              perl-JSON: []
-              perl-libwww-perl: []
-              libyaml-devel: []
+              libpcap-devel: []
+              openssl-devel: []
+              python-devel: []
+              zlib-devel: []
               java-1.8.0-openjdk: []
               wget: []
-              perl-LWP-Protocol-https: []
-              perl-Crypt-SSLeay: []
               docker: []
           services:
             sysvinit:
               docker:
                 enabled: true
                 ensureRunning: true
+        SetupElastic:
+          commands:
+            01_setES_pubkeys:
+              command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+            02_get_repo_info:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
+            03_get_ZeekEepo_info:
+              command: "wget -nv https://download.opensuse.org/repositories/security:zeek/CentOS_7/security:zeek.repo -O /etc/yum.repos.d/security:zeek.repo"
         InstallNurxAgent:
           commands:
             01_download_and_install:
@@ -394,41 +402,44 @@ Resources:
         #    04_addsmorerclocalupdate:
         #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
         InstallZeek:
+          packages:
+            yum:
+              zeek: []
+              logstash: []
           commands:
-            01_wget:
-              command: "wget -nv https://files.molo.ch/Zeek-master.centos7.x86_64.rpm -O /tmp/Zeek-master.centos7.x86_64.rpm"
-            02_install:
-              command: "rpm -Uvh /tmp/Zeek-master.centos7.x86_64.rpm"
-            03_installconfig:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/masterZeekconfig.ini -O /data/Zeek/etc/config.ini"
-            04_installStartScript:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_Zeek.sh -O /data/Zeek/start_Zeek.sh"
-            05_allowExecute:
-              command: "chmod +x /data/Zeek/start_Zeek.sh"
-            06_updateConfig:
-              command: "echo 'elasticsearch=http://'${ESDomain} >> /data/Zeek/etc/config.ini"
+            01_configLogstash:
+              command: "/usr/share/logstash/bin/system-install"
+            02_setLogstashRegion:
+              command:
+                !Sub |
+                  echo 'REGION='${AWS::Region} >> /etc/default/logstash
+            03_setLogstashES:
+              command: "echo 'ES_HOST='${ESDomain} >> /etc/default/logstash"
               env:
                 ESDomain: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
-            07_randomSleep:
-              command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
-            08_setupNewDB:
-              command: !Sub
-                - "/data/Zeek/db/db.pl http://${ESDomain} info | if grep -q '\\-1'; then /data/Zeek/db/db.pl ${ESDomain} init && /data/Zeek/bin/Zeek_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
-                - {ESDomain: !GetAtt ZeekElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            09_setupZeekGeoIP:
-              command: "/data/Zeek/bin/Zeek_update_geo.sh"
-            10_setupZeekLogs:
-              command: "mkdir /data/Zeek/logs"
-            11_setupZeekLogs:
-              command: "mkdir /data/Zeek/raw"
-            12_cleanup:
-              command: "rm /tmp/Zeek-master.centos7.x86_64.rpm"
+            04_installConfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-zeek.conf -O /etc/logstash/conf.d/logstash-zeek.conf"
+            05_setupLogstash:
+              command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
+          services:
+            sysvinit:
+              logstash:
+                enabled: true
+                ensureRunning: true
         StartZeek:
           commands:
-            01_addZeekrclocal:
-              command: "echo '/data/Zeek/start_Zeek.sh' >> /etc/rc.local"
-            02_startZeek:
-              command: "/data/Zeek/start_Zeek.sh"
+            #01_DownloadRules:
+            #  command: "suricata-update update-sources && suricata-update enable-source oisf/trafficid && suricata-update enable-source sslbl/ssl-fp-blacklist && suricata-update enable-source ptresearch/attackdetection"
+            #02_UpdateRules:
+            #  command: "suricata-update"
+            03_addUpdaterclocal:
+              command: "echo 'yum update -y' >> /etc/rc.local"
+            #04_updateSuricata:
+            #  command: "echo 'suricata-update' >> /etc/rc.local"
+            #05_autoStartSuricata:
+            #  command: "echo 'suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata' >> /etc/rc.local"
+            #06_startSuricata:
+            #  command: "suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata"
 
     Properties:
       UserData:
