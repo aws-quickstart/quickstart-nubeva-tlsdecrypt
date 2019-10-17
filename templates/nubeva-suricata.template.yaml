@@ -464,7 +464,7 @@ Outputs:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/Suricata"
   URL:
-    Description: The URL for any instance's Suricata Dashboard
+    Description: The URL for the Suricata Kibana Dashboard
     Value: !Sub
-        - "http://${SuricataDNS}:8005"
-        - SuricataDNS: !GetAtt SuricataELB.DNSName
+        - "http://${SuricataES}_plugin/kibana/"
+        - SuricataES: !GetAtt SuricataElasticsearchDomain.DomainEndpoint

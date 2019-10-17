@@ -421,6 +421,8 @@ Resources:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-zeek.conf -O /etc/logstash/conf.d/logstash-zeek.conf"
             05_setupLogstash:
               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
+            06_zeekAccess:
+              command: "usermod -a -G zeek logstash"
           services:
             sysvinit:
               logstash:
@@ -428,18 +430,12 @@ Resources:
                 ensureRunning: true
         StartZeek:
           commands:
-            #01_DownloadRules:
-            #  command: "suricata-update update-sources && suricata-update enable-source oisf/trafficid && suricata-update enable-source sslbl/ssl-fp-blacklist && suricata-update enable-source ptresearch/attackdetection"
-            #02_UpdateRules:
-            #  command: "suricata-update"
-            03_addUpdaterclocal:
+            01_UpdateRules:
+              command: "cd /opt/zeek/logs && nohup /opt/zeek/bin/zeek -i nurx0 &"
+            02_addUpdaterclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
-            #04_updateSuricata:
-            #  command: "echo 'suricata-update' >> /etc/rc.local"
-            #05_autoStartSuricata:
-            #  command: "echo 'suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata' >> /etc/rc.local"
-            #06_startSuricata:
-            #  command: "suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata"
+            03_updateSuricata:
+              command: "echo 'cd /opt/zeek/logs && nohup /opt/zeek/bin/zeek -i nurx0 &' >> /etc/rc.local"
 
     Properties:
       UserData:
@@ -469,7 +465,7 @@ Outputs:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/Zeek"
   URL:
-    Description: The URL for any instance's Zeek Dashboard
+    Description: The URL for the Zeek Kibana Dashboard
     Value: !Sub
-        - "http://${ZeekDNS}:8005"
-        - ZeekDNS: !GetAtt ZeekELB.DNSName
+        - "http://${ZeekES}_plugin/kibana/"
+        - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
