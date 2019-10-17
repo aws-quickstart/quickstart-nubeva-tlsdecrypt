@@ -247,17 +247,11 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: '*'
-        #Condition:
-        #  IpAddress
-        #    aws: SourceIp
-        #    RemoteAccessCIDR
-        #    NATGateway1EIP: !GetAtt VPCStack.Outputs.NAT1EIP
-        #    NATGateway2EIP: !GetAtt VPCStack.Outputs.NAT2EIP
             Action: 'es:*'
             Resource: '*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
-      #Remove VPC options for "public" access that is ACLed to NAT1EIP + RemoteAccessCIDR
+      #Stick w/VPC setup for ES. Reduces data transfer cost
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
@@ -380,7 +374,6 @@ Resources:
               command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
             02_get_repo_info:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
-
         InstallNurxAgent:
           commands:
             01_download_and_install:
@@ -403,12 +396,24 @@ Resources:
               suricata: []
               logstash: []
           commands:
-            01_installConfig:
+            01_configLogstash:
+              command: "/usr/share/logstash/bin/system-install"
+            02_setLogstashRegion:
+              command:
+                !Sub |
+                  echo 'REGION='${AWS::Region} >> /etc/default/logstash
+            03_setLogstashES:
+              command: "echo 'SURICATA_ES_HOST='${ESDomain} >> /etc/default/logstash"
+              env:
+                ESDomain: !GetAtt SuricataElasticsearchDomain.DomainEndpoint
+            04_installConfig:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/conf.d/logstash-suricata.conf"
-            02_installTempLAte:
+            05_installTempLAte:
               command: "mkdir /etc/logstash/templates && wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata_template.json -O /etc/logstash/templates/suricata_template.json"
-            03_setupLogstash:
+            06_setupLogstash:
               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
+            07_suricataAccess:
+              command: "usermod -a -G suricata logstash"
           services:
             sysvinit:
               logstash:
