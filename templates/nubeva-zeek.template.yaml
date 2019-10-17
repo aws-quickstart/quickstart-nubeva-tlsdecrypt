@@ -433,13 +433,13 @@ Resources:
             01_addUpdaterclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
             02_runZeekAlways:
-              command: "echo '/opt/zeek/bin/start_zeek.sh >> /etc/rc.local"
+              command: "echo '/opt/zeek/bin/start_zeek.sh' >> /etc/rc.local"
             03_installStartScript:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_zeek.sh -O /opt/zeek/bin/start_zeek.sh"
             04_allowExecute:
               command: "chmod +x /opt/zeek/bin/start_zeek.sh"
-            05_startZeek:
-              command: "/opt/zeek/bin/start_zeek.sh"
+            #05_startZeek:
+            #  command: "/opt/zeek/bin/start_zeek.sh"
 
     Properties:
       UserData:
