@@ -435,8 +435,8 @@ Resources:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_zeek.sh -O /opt/zeek/bin/start_zeek.sh"
             04_allowExecute:
               command: "chmod +x /opt/zeek/bin/start_zeek.sh"
-            #05_startZeek:
-            #  command: "/opt/zeek/bin/start_zeek.sh"
+            05_startZeek:
+              command: "/opt/zeek/bin/start_zeek.sh"
 
     Properties:
       UserData:
