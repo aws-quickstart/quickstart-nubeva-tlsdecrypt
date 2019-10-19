@@ -272,14 +272,11 @@ Resources:
       UnhealthyThresholdCount: 3
       HealthCheckPort: '3000'
 
-  #NtopELBTrafficMirrorTarget:
-  #  Type: AWS::EC2::TrafficMirrorTarget
-  #  Properties:
-  #    Description: "ntopELB"
-  #    NetworkLoadBalancerArn: !Ref NtopELB
-  #  Tags:
-  #    - Key: "Name"
-  #      Value: "ntopELBTMT"
+  NtopELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "ntopELB"
+      NetworkLoadBalancerArn: !Ref NtopELB
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup

@@ -292,14 +292,11 @@ Resources:
       UnhealthyThresholdCount: 3
       HealthCheckPort: '22'
 
-  #SuricataELBTrafficMirrorTarget:
-  #  Type: AWS::EC2::TrafficMirrorTarget
-  #  Properties:
-  #    Description: "Suricata Load Balancer"
-  #    NetworkLoadBalancerArn:
-  #      - !Ref SuricataELB
-  #      This get me an error - Property validation failure:
-  #      [Value of property {/NetworkLoadBalancerArn} does not match type {String}]
+  SuricataELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "SuricataLB"
+      NetworkLoadBalancerArn: !Ref SuricataELB
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: SuricataElasticsearchDomain

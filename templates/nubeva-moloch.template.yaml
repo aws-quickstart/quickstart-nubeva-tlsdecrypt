@@ -323,14 +323,11 @@ Resources:
       UnhealthyThresholdCount: 3
       HealthCheckPort: '8005'
 
-  #MolochELBTrafficMirrorTarget:
-  #  Type: AWS::EC2::TrafficMirrorTarget
-  #  Properties:
-  #    Description: "MolochELB"
-  #    NetworkLoadBalancerArn: !Ref MolochELB
-  #  Tags:
-  #    - Key: "Name"
-  #      Value: "MolochELBTMT"
+  MolochELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "MolochELB"
+      NetworkLoadBalancerArn: !Ref MolochELB
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup

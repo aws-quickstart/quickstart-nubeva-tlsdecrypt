@@ -300,14 +300,11 @@ Resources:
       UnhealthyThresholdCount: 3
       HealthCheckPort: '22'
 
-  #ZeekELBTrafficMirrorTarget:
-  #  Type: AWS::EC2::TrafficMirrorTarget
-  #  Properties:
-  #    Description: "ZeekELB"
-  #    NetworkLoadBalancerArn: !Ref ZeekELB
-  #  Tags:
-  #    - Key: "Name"
-  #      Value: "ZeekELBTMT"
+  ZeekELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "ZeekELB"
+      NetworkLoadBalancerArn: !Ref ZeekELB
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup

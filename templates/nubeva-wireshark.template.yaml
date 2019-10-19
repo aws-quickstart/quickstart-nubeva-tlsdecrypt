@@ -269,14 +269,11 @@ Resources:
       UnhealthyThresholdCount: 3
       HealthCheckPort: '3389'
 
-  #WiresharkELBTrafficMirrorTarget:
-  #  Type: AWS::EC2::TrafficMirrorTarget
-  #  Properties:
-  #    Description: "WiresharkELB"
-  #    NetworkLoadBalancerArn: !Ref WiresharkELB
-  #  Tags:
-  #    - Key: "Name"
-  #      Value: "WiresharkELBTMT"
+  WiresharkELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "WiresharkELB"
+      NetworkLoadBalancerArn: !Ref WiresharkELB
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
