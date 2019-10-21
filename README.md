@@ -33,4 +33,4 @@ Zeek Instructions:
 Suricata Instructions:
 1. Connect to the Kibana link in the Suricata CTF Output section for access.
 2. Point your Amazon VPC traffic mirroring sessions to the SuricataELB Traffic Mirror Target (TMT)
-3. For more instructions, see the [documentation](https://docs.nubeva.com/Suricata)
+3. For more instructions, see the [documentation](https://docs.nubeva.com/suricata)
