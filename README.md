@@ -5,29 +5,32 @@ This Quick Start adds five open source security & networking tools to your AWS C
 ![Quick Start Nubeva TLS Decrypt Open Source Tool Architecture](https://nubevalabs.s3.amazonaws.com/quickstart.png )
 
 Deployment steps:
-
 1. Sign up for an AWS account at https://aws.amazon.com, select a region, and create a key pair.
 2. Sign up for a Nubeva account at https://www.nubeva.com, deploy the tools from the launcher into your preferred region.
 3. In the AWS CloudFormation console, select which tools to install.
 
 Moloch Instructions:
 1. Connect to the MolochELB on port 8005 using HTTP. Login in with the tooladmin username & password.
-2. Create Amazon VPC traffic mirroring target for the MolochELB and point your sessions there.
+2. Point your Amazon VPC traffic mirroring sessions to the MolochELB Traffic Mirror Target (TMT)
 3. For more instructions, see the [documentation](https://docs.nubeva.com/moloch)
 
 Wireshark Instructions:
-1. Connect to the Wireshark instance using SSH; ssh ubuntu@[ip.address]. Set the password for the ubuntu user. sudo passwd ubuntu [This is in being automated and shifted to tooladmin]
+1. Connect to the Wireshark instance using SSH; ssh ubuntu@[ip.address]. Set the password for the ubuntu user: sudo passwd ubuntu
 2. Connect to the WiresharkhELB on port 3389 using RDP. Login in with the ubuntu username & password from step 1
-3. Create Amazon VPC traffic mirroring target for the WiresharkELB and point your sessions there.
+3. Point your Amazon VPC traffic mirroring sessions to the WiresharkELB Traffic Mirror Target (TMT)
 4. For more instructions, see the [documentation](https://docs.nubeva.com/wireshark)
 
 ntop Instructions:
-1. Connect to the NtopELB on port 3000 using HTTP. Login in with the default username & password.
-2. Create Amazon VPC traffic mirroring target for the NtopELB and point your sessions there.
+1. Connect to the NtopELB on port 3000 using HTTP. Login in with the default username & password for ntop
+2. Point your Amazon VPC traffic mirroring sessions to the ntopELB Traffic Mirror Target (TMT)
 3. For more instructions, see the [documentation](https://docs.nubeva.com/ntop)
 
-Zeek
-In Final Development
+Zeek Instructions:
+1. Connect to the Kibana link in the Zeek CTF Output section for access.
+2. Point your Amazon VPC traffic mirroring sessions to the ZeekELB Traffic Mirror Target (TMT)
+3. For more instructions, see the [documentation](https://docs.nubeva.com/zeek)
 
-Zeek
-In Final Development
+Suricata Instructions:
+1. Connect to the Kibana link in the Suricata CTF Output section for access.
+2. Point your Amazon VPC traffic mirroring sessions to the SuricataELB Traffic Mirror Target (TMT)
+3. For more instructions, see the [documentation](https://docs.nubeva.com/Suricata)
