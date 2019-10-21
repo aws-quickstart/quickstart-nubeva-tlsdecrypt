@@ -176,7 +176,7 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "ToolSecurityGroup"
-      CidrIp: !Ref "RemoteAccessCIDR"
+      CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
@@ -275,6 +275,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
+      Scheme: internal
 
   ZeekCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener

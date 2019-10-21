@@ -176,7 +176,7 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "ToolSecurityGroup"
-      CidrIp: !Ref "RemoteAccessCIDR"
+      CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789

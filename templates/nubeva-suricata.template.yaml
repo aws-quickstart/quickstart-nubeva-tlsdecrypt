@@ -176,7 +176,7 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "SuricataSecurityGroup"
-      CidrIp: !Ref "RemoteAccessCIDR"
+      CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
@@ -267,6 +267,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
+      Scheme: internal
 
   SuricataCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
