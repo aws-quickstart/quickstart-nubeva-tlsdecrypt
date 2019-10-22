@@ -31,6 +31,7 @@ Metadata:
       - NodeInstanceType
       - NumberOfNodes
       - MaximumNodes
+      - ELBScheme
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -47,6 +48,8 @@ Metadata:
         default: Install Suricata ASG
       ZeekInstall:
         default: Install Zeek ASG
+      ELBScheme:
+        default: Install ELB Internet-facing or Internal
       ToolAdmin:
         default: Username for tool administration
       ToolPassword:
@@ -114,6 +117,13 @@ Parameters:
     - true
     - false
     Description: Choose to install Zeek
+    Type: String
+  ELBScheme:
+    Default: internet-facing
+    AllowedValues:
+    - internet-facing
+    - internal
+    Description: Choose ELB Installation Scheme
     Type: String
   ToolAdmin:
     Description: The user name that is associated with the admin account for the tools that are being created.
@@ -331,6 +341,7 @@ Resources:
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
         ZeekInstall: !Ref ZeekInstall
+        ELBScheme: !Ref ELBScheme
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         ToolAdmin: !Ref ToolAdmin

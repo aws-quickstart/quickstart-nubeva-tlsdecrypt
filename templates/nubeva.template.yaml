@@ -31,6 +31,7 @@ Metadata:
       - NodeInstanceType
       - NumberOfNodes
       - MaximumNodes
+      - ELBScheme
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -47,6 +48,8 @@ Metadata:
         default: Install Suricata ASG
       ZeekInstall:
         default: Install Zeek ASG
+      ELBScheme:
+        default: Install ELB Internet-facing or Internal
       ToolAdmin:
         default: Username for tool administration
       ToolPassword:
@@ -115,6 +118,13 @@ Parameters:
     - true
     - false
     Description: Choose to install Zeek
+    Type: String
+  ELBScheme:
+    Default: internet-facing
+    AllowedValues:
+    - internet-facing
+    - internal
+    Description: Choose ELB Installation Scheme
     Type: String
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
@@ -261,6 +271,7 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
+        ELBScheme: !Ref ELBScheme
   MolochStack:
     Condition: MolochInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -281,6 +292,7 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
+        ELBScheme: !Ref ELBScheme
   WiresharkStack:
     Condition: WiresharkInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -300,6 +312,7 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
+        ELBScheme: !Ref ELBScheme
   SuricataStack:
     Condition: SuricataInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -320,6 +333,7 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
+        ELBScheme: !Ref ELBScheme
   ZeekStack:
     Condition: ZeekInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -340,3 +354,4 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
+        ELBScheme: !Ref ELBScheme

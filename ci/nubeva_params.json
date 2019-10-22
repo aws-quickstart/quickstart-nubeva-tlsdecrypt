@@ -48,6 +48,10 @@
         "ParameterValue": "true"
     },
     {
+        "ParameterKey": "ELBScheme",
+        "ParameterValue": "internal"
+    },
+    {
         "ParameterKey": "ToolPassword",
         "ParameterValue": "$[taskcat_getkeypair]"
     }

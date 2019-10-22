@@ -57,6 +57,13 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC
     Type: String
+  ELBScheme:
+    Default: internet-facing
+    AllowedValues:
+    - internet-facing
+    - internal
+    Description: Choose ELB Installation Scheme
+    Type: String
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
@@ -107,6 +114,7 @@ Metadata:
           - NodeInstanceType
           - NumberOfNodes
           - MaximumNodes
+          - ELBScheme
 
 Mappings:
   AWSAMIRegionMap:
@@ -230,7 +238,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
-      Scheme: internal
+      Scheme: !Ref ELBScheme
 
   NtopViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
