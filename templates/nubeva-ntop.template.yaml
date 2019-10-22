@@ -436,7 +436,7 @@ Resources:
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
-    Value: "https://docs.nubeva.com/ntop"
+    Value: "https://docs.nubeva.com/ntopng"
   URL:
     Description: The URL for any instance's ntop Dashboard
     Value: !Sub

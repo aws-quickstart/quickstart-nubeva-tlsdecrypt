@@ -1,6 +1,6 @@
 # quickstart-nubeva-tlsdecrypt
 
-This Quick Start adds five open source security & networking tools to your AWS Cloud environment. It deploys Moloch, ntopng, Wireshark, Zeek, and Suricata that provide advanced security visibility in your cloud. These tools are integrated with the Nubeva TOLS Decryption solution with provides deeper visibility into all TLS traffic, including TLS 1.2 w/PFS and TLS 1.3. You can choose to create a new VPC environment for your open source tools or deploy them into your existing VPC environment. After you deploy the Quick Start, you can add other AWS services, infrastructure components, and software layers to complete your test.
+This Quick Start adds five open source security & networking tools to your AWS Cloud environment. It deploys Moloch, ntopng, Wireshark, Zeek, and Suricata that provide advanced security visibility in your cloud. These tools are integrated with the Nubeva TLS Decryption solution with provides deeper visibility into all TLS traffic, including TLS 1.2 w/PFS and TLS 1.3. You can choose to create a new VPC environment for your open source tools or deploy them into your existing VPC environment. After you deploy the Quick Start, you can add other AWS services, infrastructure components, and software layers to complete your test.
 
 ![Quick Start Nubeva TLS Decrypt Open Source Tool Architecture](https://nubevalabs.s3.amazonaws.com/quickstart.png )
 

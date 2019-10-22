@@ -473,7 +473,7 @@ Resources:
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
-    Value: "https://docs.nubeva.com/Zeek"
+    Value: "https://docs.nubeva.com/zeek"
   URL:
     Description: The URL for the Zeek Kibana Dashboard
     Value: !Sub
