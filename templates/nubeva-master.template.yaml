@@ -12,6 +12,7 @@ Metadata:
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
+      - NumberOfClients
       - ToolAdmin
       - ToolPassword
     - Label:
@@ -48,6 +49,8 @@ Metadata:
         default: Install Suricata ASG
       ZeekInstall:
         default: Install Zeek ASG
+      NumberOfClients:
+        default: Number of TLS Generation Clients to install
       ELBScheme:
         default: Install ELB Internet-facing or Internal
       ToolAdmin:
@@ -118,6 +121,10 @@ Parameters:
     - false
     Description: Choose to install Zeek
     Type: String
+  NumberOfClients:
+    Default: 0
+    Description: The number of Client TLS generation instances. The default is zero. Otherwise a minimum of 2 is required
+    Type: Number
   ELBScheme:
     Default: internet-facing
     AllowedValues:
@@ -320,7 +327,7 @@ Resources:
   NubevaStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva.template.yaml'
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-existing-vpc.template.yaml'
       Parameters:
         KeyPairName: !Ref KeyPairName
         PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
@@ -346,5 +353,7 @@ Resources:
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
+        NumberOfClients: !Ref NumberOfClients
+
 
 #Outputs:

@@ -6,24 +6,25 @@ Metadata:
     - Label:
         default: Nubeva configuration
       Parameters:
-        - APIKey
-        - MolochInstall
-        - NtopInstall
-        - WiresharkInstall
-        - SuricataInstall
-        - ZeekInstall
-        - ToolAdmin
-        - ToolPassword
+      - APIKey
+      - MolochInstall
+      - NtopInstall
+      - WiresharkInstall
+      - SuricataInstall
+      - ZeekInstall
+      - NumberOfClients
+      - ToolAdmin
+      - ToolPassword
     - Label:
         default: Network configuration
       Parameters:
-        - VPCID
-        - VPCCIDR
-        - PrivateSubnet1ID
-        - PrivateSubnet2ID
-        - PublicSubnet1ID
-        - PublicSubnet2ID
-        - RemoteAccessCIDR
+      - VPCID
+      - VPCCIDR
+      - PrivateSubnet1ID
+      - PrivateSubnet2ID
+      - PublicSubnet1ID
+      - PublicSubnet2ID
+      - RemoteAccessCIDR
     - Label:
         default: Autoscaling group configuration
       Parameters:
@@ -48,6 +49,8 @@ Metadata:
         default: Install Suricata ASG
       ZeekInstall:
         default: Install Zeek ASG
+      NumberofClients:
+        default: Number of TLS Generation Clients to install
       ELBScheme:
         default: Install ELB Internet-facing or Internal
       ToolAdmin:
@@ -119,6 +122,10 @@ Parameters:
     - false
     Description: Choose to install Zeek
     Type: String
+  NumberOfClients:
+    Default: 0
+    Description: The number of Client TLS generation instances. The default is zero. Otherwise a minimum of 2 is required
+    Type: Number
   ELBScheme:
     Default: internet-facing
     AllowedValues:
@@ -202,7 +209,7 @@ Parameters:
     Type: String
   NumberOfNodes:
     Default: 2
-    Description: The number of Amazon EKS node instances. The default is one for each of the three Availability Zones.
+    Description: The number of tool node instances. The default is one for each of the two Availability Zones.
     Type: Number
   MaximumNodes:
     Default: 6
@@ -249,6 +256,9 @@ Conditions:
   ZeekInstallTrue: !Equals
     - !Ref ZeekInstall
     - 'true'
+  #ClientInstallTrue: !Equals
+  #  - !Ref NumberOfClients
+  #  - '2'
 
 
 Resources:
@@ -355,3 +365,17 @@ Resources:
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
         ELBScheme: !Ref ELBScheme
+  ClientStack:
+#    Condition: ClientInstallTrue
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-tlsgen.template.yaml'
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        NumberOfClients: !Ref NumberOfClients
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
+        APIKey: !Ref APIKey

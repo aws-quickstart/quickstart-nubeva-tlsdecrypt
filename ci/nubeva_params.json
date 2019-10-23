@@ -29,7 +29,7 @@
     },
     {
         "ParameterKey": "MolochInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "NtopInstall",
@@ -37,19 +37,23 @@
     },
     {
         "ParameterKey": "WiresharkInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "SuricataInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "ZeekInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "ELBScheme",
-        "ParameterValue": "internal"
+        "ParameterValue": "internet-facing"
+    },
+    {
+        "ParameterKey": "NumberOfClients",
+        "ParameterValue": "2"
     },
     {
         "ParameterKey": "ToolPassword",

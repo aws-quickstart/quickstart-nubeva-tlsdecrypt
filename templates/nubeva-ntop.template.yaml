@@ -233,7 +233,7 @@ Resources:
   NtopELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: NtophELB
+      Name: NtopELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
