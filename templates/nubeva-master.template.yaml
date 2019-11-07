@@ -126,7 +126,7 @@ Parameters:
     Description: The number of Client TLS generation instances. The default is zero. Otherwise a minimum of 2 is required
     Type: Number
   ELBScheme:
-    Default: internet-facing
+    Default: internal
     AllowedValues:
     - internet-facing
     - internal

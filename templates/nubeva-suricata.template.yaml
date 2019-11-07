@@ -58,7 +58,7 @@ Parameters:
     Description: CIDR block for the VPC
     Type: String
   ELBScheme:
-    Default: internet-facing
+    Default: internal
     AllowedValues:
     - internet-facing
     - internal
@@ -472,5 +472,5 @@ Outputs:
   URL:
     Description: The URL for the Suricata Kibana Dashboard
     Value: !Sub
-        - "http://${SuricataES}_plugin/kibana/"
+        - "http://${SuricataES}/_plugin/kibana/"
         - SuricataES: !GetAtt SuricataElasticsearchDomain.DomainEndpoint

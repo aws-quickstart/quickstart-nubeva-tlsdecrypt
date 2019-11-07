@@ -58,7 +58,7 @@ Parameters:
     Description: CIDR block for the VPC
     Type: String
   ELBScheme:
-    Default: internet-facing
+    Default: internal
     AllowedValues:
     - internet-facing
     - internal
@@ -477,5 +477,5 @@ Outputs:
   URL:
     Description: The URL for the Zeek Kibana Dashboard
     Value: !Sub
-        - "http://${ZeekES}_plugin/kibana/"
+        - "http://${ZeekES}/_plugin/kibana/"
         - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
