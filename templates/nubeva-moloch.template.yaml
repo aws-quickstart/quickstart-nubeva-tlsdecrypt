@@ -57,13 +57,6 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC
     Type: String
-  ELBScheme:
-    Default: internal
-    AllowedValues:
-    - internet-facing
-    - internal
-    Description: Choose ELB Installation Scheme
-    Type: String
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
@@ -115,7 +108,7 @@ Metadata:
           - NodeInstanceType
           - NumberOfNodes
           - MaximumNodes
-          - ELBScheme
+
 
 Mappings:
   AWSAMIRegionMap:
@@ -155,8 +148,16 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
+  BaseESSLR:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: es.amazonaws.com
+      Description: Default ES Service Linked IAM Role
+
+
   MolochESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DependsOn: BaseESSLR
     Properties:
       GroupDescription: Moloch ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
@@ -283,7 +284,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
-      Scheme: !Ref ELBScheme
+      Scheme: internal
 
   MolochViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -490,7 +491,7 @@ Resources:
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
-    Value: "https://docs.nubeva.com/moloch"
+    Value: "https://docs.nubeva.com/en/cloudtools/tools/moloch.html"
   URL:
     Description: The URL for any instance's Moloch Dashboard
     Value: !Sub

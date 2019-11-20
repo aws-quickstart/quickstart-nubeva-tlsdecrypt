@@ -48,12 +48,8 @@
         "ParameterValue": "true"
     },
     {
-        "ParameterKey": "ELBScheme",
-        "ParameterValue": "internal"
-    },
-    {
-        "ParameterKey": "NumberOfClients",
-        "ParameterValue": "3"
+        "ParameterKey": "ClientInstall",
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "ToolPassword",

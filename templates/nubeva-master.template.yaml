@@ -12,7 +12,7 @@ Metadata:
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
-      - NumberOfClients
+      - ClientInstall
       - ToolAdmin
       - ToolPassword
     - Label:
@@ -32,7 +32,6 @@ Metadata:
       - NodeInstanceType
       - NumberOfNodes
       - MaximumNodes
-      - ELBScheme
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -49,10 +48,8 @@ Metadata:
         default: Install Suricata ASG
       ZeekInstall:
         default: Install Zeek ASG
-      NumberOfClients:
-        default: Number of TLS Generation Clients to install
-      ELBScheme:
-        default: Install ELB Internet-facing or Internal
+      ClientInstall:
+        default: Install TLS Generation Clients
       ToolAdmin:
         default: Username for tool administration
       ToolPassword:
@@ -121,16 +118,11 @@ Parameters:
     - false
     Description: Choose to install Zeek
     Type: String
-  NumberOfClients:
-    Default: 0
-    Description: The number of Client TLS generation instances. The default is zero. Otherwise a minimum of 2 is required
-    Type: Number
-  ELBScheme:
-    Default: internal
+  ClientInstall:
+    Default: true
     AllowedValues:
-    - internet-facing
-    - internal
-    Description: Choose ELB Installation Scheme
+    - true
+    - false
     Type: String
   ToolAdmin:
     Description: The user name that is associated with the admin account for the tools that are being created.
@@ -348,12 +340,11 @@ Resources:
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
         ZeekInstall: !Ref ZeekInstall
-        ELBScheme: !Ref ELBScheme
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
-        NumberOfClients: !Ref NumberOfClients
+        ClientInstall: !Ref ClientInstall
 
 
 #Outputs:

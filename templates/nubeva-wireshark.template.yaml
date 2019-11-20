@@ -57,13 +57,6 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC
     Type: String
-  ELBScheme:
-    Default: internal
-    AllowedValues:
-    - internet-facing
-    - internal
-    Description: Choose ELB Installation Scheme
-    Type: String
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
@@ -109,7 +102,6 @@ Metadata:
           - NodeInstanceType
           - NumberOfNodes
           - MaximumNodes
-          - ELBScheme
 
 Mappings:
   AWSAMIRegionMap:
@@ -235,7 +227,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
-      Scheme: !Ref ELBScheme
+      Scheme: internal
 
   WiresharkViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -418,7 +410,7 @@ Resources:
 Outputs:
   RDPLogin:
     Description: See documentation for tool acceess details.
-    Value: "https://docs.nubeva.com/wireshark"
+    Value: "https://docs.nubeva.com/en/cloudtools/tools/wireshark.html"
   URL:
     Description: The RDP Connection for any instance's Wireshark
     Value: !Sub
