@@ -159,9 +159,9 @@ Resources:
       GroupDescription: Zeek ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
       SecurityGroupIngress:
-        - FromPort: 80
+        - FromPort: 443
           IpProtocol: tcp
-          ToPort: 80
+          ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
   ToolSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -240,6 +240,7 @@ Resources:
 
   ZeekElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
+    DependsOn: ZeekELB
     Properties:
       DomainName: zeek-es
       ElasticsearchVersion: '6.8'
@@ -254,6 +255,8 @@ Resources:
       EBSOptions:
         EBSEnabled: true
         VolumeSize: 100
+      NodeToNodeEncryptionOptions:
+        Enabled: true
       SnapshotOptions:
         AutomatedSnapshotStartHour: 0
       AccessPolicies:
@@ -275,6 +278,7 @@ Resources:
 
   ZeekELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: BaseESSLR
     Properties:
       Name: ZeekELB
       Subnets:
@@ -475,5 +479,5 @@ Outputs:
   URL:
     Description: The URL for the Zeek Kibana Dashboard
     Value: !Sub
-        - "http://${ZeekES}/_plugin/kibana/"
+        - "https://${ZeekES}/_plugin/kibana/"
         - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint

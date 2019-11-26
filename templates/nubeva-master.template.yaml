@@ -133,7 +133,7 @@ Parameters:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
   ToolPassword:
-    Description: The password that is associated with the master user account for the cluster that is being created.
+    Description: must contain only 8-32 alphanumeric characters 
     NoEcho: true
     Type: String
     MinLength: 8
@@ -326,8 +326,6 @@ Resources:
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
-        #NATGateway1EIP: !GetAtt VPCStack.Outputs.NAT1EIP
-        #NATGateway2EIP: !GetAtt VPCStack.Outputs.NAT2EIP
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType

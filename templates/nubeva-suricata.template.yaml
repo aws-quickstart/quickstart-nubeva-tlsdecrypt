@@ -159,9 +159,9 @@ Resources:
       GroupDescription: Suricata ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
       SecurityGroupIngress:
-        - FromPort: 80
+        - FromPort: 443
           IpProtocol: tcp
-          ToPort: 80
+          ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
   SuricataSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -231,6 +231,7 @@ Resources:
 
   SuricataElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
+    DependsOn: SuricataELB
     Properties:
       DomainName: suricata-es
       ElasticsearchVersion: '6.8'
@@ -245,6 +246,8 @@ Resources:
       EBSOptions:
         EBSEnabled: true
         VolumeSize: 100
+      NodeToNodeEncryptionOptions:
+        Enabled: true
       SnapshotOptions:
         AutomatedSnapshotStartHour: 0
       AccessPolicies:
@@ -267,6 +270,7 @@ Resources:
 
   SuricataELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: BaseESSLR
     Properties:
       Name: SuricataELB
       Subnets:
@@ -470,5 +474,5 @@ Outputs:
   URL:
     Description: The URL for the Suricata Kibana Dashboard
     Value: !Sub
-        - "http://${SuricataES}/_plugin/kibana/"
+        - "https://${SuricataES}/_plugin/kibana/"
         - SuricataES: !GetAtt SuricataElasticsearchDomain.DomainEndpoint

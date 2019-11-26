@@ -162,9 +162,9 @@ Resources:
       GroupDescription: Moloch ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
       SecurityGroupIngress:
-        - FromPort: 80
+        - FromPort: 443
           IpProtocol: tcp
-          ToPort: 80
+          ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
   ToolSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -243,6 +243,7 @@ Resources:
 
   MolochElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
+    DependsOn: MolochELB
     Properties:
       DomainName: moloch-es
       ElasticsearchVersion: '6.8'
@@ -257,6 +258,8 @@ Resources:
       EBSOptions:
         EBSEnabled: true
         VolumeSize: 100
+      NodeToNodeEncryptionOptions:
+        Enabled: true
       SnapshotOptions:
         AutomatedSnapshotStartHour: 0
       AccessPolicies:
@@ -278,6 +281,7 @@ Resources:
 
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: BaseESSLR
     Properties:
       Name: MolochELB
       Subnets:
@@ -439,14 +443,14 @@ Resources:
             05_allowExecute:
               command: "chmod +x /data/moloch/start_moloch.sh"
             06_updateConfig:
-              command: "echo 'elasticsearch=http://'${ESDomain} >> /data/moloch/etc/config.ini"
+              command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
                 ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
               command: !Sub
-                - "/data/moloch/db/db.pl http://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl ${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
+                - "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
                 - {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
             09_setupMolochGeoIP:
               command: "/data/moloch/bin/moloch_update_geo.sh"
