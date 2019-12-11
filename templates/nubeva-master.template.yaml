@@ -7,6 +7,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
+      - PCAPBucket
       - MolochInstall
       - NtopInstall
       - WiresharkInstall
@@ -38,6 +39,8 @@ Metadata:
       - QSS3BucketName
       - QSS3KeyPrefix
     ParameterLabels:
+      PCAPBucket:
+        default: S3 Bucket for Moloch PCAP Storage
       MolochInstall:
         default: Install Moloch ASG
       NtopInstall:
@@ -83,6 +86,9 @@ Metadata:
       MaximumNodes:
         default: Maximum number of nodes per tool
 Parameters:
+  PCAPBucket:
+    Description: The globally unique name of the S3 Bucket to store Moloch packet captures
+    Type: String
   MolochInstall:
     Default: true
     AllowedValues:
@@ -133,7 +139,7 @@ Parameters:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
   ToolPassword:
-    Description: must contain only 8-32 alphanumeric characters 
+    Description: must contain only 8-32 alphanumeric characters
     NoEcho: true
     Type: String
     MinLength: 8
@@ -343,6 +349,7 @@ Resources:
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
         ClientInstall: !Ref ClientInstall
+        PCAPBucket: !Ref PCAPBucket
 
 
 #Outputs:

@@ -1,5 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
+  PCAPBucket:
+    Description: The globally unique name of the S3 Bucket to store Moloch packet captures
+    Type: String
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
@@ -94,6 +97,7 @@ Metadata:
           default: Nubeva configuration
         Parameters:
         - APIKey
+        - PCAPBucket
         - ToolAdmin
         - ToolPassword
       - Label:
@@ -166,56 +170,56 @@ Resources:
           IpProtocol: tcp
           ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
-  ToolSecurityGroup:
+  MolochSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Tool Security Group
+      GroupDescription: Moloch Security Group
       VpcId: !Ref 'VPCID'
   # Inbound- allow ssh
-  SecurityGroupSSHinbound:
+  MolochSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "MolochSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
   # Inbound- allow VXLAN
-  ToolSecurityGroupVXLANinbound:
+  MolochSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "MolochSecurityGroup"
       CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
   # Inbound- allow moloch
-  ToolSecurityGroupMolochinbound:
+  MolochSecurityGroupViewerinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "MolochSecurityGroup"
       IpProtocol: tcp
       FromPort: 8005
       ToPort: 8005
       CidrIp: !Ref "RemoteAccessCIDR"
   # Outbound- allow all
-  ToolSecurityGroupOutbound:
+  MolochSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "MolochSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
+  MolochInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref IAMRole
+      - !Ref MolochIAMRole
 
-  IAMRole:
+  MolochIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -229,7 +233,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: asg
+      - PolicyName: MolochASG
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -241,6 +245,39 @@ Resources:
             Resource:
             - '*'
 
+  MolochS3User:
+    Type: AWS::IAM::User
+    Properties:
+      Path: "/"
+      Policies:
+      - PolicyName: MolochS3BucketAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:List*
+            Resource:
+            - "*"
+          - Effect: Allow
+            Action:
+            - s3:*
+            Resource:
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}/*"
+                - S3Bucket: !Ref MolochPCAPBucket
+
+  MolochS3AccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName:
+        !Ref MolochS3User
+
+  MolochPCAPBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref PCAPBucket
+      AccessControl: Private
   MolochElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     DependsOn: MolochELB
@@ -278,7 +315,6 @@ Resources:
           - !Ref PrivateSubnet2ID
         SecurityGroupIds:
           - !Ref MolochESSecurityGroup
-
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     DependsOn: BaseESSLR
@@ -289,7 +325,6 @@ Resources:
           - !Ref PublicSubnet2ID
       Type: network
       Scheme: internal
-
   MolochViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -299,7 +334,6 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref MolochViewerTargetGroup
-
   MolochCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -309,7 +343,6 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref MolochVXLANTargetGroup
-
   MolochViewerTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -322,7 +355,6 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-
   MolochVXLANTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -336,21 +368,19 @@ Resources:
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
       HealthCheckPort: '8005'
-
   MolochELBTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
     Properties:
       Description: "MolochELB"
       NetworkLoadBalancerArn: !Ref MolochELB
-
-  AutoScalingGroup:
+  MolochAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: MolochElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref LaunchConfiguration
+      LaunchConfigurationName: !Ref MolochLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
@@ -378,7 +408,7 @@ Resources:
         - AlarmNotification
         WaitOnResourceSignals: true
 
-  LaunchConfiguration:
+  MolochLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -437,7 +467,7 @@ Resources:
             02_install:
               command: "rpm -Uvh /tmp/moloch-master.centos7.x86_64.rpm"
             03_installconfig:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochconfig.ini -O /data/moloch/etc/config.ini"
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochs3config.ini -O /data/moloch/etc/config.ini"
             04_installStartScript:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_moloch.sh -O /data/moloch/start_moloch.sh"
             05_allowExecute:
@@ -446,6 +476,20 @@ Resources:
               command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
                 ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint
+            06a_updateConfig:
+              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
+            06b_updateConfig:
+              command: !Sub
+                - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
+                - {bucket: !Ref PCAPBucket}
+            06c_updateConfig:
+              command: !Sub
+                - "echo 's3AccessKeyId='${S3IAMUser} >> /data/moloch/etc/config.ini"
+                - {S3IAMUser: !Ref MolochS3AccessKey}
+            06d_updateConfig:
+              command: !Sub
+                - "echo 's3SecretAccessKey='${S3IAMPass} >> /data/moloch/etc/config.ini"
+                - {S3IAMPass: !GetAtt MolochS3AccessKey.SecretAccessKey}
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
@@ -476,16 +520,16 @@ Resources:
           yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource MolochLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource MolochAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroups:
-      - !Ref "ToolSecurityGroup"
-      IamInstanceProfile: !Ref InstanceProfile
+      - !Ref "MolochSecurityGroup"
+      IamInstanceProfile: !Ref MolochInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
@@ -501,3 +545,8 @@ Outputs:
     Value: !Sub
         - "http://${MolochDNS}:8005"
         - MolochDNS: !GetAtt MolochELB.DNSName
+  MolochS3AccessKey:
+    Value:
+      !Ref MolochS3AccessKey
+  MolochS3SecretKey:
+    Value: !GetAtt MolochS3AccessKey.SecretAccessKey

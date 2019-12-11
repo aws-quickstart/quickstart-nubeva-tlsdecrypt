@@ -147,56 +147,56 @@ Mappings:
 
 Resources:
   # Security Groups
-  ToolSecurityGroup:
+  NtopSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Tool Security Group
+      GroupDescription: ntopng Security Group
       VpcId: !Ref 'VPCID'
   # Inbound- allow ssh
-  SecurityGroupSSHinbound:
+  NtopSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "NtopSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
   # Inbound- allow VXLAN from ONLY the VPC
-  ToolSecurityGroupVXLANinbound:
+  NtopSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "NtopSecurityGroup"
       CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
   # Inbound- allow ntop
-  ToolSecurityGroupntopinbound:
+  NtopSecurityGroupntopinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "NtopSecurityGroup"
       IpProtocol: tcp
       FromPort: 3000
       ToPort: 3000
       CidrIp: !Ref "RemoteAccessCIDR"
   # Outbound- allow all
-  ToolSecurityGroupOutbound:
+  NtopSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "NtopSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
+  NtopInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref IAMRole
+      - !Ref NtopIAMRole
 
-  IAMRole:
+  NtopIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -210,7 +210,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: asg
+      - PolicyName: NtopASG
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -285,13 +285,13 @@ Resources:
       Description: "ntopELB"
       NetworkLoadBalancerArn: !Ref NtopELB
 
-  AutoScalingGroup:
+  NtopAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref LaunchConfiguration
+      LaunchConfigurationName: !Ref NtopLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
@@ -319,7 +319,7 @@ Resources:
         - AlarmNotification
         WaitOnResourceSignals: true
 
-  LaunchConfiguration:
+  NtopLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -410,16 +410,16 @@ Resources:
           yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource NtopLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource NtopAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroups:
-      - !Ref "ToolSecurityGroup"
-      IamInstanceProfile: !Ref InstanceProfile
+      - !Ref "NtopSecurityGroup"
+      IamInstanceProfile: !Ref NtopInstanceProfile
       KeyName:
         Ref: KeyPairName
       AssociatePublicIpAddress: false

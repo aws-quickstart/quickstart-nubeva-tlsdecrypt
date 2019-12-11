@@ -169,7 +169,7 @@ Resources:
       GroupDescription: Suricata Security Group
       VpcId: !Ref 'VPCID'
   # Inbound- allow ssh
-  SecurityGroupSSHinbound:
+  SuricataSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "SuricataSecurityGroup"
@@ -196,14 +196,14 @@ Resources:
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
+  SuricataInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref IAMRole
+      - !Ref SuricataIAMRole
 
-  IAMRole:
+  SuricataIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -217,7 +217,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: asg
+      - PolicyName: SuricataASG
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -260,7 +260,6 @@ Resources:
             Resource: '*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
-      #Stick w/VPC setup for ES. Reduces data transfer cost
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
@@ -308,14 +307,14 @@ Resources:
     Properties:
       Description: "SuricataLB"
       NetworkLoadBalancerArn: !Ref SuricataELB
-  AutoScalingGroup:
+  SuricataAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: SuricataElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref LaunchConfiguration
+      LaunchConfigurationName: !Ref SuricataLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
@@ -342,7 +341,7 @@ Resources:
         - AlarmNotification
         WaitOnResourceSignals: true
 
-  LaunchConfiguration:
+  SuricataLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -451,8 +450,8 @@ Resources:
           yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
@@ -460,7 +459,7 @@ Resources:
         - awslinux2
       SecurityGroups:
       - !Ref "SuricataSecurityGroup"
-      IamInstanceProfile: !Ref InstanceProfile
+      IamInstanceProfile: !Ref SuricataInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:

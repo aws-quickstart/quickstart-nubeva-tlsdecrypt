@@ -163,56 +163,56 @@ Resources:
           IpProtocol: tcp
           ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
-  ToolSecurityGroup:
+  ZeekSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Tool Security Group
+      GroupDescription: Zeek Security Group
       VpcId: !Ref 'VPCID'
   # Inbound- allow ssh
-  SecurityGroupSSHinbound:
+  ZeekSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
   # Inbound- allow VXLAN
-  ToolSecurityGroupVXLANinbound:
+  ZeekSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
   # Inbound- allow Zeek
-  ToolSecurityGroupntopinbound:
+  ZeekSecurityGroupntopinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       IpProtocol: tcp
       FromPort: 8005
       ToPort: 8005
       CidrIp: !Ref "RemoteAccessCIDR"
   # Outbound- allow all
-  ToolSecurityGroupOutbound:
+  ZeekSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
+  ZeekInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref IAMRole
+      - !Ref ZeekIAMRole
 
-  IAMRole:
+  ZeekIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -226,7 +226,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: asg
+      - PolicyName: ZeekASG
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -317,14 +317,14 @@ Resources:
       Description: "ZeekELB"
       NetworkLoadBalancerArn: !Ref ZeekELB
 
-  AutoScalingGroup:
+  ZeekAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: ZeekElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref LaunchConfiguration
+      LaunchConfigurationName: !Ref ZeekLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
@@ -351,7 +351,7 @@ Resources:
         - AlarmNotification
         WaitOnResourceSignals: true
 
-  LaunchConfiguration:
+  ZeekLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -456,16 +456,16 @@ Resources:
           yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ZeekLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ZeekAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroups:
-      - !Ref "ToolSecurityGroup"
-      IamInstanceProfile: !Ref InstanceProfile
+      - !Ref "ZeekSecurityGroup"
+      IamInstanceProfile: !Ref ZeekInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:

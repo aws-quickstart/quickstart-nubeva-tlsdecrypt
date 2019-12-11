@@ -144,56 +144,56 @@ Mappings:
 
 Resources:
   # The Security Group placed on the tools themselves
-  ToolSecurityGroup:
+  WiresharkSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Tool Security Group
+      GroupDescription: Wireshark Security Group
       VpcId: !Ref 'VPCID'
   # Inbound- allow ssh
-  SecurityGroupSSHinbound:
+  WiresharkSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "WiresharkSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
   # Inbound- allow VXLAN
-  ToolSecurityGroupVXLANinbound:
+  WiresharkSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "WiresharkSecurityGroup"
       CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
   # Inbound- allow RDP
-  ToolSecurityGroupRDPinbound:
+  WiresharkSecurityGroupRDPinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "WiresharkSecurityGroup"
       IpProtocol: tcp
       FromPort: 3389
       ToPort: 3389
       CidrIp: !Ref "RemoteAccessCIDR"
   # Outbound- allow all
-  ToolSecurityGroupOutbound:
+  WiresharkSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "WiresharkSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
+  WiresharkInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref IAMRole
+      - !Ref WiresharkIAMRole
 
-  IAMRole:
+  WiresharkIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -207,7 +207,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: asg
+      - PolicyName: WiresharkASG
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -282,13 +282,13 @@ Resources:
       Description: "WiresharkELB"
       NetworkLoadBalancerArn: !Ref WiresharkELB
 
-  AutoScalingGroup:
+  WiresharkAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref LaunchConfiguration
+      LaunchConfigurationName: !Ref WiresharkLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
@@ -316,7 +316,7 @@ Resources:
         - AlarmNotification
         WaitOnResourceSignals: true
 
-  LaunchConfiguration:
+  WiresharkLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -391,16 +391,16 @@ Resources:
           apt-get upgrade -y
           apt-get install python-pip -y
           pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
-          cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+          cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
+          cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - ubuntu1804
       SecurityGroups:
-      - !Ref "ToolSecurityGroup"
-      IamInstanceProfile: !Ref InstanceProfile
+      - !Ref "WiresharkSecurityGroup"
+      IamInstanceProfile: !Ref WiresharkInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
