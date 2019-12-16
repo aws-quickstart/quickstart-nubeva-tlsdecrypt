@@ -33,11 +33,11 @@
     },
     {
         "ParameterKey": "MolochInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "NtopInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "WiresharkInstall",
@@ -45,11 +45,11 @@
     },
     {
         "ParameterKey": "SuricataInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "ZeekInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "ClientInstall",

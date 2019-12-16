@@ -340,7 +340,62 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
-
+  SuricataScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  SuricataScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'suricata-traffic-high'
+      AlarmActions:
+        - !Ref 'SuricataScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Suricata network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref SuricataAutoScalingGroup
+  SuricataScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  SuricataScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'suricata-traffic-low'
+      AlarmActions:
+        - !Ref 'SuricataScaleInPolicy'
+      AlarmDescription: 'This metric monitors Suricata network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref SuricataAutoScalingGroup
   SuricataLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:

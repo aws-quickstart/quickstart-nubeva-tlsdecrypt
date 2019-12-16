@@ -350,7 +350,62 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
-
+  ZeekScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref ZeekAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  ZeekScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'zeek-traffic-high'
+      AlarmActions:
+        - !Ref 'ZeekScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Zeek network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref ZeekAutoScalingGroup
+  ZeekScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref ZeekAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  ZeekScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'zeek-traffic-low'
+      AlarmActions:
+        - !Ref 'ZeekScaleInPolicy'
+      AlarmDescription: 'This metric monitors Zeek network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref ZeekAutoScalingGroup
   ZeekLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:

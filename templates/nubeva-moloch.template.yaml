@@ -266,13 +266,11 @@ Resources:
               Fn::Sub:
                 - "arn:aws:s3:::${S3Bucket}/*"
                 - S3Bucket: !Ref MolochPCAPBucket
-
   MolochS3AccessKey:
     Type: AWS::IAM::AccessKey
     Properties:
       UserName:
         !Ref MolochS3User
-
   MolochPCAPBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -407,6 +405,63 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
+
+  MolochScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref MolochAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  MolochScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'moloch-traffic-high'
+      AlarmActions:
+        - !Ref 'MolochScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Moloch network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref MolochAutoScalingGroup
+  MolochScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref MolochAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  MolochScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'moloch-traffic-low'
+      AlarmActions:
+        - !Ref 'MolochScaleInPolicy'
+      AlarmDescription: 'This metric monitors low Moloch network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref MolochAutoScalingGroup
 
   MolochLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration

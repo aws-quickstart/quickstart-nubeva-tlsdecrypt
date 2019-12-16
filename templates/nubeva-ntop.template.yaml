@@ -318,6 +318,62 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
+  NtopScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref NtopAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  NtopScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'ntopng-traffic-high'
+      AlarmActions:
+        - !Ref 'NtopScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high ntopng network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref NtopAutoScalingGroup
+  NtopScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref NtopAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  NtopScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'ntopng-traffic-low'
+      AlarmActions:
+        - !Ref 'NtopScaleInPolicy'
+      AlarmDescription: 'This metric monitors ntopng network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref NtopAutoScalingGroup
 
   NtopLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration

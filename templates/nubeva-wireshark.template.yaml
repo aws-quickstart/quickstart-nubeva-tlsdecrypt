@@ -315,7 +315,62 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
-
+  WiresharkScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  WiresharkScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'wireshark-traffic-high'
+      AlarmActions:
+        - !Ref 'WiresharkScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Wireshark network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref WiresharkAutoScalingGroup
+  WiresharkScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  WiresharkScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'wireshark-traffic-low'
+      AlarmActions:
+        - !Ref 'WiresharkScaleInPolicy'
+      AlarmDescription: 'This metric monitors Wireshark network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref WiresharkAutoScalingGroup
   WiresharkLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
@@ -388,7 +443,7 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
           apt-get update -y
-          apt-get upgrade -y
+          apt-get upgrade -qq
           apt-get install python-pip -y
           pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
           cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
