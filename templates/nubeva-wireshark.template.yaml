@@ -392,7 +392,6 @@ Resources:
               command: "echo '#!/bin/bash -xe' >> /etc/rc.local"
             03_chmod:
               command: "chmod +x /etc/rc.local"
-
         InstallServices:
           packages:
             apt:
@@ -442,8 +441,12 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          apt-get update -y
-          apt-get upgrade -qq
+          export DEBIAN_FRONTEND=noninteractive
+          rm /boot/grub/menu.lst
+          update-grub-legacy-ec2 -y
+          apt-get dist-upgrade -qq --allow-change-held-packages
+          apt-get update
+          apt-get upgrade -yq
           apt-get install python-pip -y
           pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
           cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
