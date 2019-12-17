@@ -217,7 +217,7 @@ Resources:
             01_createDirectory:
               command: "mkdir /opt/nubevaTools"
             01_installscript:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/NubevaTools/master/awsGenereateTLS.sh -O /opt/nubevaTools/awsGenerateTLS.sh"
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/NubevaTools/master/awsGenerateTLS.sh -O /opt/nubevaTools/awsGenerateTLS.sh"
             03_allowExecute:
               command: "chmod +x /opt/nubevaTools/awsGenerateTLS.sh"
             04_startTLSgen:
