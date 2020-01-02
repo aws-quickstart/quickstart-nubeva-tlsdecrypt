@@ -1,0 +1,532 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  ToolAdmin:
+    Description: The user name that is associated with the admin account for the tools that are being created.
+    Type: String
+    Default: tooladmin
+    MinLength: 4
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
+  ToolPassword:
+    Description: The password that is associated with the master user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC to install into.
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+  PublicSubnet1ID:
+    Description: Subnet Id for Public Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: Subnet Id for Public Subnet2
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet1ID:
+    Description: Subnet Id for Private Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id
+  NumberOfNodes:
+    Description: 'The number of EC2 instances'
+    Type: Number
+    Default: 2
+  MaximumNodes:
+    Type: Number
+    Default: 6
+    Description: Maximum number of instances that can be launched in your tool cluster.
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC
+    Type: String
+  NodeInstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: m5.large
+    AllowedValues:
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
+    ConstraintDescription: Please choose a valid instance type.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Nubeva configuration
+        Parameters:
+        - APIKey
+        - ToolAdmin
+        - ToolPassword
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - NodeInstanceType
+          - NumberOfNodes
+          - MaximumNodes
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
+
+Resources:
+  BaseESSLR:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: es.amazonaws.com
+      Description: Default ES Service Linked IAM Role
+  SuricataESSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    DependsOn: BaseESSLR
+    Properties:
+      GroupDescription: Suricata ElasticSearch Service Security Group
+      VpcId: !Ref 'VPCID'
+      SecurityGroupIngress:
+        - FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+          CidrIp: !Ref 'VPCCIDR'
+  SuricataSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Suricata Security Group
+      VpcId: !Ref 'VPCID'
+  # Inbound- allow ssh
+  SuricataSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SuricataSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Inbound- allow VXLAN
+  SuricataSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SuricataSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  # Outbound- allow all
+  SuricataSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "SuricataSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+
+  SuricataInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref SuricataIAMRole
+
+  SuricataIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: SuricataASG
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'autoscaling:DescribeAutoScalingGroups'
+            - 'autoscaling:DescribeAutoScalingInstances'
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
+
+  SuricataElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    DependsOn: SuricataELB
+    Properties:
+      DomainName: suricata-es
+      ElasticsearchVersion: '6.8'
+      ElasticsearchClusterConfig:
+        InstanceCount: !Ref NumberOfNodes
+        InstanceType: !Sub
+          - ${InstanceType}.elasticsearch
+          - InstanceType: !Ref NodeInstanceType
+        ZoneAwarenessEnabled: true
+        ZoneAwarenessConfig:
+          AvailabilityZoneCount: 2
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 100
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: 0
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: 'es:*'
+            Resource: '*'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: 'true'
+      VPCOptions:
+        SubnetIds:
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+        SecurityGroupIds:
+          - !Ref SuricataESSecurityGroup
+
+  SuricataELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: BaseESSLR
+    Properties:
+      Name: SuricataELB
+      Subnets:
+          - !Ref PublicSubnet1ID
+          - !Ref PublicSubnet2ID
+      Type: network
+      Scheme: internal
+
+  SuricataCaptureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref SuricataELB
+      Port: 4789
+      Protocol: UDP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref SuricataVXLANTargetGroup
+
+  SuricataVXLANTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 4789
+      Protocol: UDP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      HealthCheckPort: '22'
+
+  SuricataELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "SuricataLB"
+      NetworkLoadBalancerArn: !Ref SuricataELB
+  SuricataAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: SuricataElasticsearchDomain
+    Properties:
+      VPCZoneIdentifier:
+      - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
+      LaunchConfigurationName: !Ref SuricataLaunchConfiguration
+      MinSize: '1'
+      MaxSize: !Ref 'MaximumNodes'
+      TargetGroupARNs:
+        - !Ref SuricataVXLANTargetGroup
+      DesiredCapacity: !Ref 'NumberOfNodes'
+      MetricsCollection:
+      - Granularity: 1Minute
+        Metrics:
+        - GroupInServiceInstances
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+        PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT20M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: !Ref NumberOfNodes
+        MaxBatchSize: 1
+        PauseTime: PT5M
+        SuspendProcesses:
+        - AlarmNotification
+        WaitOnResourceSignals: true
+  SuricataScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  SuricataScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'suricata-traffic-high'
+      AlarmActions:
+        - !Ref 'SuricataScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Suricata network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref SuricataAutoScalingGroup
+  SuricataScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  SuricataScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'suricata-traffic-low'
+      AlarmActions:
+        - !Ref 'SuricataScaleInPolicy'
+      AlarmDescription: 'This metric monitors Suricata network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref SuricataAutoScalingGroup
+  SuricataLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "SetupElastic"
+            - "InstallNurxAgent"
+            - "InstallSuricata"
+          Start:
+            - "StartSuricata"
+
+        ConfigStartup:
+          commands:
+            01_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+            02_InstallLibraries:
+              command: "amazon-linux-extras install epel"
+
+        InstallServices:
+          packages:
+            yum:
+              java-1.8.0-openjdk: []
+              wget: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+
+        SetupElastic:
+          commands:
+            01_setES_pubkeys:
+              command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+            02_get_repo_info:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
+        InstallNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+        #InstallVXLANInterface:
+        #  commands:
+        #    01_createVXLAN:
+        #      command: "ip link add vxlan777 type vxlan id 777 remote 0.0.0.0 dstport 4789"
+        #    02_interfaceUp:
+        #      command: "ip link set vxlan777 up"
+        #    03_autoLaunchVXLAN:
+        #      command: "echo 'ip link add vxlan777 type vxlan id 777 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #    04_addsmorerclocalupdate:
+        #      command: "echo 'ip link set vxlan777 up' >> /etc/rc.local"
+        InstallSuricata:
+          packages:
+            yum:
+              suricata: []
+              logstash: []
+          commands:
+            01_configLogstash:
+              command: "/usr/share/logstash/bin/system-install"
+            02_setLogstashRegion:
+              command:
+                !Sub |
+                  echo 'REGION='${AWS::Region} >> /etc/default/logstash
+            03_setLogstashES:
+              command: "echo 'ES_HOST='${ESDomain} >> /etc/default/logstash"
+              env:
+                ESDomain: !GetAtt SuricataElasticsearchDomain.DomainEndpoint
+            04_installConfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/conf.d/logstash-suricata.conf"
+            05_installTempLAte:
+              command: "mkdir /etc/logstash/templates && wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata_template.json -O /etc/logstash/templates/suricata_template.json"
+            06_setupLogstash:
+              command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
+            07_suricataAccess:
+              command: "usermod -a -G suricata logstash"
+          services:
+            sysvinit:
+              logstash:
+                enabled: true
+                ensureRunning: true
+        StartSuricata:
+          commands:
+            01_DownloadRules:
+              command: "suricata-update update-sources && suricata-update enable-source oisf/trafficid && suricata-update enable-source sslbl/ssl-fp-blacklist && suricata-update enable-source ptresearch/attackdetection"
+            02_UpdateRules:
+              command: "suricata-update"
+            03_addUpdaterclocal:
+              command: "echo 'yum update -y' >> /etc/rc.local"
+            04_updateSuricata:
+              command: "echo 'suricata-update' >> /etc/rc.local"
+            05_autoStartSuricata:
+              command: "echo 'suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata' >> /etc/rc.local"
+            06_startSuricata:
+              command: "suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata"
+
+
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataAutoScalingGroup
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      SecurityGroups:
+      - !Ref "SuricataSecurityGroup"
+      IamInstanceProfile: !Ref SuricataInstanceProfile
+      KeyName:
+        Ref: KeyPairName
+      BlockDeviceMappings:
+      - DeviceName: "/dev/xvda"
+        Ebs:
+          VolumeSize: 100
+Outputs:
+  Login:
+    Description: The username & password defaults are in the documentation
+    Value: "https://docs.nubeva.com/en/cloudtools/tools/suricata.html"
+  URL:
+    Description: The URL for the Suricata Kibana Dashboard
+    Value: !Sub
+        - "https://${SuricataES}/_plugin/kibana/"
+        - SuricataES: !GetAtt SuricataElasticsearchDomain.DomainEndpoint

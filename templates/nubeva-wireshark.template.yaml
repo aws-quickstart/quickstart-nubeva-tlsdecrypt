@@ -1,0 +1,476 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  ToolAdmin:
+    Description: The user name that is associated with the admin account for the tools that are being created.
+    Type: String
+    Default: tooladmin
+    MinLength: 4
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
+  ToolPassword:
+    Description: The password that is associated with the master user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC to install into.
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+  PublicSubnet1ID:
+    Description: Subnet Id for Public Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: Subnet Id for Public Subnet2
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet1ID:
+    Description: Subnet Id for Private Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id
+  NumberOfNodes:
+    Description: 'The number of EC2 instances'
+    Type: Number
+    Default: 2
+  MaximumNodes:
+    Type: Number
+    Default: 6
+    Description: Maximum number of instances that can be launched in your tool cluster.
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC
+    Type: String
+  NodeInstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: m5.large
+    AllowedValues:
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
+    ConstraintDescription: Please choose a valid instance type.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - NodeInstanceType
+          - NumberOfNodes
+          - MaximumNodes
+
+Mappings:
+  AWSAMIRegionMap:
+    #AMI:
+      #ubuntu1804: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-east-1:
+      ubuntu1804: "ami-e0ff8491"
+    ap-northeast-1:
+      ubuntu1804: "ami-0cb1c8cab7f5249b6"
+    ap-northeast-2:
+      ubuntu1804: "ami-081626bfb3fbc9f49"
+    ap-south-1:
+      ubuntu1804: "ami-0cf8402efdb171312"
+    ap-southeast-1:
+      ubuntu1804: "ami-099d318f80eab7e94"
+    ap-southeast-2:
+      ubuntu1804: "ami-08a648fb5cc86fb74"
+    eu-central-1:
+      ubuntu1804: "ami-0cdab515472ca0bac"
+    eu-north-1:
+      ubuntu1804: "ami-c37bf0bd"
+    eu-west-1:
+      ubuntu1804: "ami-01cca82393e531118"
+    eu-west-2:
+      ubuntu1804: "ami-0a7c91b6616d113b1"
+    eu-west-3:
+      ubuntu1804: "ami-033e0056c336ecff0"
+    us-east-1:
+      ubuntu1804: "ami-064a0193585662d74"
+    us-east-2:
+      ubuntu1804: "ami-021b7b04f1ac696c2"
+    us-west-1:
+      ubuntu1804: "ami-056d04da775d124d7"
+    us-west-2:
+      ubuntu1804: "ami-09a3d8a7177216dcf"
+    ca-central-1:
+      ubuntu1804: "ami-0bc1dd4eb012a451e"
+    sa-east-1:
+      ubuntu1804: "ami-094c359b4d8c6a8ca"
+
+Resources:
+  # The Security Group placed on the tools themselves
+  WiresharkSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Wireshark Security Group
+      VpcId: !Ref 'VPCID'
+  # Inbound- allow ssh
+  WiresharkSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Inbound- allow VXLAN
+  WiresharkSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  # Inbound- allow RDP
+  WiresharkSecurityGroupRDPinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 3389
+      ToPort: 3389
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Outbound- allow all
+  WiresharkSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+
+  WiresharkInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref WiresharkIAMRole
+
+  WiresharkIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: WiresharkASG
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'autoscaling:DescribeAutoScalingGroups'
+            - 'autoscaling:DescribeAutoScalingInstances'
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
+
+  WiresharkELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: WiresharkELB
+      Subnets:
+          - !Ref PublicSubnet1ID
+          - !Ref PublicSubnet2ID
+      Type: network
+      Scheme: internal
+
+  WiresharkViewerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref WiresharkELB
+      Port: 3389
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref WiresharkRDPTargetGroup
+
+  WiresharkCaptureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref WiresharkELB
+      Port: 4789
+      Protocol: UDP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref WiresharkVXLANTargetGroup
+
+  WiresharkRDPTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 3389
+      Protocol: TCP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+
+  WiresharkVXLANTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 4789
+      Protocol: UDP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      HealthCheckPort: '3389'
+
+  WiresharkELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "WiresharkELB"
+      NetworkLoadBalancerArn: !Ref WiresharkELB
+
+  WiresharkAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+      - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
+      LaunchConfigurationName: !Ref WiresharkLaunchConfiguration
+      MinSize: '1'
+      MaxSize: !Ref 'MaximumNodes'
+      TargetGroupARNs:
+        - !Ref WiresharkRDPTargetGroup
+        - !Ref WiresharkVXLANTargetGroup
+      DesiredCapacity: !Ref 'NumberOfNodes'
+      MetricsCollection:
+      - Granularity: 1Minute
+        Metrics:
+        - GroupInServiceInstances
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+        PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT10M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: !Ref NumberOfNodes
+        MaxBatchSize: 1
+        PauseTime: PT5M
+        SuspendProcesses:
+        - AlarmNotification
+        WaitOnResourceSignals: true
+  WiresharkScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  WiresharkScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'wireshark-traffic-high'
+      AlarmActions:
+        - !Ref 'WiresharkScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Wireshark network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref WiresharkAutoScalingGroup
+  WiresharkScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  WiresharkScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'wireshark-traffic-low'
+      AlarmActions:
+        - !Ref 'WiresharkScaleInPolicy'
+      AlarmDescription: 'This metric monitors Wireshark network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref WiresharkAutoScalingGroup
+  WiresharkLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallNurxAgent"
+          Start:
+            - "StartUpdate"
+
+        ConfigStartup:
+          commands:
+            01_touch:
+              command: "touch /etc/rc.local"
+            02_start:
+              command: "echo '#!/bin/bash -xe' >> /etc/rc.local"
+            03_chmod:
+              command: "chmod +x /etc/rc.local"
+        InstallServices:
+          packages:
+            apt:
+              wireshark: []
+              docker.io: []
+              lxde: []
+              xrdp: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+        #InstallVXLANInterface:
+        #  commands:
+        #    01_createVXLAN:
+        #      command: "ip link add vxlan333 type vxlan id 333 remote 0.0.0.0 dstport 4789"
+        #    02_interfaceUp:
+        #      command: "ip link set vxlan333 up"
+        #    03_autoLaunchVXLAN:
+        #      command: "echo 'ip link add vxlan333 type vxlan id 333 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #    04_addsmorerclocalupdate:
+        #      command: "echo 'ip link set vxlan333 up' >> /etc/rc.local"
+        StartUpdate:
+          commands:
+            01_addsrclocalupdate:
+              command: "echo 'apt-get update -y' >> /etc/rc.local"
+            02_addsmorerclocalupdate:
+              command: "echo 'apt-get upgrade -y' >> /etc/rc.local"
+            03_allowXRDP:
+              command: "sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config"
+            04_addUser:
+              command: !Sub
+                - "useradd ${admin}"
+                - {admin: !Ref ToolAdmin}
+            #IN DEVELOPMENT
+            #05_passwdUser:
+              #command: !Sub
+                #- "echo -e '${password}\n${password}' | passwd ${admin}"
+                #- {password: !Ref ToolPassword, admin: !Ref ToolAdmin}
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          export DEBIAN_FRONTEND=noninteractive
+          rm /boot/grub/menu.lst
+          update-grub-legacy-ec2 -y
+          apt-get dist-upgrade -qq --allow-change-held-packages
+          apt-get update
+          apt-get upgrade -yq
+          apt-get install python-pip -y
+          pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+          cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
+          cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkAutoScalingGroup
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - ubuntu1804
+      SecurityGroups:
+      - !Ref "WiresharkSecurityGroup"
+      IamInstanceProfile: !Ref WiresharkInstanceProfile
+      KeyName:
+        Ref: KeyPairName
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sda1"
+        Ebs:
+          VolumeSize: 100
+Outputs:
+  RDPLogin:
+    Description: See documentation for tool acceess details.
+    Value: "https://docs.nubeva.com/en/cloudtools/tools/wireshark.html"
+  URL:
+    Description: The RDP Connection for any instance's Wireshark
+    Value: !Sub
+      - "rdp://${WiresharkDNS}"
+      - WiresharkDNS: !GetAtt WiresharkELB.DNSName

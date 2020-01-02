@@ -1,0 +1,62 @@
+[
+    {
+        "ParameterKey": "AvailabilityZones",
+        "ParameterValue": "$[taskcat_genaz_2]"
+    },
+    {
+        "ParameterKey": "APIKey",
+        "ParameterValue": "$[taskcat_getkeypair]"
+    },
+    {
+        "ParameterKey": "RemoteAccessCIDR",
+        "ParameterValue": "0.0.0.0/0"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": "$[taskcat_getkeypair]"
+    },
+    {
+        "ParameterKey": "QSS3KeyPrefix",
+        "ParameterValue": "quickstart-nubeva-tlsdecrypt/"
+    },
+    {
+        "ParameterKey": "QSS3BucketName",
+        "ParameterValue": "$[taskcat_autobucket]"
+    },
+    {
+        "ParameterKey": "PCAPBucket",
+        "ParameterValue": "$[taskcat_random-string]"
+    },
+    {
+        "ParameterKey": "ToolAdmin",
+        "ParameterValue": "tooladmin"
+    },
+    {
+        "ParameterKey": "MolochInstall",
+        "ParameterValue": "false"
+    },
+    {
+        "ParameterKey": "NtopInstall",
+        "ParameterValue": "false"
+    },
+    {
+        "ParameterKey": "WiresharkInstall",
+        "ParameterValue": "false"
+    },
+    {
+        "ParameterKey": "SuricataInstall",
+        "ParameterValue": "false"
+    },
+    {
+        "ParameterKey": "ZeekInstall",
+        "ParameterValue": "false"
+    },
+    {
+        "ParameterKey": "ClientInstall",
+        "ParameterValue": "true"
+    },
+    {
+        "ParameterKey": "ToolPassword",
+        "ParameterValue": "$[taskcat_getkeypair]"
+    }
+]
