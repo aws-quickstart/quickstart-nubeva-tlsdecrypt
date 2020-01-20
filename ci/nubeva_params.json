@@ -33,7 +33,7 @@
     },
     {
         "ParameterKey": "MolochInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "NtopInstall",
@@ -53,7 +53,7 @@
     },
     {
         "ParameterKey": "ClientInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "ToolPassword",

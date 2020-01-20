@@ -152,16 +152,8 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  BaseESSLR:
-    Type: AWS::IAM::ServiceLinkedRole
-    Properties:
-      AWSServiceName: es.amazonaws.com
-      Description: Default ES Service Linked IAM Role
-
-
   MolochESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
-    DependsOn: BaseESSLR
     Properties:
       GroupDescription: Moloch ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
@@ -315,7 +307,6 @@ Resources:
           - !Ref MolochESSecurityGroup
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    DependsOn: BaseESSLR
     Properties:
       Name: MolochELB
       Subnets:
@@ -489,7 +480,6 @@ Resources:
               perl-JSON: []
               perl-libwww-perl: []
               libyaml-devel: []
-              java-1.8.0-openjdk: []
               wget: []
               perl-LWP-Protocol-https: []
               perl-Crypt-SSLeay: []
@@ -518,11 +508,13 @@ Resources:
         InstallMoloch:
           commands:
             01_wget:
-              command: "wget -nv https://files.molo.ch/moloch-master.centos7.x86_64.rpm -O /tmp/moloch-master.centos7.x86_64.rpm"
+              command: "wget -nv https://s3.amazonaws.com/files.molo.ch/moloch-master.centos7.x86_64.rpm -O /tmp/moloch-master.centos7.x86_64.rpm"
             02_install:
               command: "rpm -Uvh /tmp/moloch-master.centos7.x86_64.rpm"
             03_installconfig:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochs3config.ini -O /data/moloch/etc/config.ini"
+            03a_installoui:
+              command: "wget -nv https://raw.githubusercontent.com/wireshark/wireshark/master/manuf -O /data/moloch/etc/oui.txt"
             04_installStartScript:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_moloch.sh -O /data/moloch/start_moloch.sh"
             05_allowExecute:
@@ -551,8 +543,8 @@ Resources:
               command: !Sub
                 - "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
                 - {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            09_setupMolochGeoIP:
-              command: "/data/moloch/bin/moloch_update_geo.sh"
+            #09_setupMolochGeoIP:
+            #  command: "/data/moloch/bin/moloch_update_geo.sh"
             10_setupMolochLogs:
               command: "mkdir /data/moloch/logs"
             11_setupMolochLogs:
@@ -572,7 +564,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource MolochLaunchConfiguration --configsets Configure,Install,Start
