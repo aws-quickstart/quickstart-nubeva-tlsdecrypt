@@ -250,7 +250,9 @@ Resources:
             Action:
             - s3:List*
             Resource:
-            - "*"
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}/*"
+                - S3Bucket: !Ref MolochPCAPBucket
           - Effect: Allow
             Action:
             - s3:*
