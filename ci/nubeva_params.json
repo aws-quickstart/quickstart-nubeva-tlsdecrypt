@@ -24,10 +24,6 @@
         "ParameterValue": "$[taskcat_autobucket]"
     },
     {
-        "ParameterKey": "PCAPBucket",
-        "ParameterValue": "$[taskcat_random-string]"
-    },
-    {
         "ParameterKey": "ToolAdmin",
         "ParameterValue": "tooladmin"
     },
