@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
-  PCAPBucket:
-    Description: The globally unique name of the S3 Bucket to store Moloch packet captures
-    Type: String
+#  PCAPBucket:
+#    Description: The globally unique name of the S3 Bucket to store Moloch packet captures
+#    Type: String
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
@@ -97,7 +97,7 @@ Metadata:
           default: Nubeva configuration
         Parameters:
         - APIKey
-        - PCAPBucket
+#        - PCAPBucket
         - ToolAdmin
         - ToolPassword
       - Label:
@@ -250,7 +250,9 @@ Resources:
             Action:
             - s3:List*
             Resource:
-            - "*"
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}/*"
+                - S3Bucket: !Ref MolochPCAPBucket
           - Effect: Allow
             Action:
             - s3:*
@@ -266,8 +268,20 @@ Resources:
   MolochPCAPBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref PCAPBucket
       AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+#  MolochS3Endpoint:
+#    Type: AWS::EC2::VPCEndpoint
+#    Properties:
+#      ServiceName": { "Fn::Sub": "com.amazonaws.${AWS::Region}.s3" },
+#      RouteTableIds": [{"Ref": "PrivateRouteTable1"}, {"Ref": "PrivateRouteTable2"}],
+#      VpcId: !Ref VPCID
+
   MolochElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     DependsOn: MolochELB
@@ -528,7 +542,7 @@ Resources:
             06b_updateConfig:
               command: !Sub
                 - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
-                - {bucket: !Ref PCAPBucket}
+                - {bucket: !Ref MolochPCAPBucket}
             06c_updateConfig:
               command: !Sub
                 - "echo 's3AccessKeyId='${S3IAMUser} >> /data/moloch/etc/config.ini"

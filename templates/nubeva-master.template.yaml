@@ -7,7 +7,6 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - PCAPBucket
       - MolochInstall
       - NtopInstall
       - WiresharkInstall
@@ -39,8 +38,6 @@ Metadata:
       - QSS3BucketName
       - QSS3KeyPrefix
     ParameterLabels:
-      PCAPBucket:
-        default: S3 Bucket for Moloch PCAP Storage
       MolochInstall:
         default: Install Moloch ASG
       NtopInstall:
@@ -86,9 +83,6 @@ Metadata:
       MaximumNodes:
         default: Maximum number of nodes per tool
 Parameters:
-  PCAPBucket:
-    Description: The globally unique name of the S3 Bucket to store Moloch packet captures
-    Type: String
   MolochInstall:
     Default: true
     AllowedValues:
@@ -287,11 +281,11 @@ Resources:
           - !Ref AvailabilityZones
         KeyPairName: !Ref 'KeyPairName'
         NumberOfAZs: '2'
-        PrivateSubnet1ACIDR: !Ref 'PrivateSubnet1CIDR'
-        PrivateSubnet2ACIDR: !Ref 'PrivateSubnet2CIDR'
-        PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
-        PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
-        VPCCIDR: !Ref 'VPCCIDR'
+        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        VPCCIDR: !Ref VPCCIDR
   BastionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -349,7 +343,6 @@ Resources:
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
         ClientInstall: !Ref ClientInstall
-        PCAPBucket: !Ref PCAPBucket
 
 
 #Outputs:
