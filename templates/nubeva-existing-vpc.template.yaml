@@ -311,7 +311,7 @@ Resources:
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
-        ToolPassword: !Ref ToolPassword
+        #ToolPassword: !Ref ToolPassword
         VPCCIDR: !Ref VPCCIDR
   SuricataStack:
     Condition: SuricataInstallTrue
@@ -331,8 +331,6 @@ Resources:
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
-        ToolAdmin: !Ref ToolAdmin
-        ToolPassword: !Ref ToolPassword
   ZeekStack:
     Condition: ZeekInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -351,8 +349,6 @@ Resources:
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
-        ToolAdmin: !Ref ToolAdmin
-        ToolPassword: !Ref ToolPassword
   ClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
