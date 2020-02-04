@@ -270,6 +270,7 @@ Resources:
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
@@ -360,5 +361,5 @@ Resources:
         PrivateSubnet2ID: !Ref PrivateSubnet2ID
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
-        VPCCIDR: !Ref VPCCIDR
+        # VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
