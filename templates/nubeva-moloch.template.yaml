@@ -322,7 +322,6 @@ Resources:
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: MolochELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID

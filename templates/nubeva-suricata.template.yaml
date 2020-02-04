@@ -246,7 +246,6 @@ Resources:
   SuricataELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: SuricataELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
