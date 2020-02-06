@@ -222,7 +222,6 @@ Resources:
   WiresharkELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: WiresharkELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID

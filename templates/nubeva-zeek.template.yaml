@@ -255,7 +255,6 @@ Resources:
   ZeekELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: ZeekELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID

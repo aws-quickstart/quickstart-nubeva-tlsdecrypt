@@ -1,8 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
-#  PCAPBucket:
-#    Description: The globally unique name of the S3 Bucket to store Moloch packet captures
-#    Type: String
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
@@ -97,7 +94,6 @@ Metadata:
           default: Nubeva configuration
         Parameters:
         - APIKey
-#        - PCAPBucket
         - ToolAdmin
         - ToolPassword
       - Label:
@@ -224,8 +220,12 @@ Resources:
           Action:
           - 'sts:AssumeRole'
       Path: '/'
+#Add this back in when CloudWatch Services are complete for all suite#
+#I want to make this optional#
+#      ManagedPolicyArns:
+#      - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
       Policies:
-      - PolicyName: MolochASG
+      - PolicyName: MolochASGPolicy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -236,35 +236,61 @@ Resources:
             - 'ec2:DescribeInstances'
             Resource:
             - '*'
-
-  MolochS3User:
-    Type: AWS::IAM::User
-    Properties:
-      Path: "/"
-      Policies:
-      - PolicyName: MolochS3BucketAccess
+      - PolicyName: MolochS3Policy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
           - Effect: Allow
             Action:
-            - s3:List*
+            - s3:ListAllMyBuckets
+            - s3:GetBucketLocation
+            Resource:
+            - '*'
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
             Resource:
               Fn::Sub:
-                - "arn:aws:s3:::${S3Bucket}/*"
+                - "arn:aws:s3:::${S3Bucket}"
                 - S3Bucket: !Ref MolochPCAPBucket
           - Effect: Allow
             Action:
-            - s3:*
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
             Resource:
               Fn::Sub:
                 - "arn:aws:s3:::${S3Bucket}/*"
                 - S3Bucket: !Ref MolochPCAPBucket
-  MolochS3AccessKey:
-    Type: AWS::IAM::AccessKey
-    Properties:
-      UserName:
-        !Ref MolochS3User
+
+#  MolochS3User:
+#    Type: AWS::IAM::User
+#    Properties:
+#      Path: "/"
+#      Policies:
+#      - PolicyName: MolochS3BucketAccess
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - s3:List*
+#            Resource:
+#              Fn::Sub:
+#                - "arn:aws:s3:::${S3Bucket}/*"
+#                - S3Bucket: !Ref MolochPCAPBucket
+#          - Effect: Allow
+#            Action:
+#            - s3:*
+#            Resource:
+#              Fn::Sub:
+#                - "arn:aws:s3:::${S3Bucket}/*"
+#                - S3Bucket: !Ref MolochPCAPBucket
+#  MolochS3AccessKey:
+#    Type: AWS::IAM::AccessKey
+#    Properties:
+#      UserName:
+#        !Ref MolochS3User
   MolochPCAPBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -322,7 +348,6 @@ Resources:
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: MolochELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
@@ -543,14 +568,14 @@ Resources:
               command: !Sub
                 - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
                 - {bucket: !Ref MolochPCAPBucket}
-            06c_updateConfig:
-              command: !Sub
-                - "echo 's3AccessKeyId='${S3IAMUser} >> /data/moloch/etc/config.ini"
-                - {S3IAMUser: !Ref MolochS3AccessKey}
-            06d_updateConfig:
-              command: !Sub
-                - "echo 's3SecretAccessKey='${S3IAMPass} >> /data/moloch/etc/config.ini"
-                - {S3IAMPass: !GetAtt MolochS3AccessKey.SecretAccessKey}
+#            06c_updateConfig:
+#              command: !Sub
+#                - "echo 's3AccessKeyId='${S3IAMUser} >> /data/moloch/etc/config.ini"
+#                - {S3IAMUser: !Ref MolochS3AccessKey}
+#            06d_updateConfig:
+#              command: !Sub
+#                - "echo 's3SecretAccessKey='${S3IAMPass} >> /data/moloch/etc/config.ini"
+#                - {S3IAMPass: !GetAtt MolochS3AccessKey.SecretAccessKey}
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
@@ -606,8 +631,8 @@ Outputs:
     Value: !Sub
         - "http://${MolochDNS}:8005"
         - MolochDNS: !GetAtt MolochELB.DNSName
-  MolochS3AccessKey:
-    Value:
-      !Ref MolochS3AccessKey
-  MolochS3SecretKey:
-    Value: !GetAtt MolochS3AccessKey.SecretAccessKey
+#  MolochS3AccessKey:
+#    Value:
+#      !Ref MolochS3AccessKey
+#  MolochS3SecretKey:
+#    Value: !GetAtt MolochS3AccessKey.SecretAccessKey

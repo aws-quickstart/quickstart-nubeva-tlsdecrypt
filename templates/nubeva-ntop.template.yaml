@@ -225,7 +225,6 @@ Resources:
   NtopELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: NtopELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
@@ -434,6 +433,7 @@ Resources:
         #      command: "echo 'ip link set vxlan111 up' >> /etc/rc.local"
 
         StartNtop:
+          commands:
             01_download_and_install:
               command: "docker run --net=host --name ntopng -dit -p 3000:3000 lucaderi/ntopng-docker"
             #This doesnt work at present
@@ -441,11 +441,6 @@ Resources:
               command: !Sub
                 - "echo -n \"${password}\" | md5sum | xargs -I {} redis-cli SET ntopng.user.${admin}.password {}"
                 - {admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            #02_installconfig:
-            #  command: "wget -nv https://nubevalabs.s3.amazonaws.com/ntopng.conf -O /etc/ntopng/ntopng.conf"
-            #03_restart:
-            #  command: "systemctl restart ntopng"
-            #Future Development. Auto update of .conf file for mesh connectivity
 
     Properties:
       UserData:

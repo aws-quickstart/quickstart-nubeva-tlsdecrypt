@@ -29,11 +29,11 @@
     },
     {
         "ParameterKey": "MolochInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "NtopInstall",
-        "ParameterValue": "true"
+        "ParameterValue": "false"
     },
     {
         "ParameterKey": "WiresharkInstall",

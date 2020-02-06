@@ -360,5 +360,4 @@ Resources:
         PrivateSubnet2ID: !Ref PrivateSubnet2ID
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
-        VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
