@@ -5,11 +5,11 @@
     },
     {
         "ParameterKey": "APIKey",
-        "ParameterValue": "$[taskcat_getkeypair]"
+        "ParameterValue": "$[taskcat_genpass_10]"
     },
     {
         "ParameterKey": "RemoteAccessCIDR",
-        "ParameterValue": "0.0.0.0/0"
+        "ParameterValue": "10.0.0.0/0"
     },
     {
         "ParameterKey": "KeyPairName",
@@ -33,26 +33,26 @@
     },
     {
         "ParameterKey": "NtopInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "WiresharkInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "SuricataInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "ZeekInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "ClientInstall",
-        "ParameterValue": "false"
+        "ParameterValue": "true"
     },
     {
         "ParameterKey": "ToolPassword",
-        "ParameterValue": "$[taskcat_getkeypair]"
+        "ParameterValue": "$[taskcat_genpass_10]"
     }
 ]
