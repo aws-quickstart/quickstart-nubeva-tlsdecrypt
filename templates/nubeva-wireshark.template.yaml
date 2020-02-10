@@ -105,10 +105,10 @@ Metadata:
 
 Mappings:
   AWSAMIRegionMap:
-    #AMI:
-      #ubuntu1804: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-    ap-east-1:
-      ubuntu1804: "ami-e0ff8491"
+    # AMI:
+    #   ubuntu1804: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    # ap-east-1:
+    #   ubuntu1804: "ami-e0ff8491"
     ap-northeast-1:
       ubuntu1804: "ami-0cb1c8cab7f5249b6"
     ap-northeast-2:
