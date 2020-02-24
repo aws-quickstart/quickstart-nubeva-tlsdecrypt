@@ -129,6 +129,7 @@ Parameters:
     AllowedValues:
     - true
     - false
+    Description: Choose to install TLS generating clients
     Type: String
   ToolAdmin:
     Description: The user name that is associated with the admin account for the tools that are being created.

@@ -124,6 +124,7 @@ Parameters:
     AllowedValues:
     - true
     - false
+    Description: Choose to install TLS generating clients
     Type: String
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
