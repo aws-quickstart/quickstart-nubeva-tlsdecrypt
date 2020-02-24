@@ -25,6 +25,8 @@ Metadata:
       - PublicSubnet1CIDR
       - PublicSubnet2CIDR
       - RemoteAccessCIDR
+      - BastionAMIOS
+      - BastionInstanceType
     - Label:
         default: Autoscaling group configuration
       Parameters:
@@ -74,6 +76,10 @@ Metadata:
         default: Quick Start S3 key prefix
       RemoteAccessCIDR:
         default: Allowed external access CIDR
+      BastionAMIOS:
+        default: Bastion AMI Operating System
+      BastionInstanceType:
+        default: Bastion Instance Type
       VPCCIDR:
         default: VPC CIDR
       NodeInstanceType:
