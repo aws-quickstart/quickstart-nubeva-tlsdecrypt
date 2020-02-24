@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploys TLSGen Client as part of the Nubeva TLS Decrypt & Open Source Tools
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
