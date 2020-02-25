@@ -1,8 +1,20 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Nubeva TLS Decrypt & Open Source Tools in a new VPC.
+Description: Deploys Nubeva TLS Decrypt & Open-Source Tools in a new VPC.
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
+    - Label:
+        default: VPC network configuration
+      Parameters:
+      - AvailabilityZones
+      - VPCCIDR
+      - PrivateSubnet1CIDR
+      - PrivateSubnet2CIDR
+      - PublicSubnet1CIDR
+      - PublicSubnet2CIDR
+      - RemoteAccessCIDR
+      - BastionAMIOS
+      - BastionInstanceType
     - Label:
         default: Nubeva configuration
       Parameters:
@@ -16,19 +28,7 @@ Metadata:
       - ToolAdmin
       - ToolPassword
     - Label:
-        default: Network configuration
-      Parameters:
-      - AvailabilityZones
-      - VPCCIDR
-      - PrivateSubnet1CIDR
-      - PrivateSubnet2CIDR
-      - PublicSubnet1CIDR
-      - PublicSubnet2CIDR
-      - RemoteAccessCIDR
-      - BastionAMIOS
-      - BastionInstanceType
-    - Label:
-        default: Autoscaling group configuration
+        default: Auto Scaling group configuration
       Parameters:
       - KeyPairName
       - NodeInstanceType
@@ -51,15 +51,15 @@ Metadata:
       ZeekInstall:
         default: Install Zeek ASG
       ClientInstall:
-        default: Install TLS Generation Clients
+        default: Install TLS generation clients
       ToolAdmin:
-        default: Username for tool administration
+        default: User name for tool administration
       ToolPassword:
         default: Password for tool administration
       AvailabilityZones:
         default: Availability Zones
       APIKey:
-        default: Nubeva Token
+        default: Nubeva token
       KeyPairName:
         default: SSH key name
       PrivateSubnet1CIDR:
@@ -77,9 +77,9 @@ Metadata:
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       BastionAMIOS:
-        default: Bastion AMI Operating System
+        default: Bastion AMI operating system
       BastionInstanceType:
-        default: Bastion Instance Type
+        default: Bastion instance type
       VPCCIDR:
         default: VPC CIDR
       NodeInstanceType:
@@ -94,7 +94,7 @@ Parameters:
     AllowedValues:
     - true
     - false
-    Description: Choose to install Moloch
+    Description: Choose to install Moloch.
     Type: String
   NtopInstall:
     Default: true
@@ -108,31 +108,31 @@ Parameters:
     AllowedValues:
     - true
     - false
-    Description: Choose to install Wireshark
+    Description: Choose to install Wireshark.
     Type: String
   SuricataInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Suricata
+    Description: Choose to install Suricata.
     Type: String
   ZeekInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Zeek
+    Description: Choose to install Zeek.
     Type: String
   ClientInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install TLS generating clients
+    Description: Choose to install TLS generation clients.
     Type: String
   ToolAdmin:
-    Description: The user name that is associated with the admin account for the tools that are being created.
+    Description: User name associated with the administrator account for the created tools.
     Type: String
     Default: tooladmin
     MinLength: 4
@@ -154,7 +154,7 @@ Parameters:
     - Ubuntu-Server-14.04-LTS-HVM
     - Ubuntu-Server-16.04-LTS-HVM
     Default: Amazon-Linux-HVM
-    Description: The Linux distribution for the AMI to be used for the bastion instances. remove me
+    Description: Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.
     Type: String
   BastionInstanceType:
     AllowedValues:
@@ -167,41 +167,41 @@ Parameters:
     - m5.xlarge
     - m5.2xlarge
     Default: t3.small
-    Description: Amazon EC2 instance type for the bastion instances
+    Description: Amazon EC2 instance type for the bastion instances.
     Type: String
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Two
       Availability Zones are used for this deployment.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   KeyPairName:
-    Description: The name of an existing public/private key pair, which allows you
-      to securely connect to your instance after it launches
+    Description: Name of an existing key pair, which allows you
+      to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName
   PrivateSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.16.0/20
-    Description: CIDR block for private subnet 1 located in Availability Zone 1
+    Description: CIDR block for private subnet 1 located in Availability Zone 1.
     Type: String
   PrivateSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.32.0/20
-    Description: CIDR block for private subnet 2 located in Availability Zone 2
+    Description: CIDR block for private subnet 2 located in Availability Zone 2.
     Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.48.0/20
     Description: CIDR block for the public (DMZ) subnet 1 located in Availability
-      Zone 1
+      Zone 1.
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.64.0/20
     Description: CIDR block for the public (DMZ) subnet 2 located in Availability
-      Zone 2
+      Zone 2.
     Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -225,14 +225,14 @@ Parameters:
   RemoteAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: The CIDR IP range that is permitted to access the instances. We recommend
+    Description: CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.0.0/16
-    Description: CIDR block for the VPC
+    Description: CIDR block for the VPC.
     Type: String
   NodeInstanceType:
     Default: m5.large
@@ -261,18 +261,18 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Must be a valid EC2 instance type
-    Description: The type of EC2 instance for the node instances.
+    Description: Type of EC2 instance for the node instances.
     Type: String
   NumberOfNodes:
     Default: 2
-    Description: The number of EC2 instance nodes in each Tool Autoscaling Group.
+    Description: Number of EC2 instance nodes in each Auto Scaling group.
     Type: Number
   MaximumNodes:
     Default: 6
-    Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
+    Description: Maximum number of EC2 instance nodes in each Auto Scaling group.
     Type: String
   APIKey:
-    Description: "The Token for your Prisms account"
+    Description: Token for your Nubeva account.
     Type: String
 
 Resources:
