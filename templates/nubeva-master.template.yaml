@@ -77,7 +77,7 @@ Metadata:
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       BastionAMIOS:
-        default: Bastion AMI operating system
+        default: Bastion Amazon Machine Image (AMI) operating system
       BastionInstanceType:
         default: Bastion instance type
       VPCCIDR:
