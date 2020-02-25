@@ -4,6 +4,16 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
+        default: VPC network configuration
+      Parameters:
+      - VPCID
+      - VPCCIDR
+      - PrivateSubnet1ID
+      - PrivateSubnet2ID
+      - PublicSubnet1ID
+      - PublicSubnet2ID
+      - RemoteAccessCIDR
+    - Label:
         default: Nubeva configuration
       Parameters:
       - APIKey
@@ -16,17 +26,7 @@ Metadata:
       - ToolAdmin
       - ToolPassword
     - Label:
-        default: Network configuration
-      Parameters:
-      - VPCID
-      - VPCCIDR
-      - PrivateSubnet1ID
-      - PrivateSubnet2ID
-      - PublicSubnet1ID
-      - PublicSubnet2ID
-      - RemoteAccessCIDR
-    - Label:
-        default: Autoscaling group configuration
+        default: Auto Scaling group configuration
       Parameters:
       - KeyPairName
       - NodeInstanceType
@@ -49,9 +49,9 @@ Metadata:
       ZeekInstall:
         default: Install Zeek ASG
       ClientInstall:
-        default: Install TLS Generation Clients
+        default: Install TLS generation clients
       ToolAdmin:
-        default: Username for tool administration
+        default: User name for tool administration
       ToolPassword:
         default: Password for tool administration
       KeyPairName:
@@ -81,7 +81,7 @@ Metadata:
       VPCCIDR:
         default: VPC CIDR
       APIKey:
-        default: Nubeva Token
+        default: Nubeva token
 
 Parameters:
   MolochInstall:
@@ -89,49 +89,49 @@ Parameters:
     AllowedValues:
     - true
     - false
-    Description: Choose to install Moloch
+    Description: Choose to install Moloch.
     Type: String
   NtopInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install ntop
+    Description: Choose to install ntop.
     Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Wireshark
+    Description: Choose to install Wireshark.
     Type: String
   SuricataInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Suricata
+    Description: Choose to install Suricata.
     Type: String
   ZeekInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Zeek
+    Description: Choose to install Zeek.
     Type: String
   ClientInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install TLS generating clients
+    Description: Choose to install TLS generation clients.
     Type: String
   KeyPairName:
-    Description: The name of an existing public/private key pair, which allows you
-      to securely connect to your instance after it launches
+    Description: Name of an existing key pair, which allows you
+      to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName
   ToolAdmin:
-    Description: The user name that is associated with the admin account for the tools that are being created.
+    Description: User name associated with the administrator account for the created tools.
     Type: String
     Default: tooladmin
     MinLength: 4
@@ -168,7 +168,7 @@ Parameters:
   RemoteAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: The CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.
+    Description: CIDR IP range permitted to access the instances. We recommend that you set this value to a trusted IP range.
     Type: String
   NodeInstanceType:
     Default: m5.large
@@ -198,39 +198,39 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Must be a valid EC2 instance type.
-    Description: The type of EC2 instance for the node instances.
+    Description: Type of EC2 instance for the node instances.
     Type: String
   NumberOfNodes:
     Default: 2
-    Description: The number of tool node instances. The default is one for each of the two Availability Zones.
+    Description: Number of tool node instances. The default is one for each of the two Availability Zones.
     Type: Number
   MaximumNodes:
     Default: 6
-    Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
+    Description: Maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
     Type: String
   APIKey:
-    Description: "The Token for your Prisms account"
+    Description: Token for your Nubeva account.
     Type: String
   VPCID:
     Type: "AWS::EC2::VPC::Id"
-    Description: The ID of your existing VPC (e.g., vpc-0343606e)
+    Description: ID of your existing VPC (for example, vpc-0343606e).
   PrivateSubnet1ID:
     Type: "AWS::EC2::Subnet::Id"
-    Description: The ID of the private subnet in Availability Zone 1 in your existing VPC (e.g., subnet-fe9a8b32)
+    Description: ID of the private subnet in Availability Zone 1 in your existing VPC (for example, subnet-fe9a8b32).
   PrivateSubnet2ID:
     Type: "AWS::EC2::Subnet::Id"
-    Description: The ID of the private subnet in Availability Zone 2 in your existing VPC (e.g., subnet-be8b01ea)
+    Description: ID of the private subnet in Availability Zone 2 in your existing VPC (for example, subnet-be8b01ea).
   PublicSubnet1ID:
     Type: "AWS::EC2::Subnet::Id"
-    Description: The ID of the public subnet in Availability Zone 1 in your existing VPC (e.g., subnet-fe9a8b32)
+    Description: ID of the public subnet in Availability Zone 1 in your existing VPC (for example, subnet-fe9a8b32).
   PublicSubnet2ID:
     Type: "AWS::EC2::Subnet::Id"
-    Description: The ID of the public subnet in Availability Zone 2 in your existing VPC (e.g., subnet-be8b01ea)
+    Description: ID of the public subnet in Availability Zone 2 in your existing VPC (for example, subnet-be8b01ea).
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.0.0/16
-    Description: CIDR block for the VPC
+    Description: CIDR block for the VPC.
     Type: String
 
 Conditions:
