@@ -313,7 +313,7 @@ Resources:
     Type: AWS::Elasticsearch::Domain
     DependsOn: MolochELB
     Properties:
-      DomainName: moloch-es
+      # DomainName: moloch-es
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes

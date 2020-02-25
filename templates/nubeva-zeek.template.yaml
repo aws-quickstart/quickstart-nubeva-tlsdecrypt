@@ -219,7 +219,7 @@ Resources:
     Type: AWS::Elasticsearch::Domain
     DependsOn: ZeekELB
     Properties:
-      DomainName: zeek-es
+      # DomainName: zeek-es
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes

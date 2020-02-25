@@ -210,7 +210,7 @@ Resources:
     Type: AWS::Elasticsearch::Domain
     DependsOn: SuricataELB
     Properties:
-      DomainName: suricata-es
+      # DomainName: suricata-es
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes
