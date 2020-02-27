@@ -1,36 +1,16 @@
-# quickstart-nubeva-tlsdecrypt
+# quickstart-nubeva-tls-decrypt
+## Nubeva TLS Decryp
 
-This Quick Start adds five open source security & networking tools to your AWS Cloud environment. It deploys Moloch, ntopng, Wireshark, Zeek, and Suricata that provide advanced security visibility in your cloud. These tools are integrated with the Nubeva TLS Decryption solution with provides deeper visibility into all TLS traffic, including TLS 1.2 w/PFS and TLS 1.3. You can choose to create a new VPC environment for your open source tools or deploy them into your existing VPC environment. After you deploy the Quick Start, you can add other AWS services, infrastructure components, and software layers to complete your test.
+This Quick Start deploys Nubeva TLS Decrypt on the Amazon Web Services (AWS) Cloud in about 10 minutes. This Quick Start is for users who want to identify malicious activity, insider threats, and data leakage within their virtual private cloud (VPC) instances and Amazon Elastic Compute Cloud (Amazon EC2) instances with decrypted visibility.
 
-![Quick Start Nubeva TLS Decrypt Open Source Tool Architecture](https://nubevalabs.s3.amazonaws.com/quickstart.png )
+Nubeva’s TLS visibility solution is a software as a service (SaaS) that provides complete packet visibility of any public cloud with TLS decryption capabilities. All the open-source tools in this solution are complemented by Nubeva TLS Decrypt, which provides additional intelligence and insight into encrypted data.
 
-Deployment steps:
-1. Sign up for an AWS account at https://aws.amazon.com, select a region, and create a key pair.
-2. Sign up for a Nubeva account at https://www.nubeva.com, deploy the tools from the launcher into your preferred region.
-3. In the AWS CloudFormation console, select which tools to install.
+Container-based Nubeva TLS Decrypt sensors are deployed on your monitored instances, which capture TLS session keys—as well as associated packet traffic for any instance where Amazon VPC traffic mirroring isn’t available—as they flow through these instances. The packets are sent through a secure channel to be analyzed and visualized by the open-source tools you choose. This provides clear visibility of your network traffic so you can identify unexpected network behavior, perform network analysis, and detect intrusions.
 
-Moloch Instructions:
-1. Connect to the MolochELB on port 8005 using HTTP. Login in with the tooladmin username & password.
-2. Point your Amazon VPC traffic mirroring sessions to the MolochELB Traffic Mirror Target (TMT)
-3. For more instructions, see the [documentation](https://docs.nubeva.com/moloch)
+You can use the AWS CloudFormation templates included with the Quick Start to deploy Nubeva TLS Decrypt in your AWS account.
 
-Wireshark Instructions:
-1. Connect to the Wireshark instance using SSH; ssh ubuntu@[ip.address]. Set the password for the ubuntu user: sudo passwd ubuntu
-2. Connect to the WiresharkhELB on port 3389 using RDP. Login in with the ubuntu username & password from step 1
-3. Point your Amazon VPC traffic mirroring sessions to the WiresharkELB Traffic Mirror Target (TMT)
-4. For more instructions, see the [documentation](https://docs.nubeva.com/wireshark)
+![Quick Start architecture for Nubeva TLS Decrypt](https://d0.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.png)
 
-ntop Instructions:
-1. Connect to the NtopELB on port 3000 using HTTP. Login in with the default username & password for ntop
-2. Point your Amazon VPC traffic mirroring sessions to the ntopELB Traffic Mirror Target (TMT)
-3. For more instructions, see the [documentation](https://docs.nubeva.com/ntop)
+For architectural details and step-by-step instructions, see the [deployment guide](https://fwd.aws/84MrE).
 
-Zeek Instructions:
-1. Connect to the Kibana link in the Zeek CTF Output section for access.
-2. Point your Amazon VPC traffic mirroring sessions to the ZeekELB Traffic Mirror Target (TMT)
-3. For more instructions, see the [documentation](https://docs.nubeva.com/zeek)
-
-Suricata Instructions:
-1. Connect to the Kibana link in the Suricata CTF Output section for access.
-2. Point your Amazon VPC traffic mirroring sessions to the SuricataELB Traffic Mirror Target (TMT)
-3. For more instructions, see the [documentation](https://docs.nubeva.com/suricata)
+To post feedback, submit feature ideas, or report bugs, use the **Issues** section of this GitHub repo. If you'd like to submit code for this Quick Start, please review the [AWS Quick Start Contributor's Kit](https://aws-quickstart.github.io/).
