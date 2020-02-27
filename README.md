@@ -1,5 +1,5 @@
 # quickstart-nubeva-tls-decrypt
-## Nubeva TLS Decryp
+## Nubeva TLS Decrypt
 
 This Quick Start deploys Nubeva TLS Decrypt on the Amazon Web Services (AWS) Cloud in about 10 minutes. This Quick Start is for users who want to identify malicious activity, insider threats, and data leakage within their virtual private cloud (VPC) instances and Amazon Elastic Compute Cloud (Amazon EC2) instances with decrypted visibility.
 
