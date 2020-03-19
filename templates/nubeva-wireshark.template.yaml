@@ -13,7 +13,7 @@ Parameters:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
   # ToolPassword:
-  #   Description: The password that is associated with the master user account for the cluster that is being created.
+  #   Description: The password that is associated with the user account for the cluster that is being created.
   #   NoEcho: true
   #   Type: String
   #   MinLength: 8
@@ -32,12 +32,6 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
-  PublicSubnet1ID:
-    Description: Subnet Id for Public Subnet1
-    Type: AWS::EC2::Subnet::Id
-  PublicSubnet2ID:
-    Description: Subnet Id for Public Subnet2
-    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
@@ -144,13 +138,11 @@ Mappings:
       ubuntu1804: "ami-094c359b4d8c6a8ca"
 
 Resources:
-  # The Security Group placed on the tools themselves
   WiresharkSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Wireshark Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow ssh
   WiresharkSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -159,7 +151,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Inbound- allow VXLAN
   WiresharkSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -168,7 +159,6 @@ Resources:
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  # Inbound- allow RDP
   WiresharkSecurityGroupRDPinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -177,7 +167,6 @@ Resources:
       FromPort: 3389
       ToPort: 3389
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Outbound- allow all
   WiresharkSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -186,14 +175,12 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-
   WiresharkInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
       - !Ref WiresharkIAMRole
-
   WiresharkIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -219,16 +206,14 @@ Resources:
             - 'ec2:DescribeInstances'
             Resource:
             - '*'
-
   WiresharkELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
-          - !Ref PublicSubnet1ID
-          - !Ref PublicSubnet2ID
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
-
   WiresharkViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -238,7 +223,6 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref WiresharkRDPTargetGroup
-
   WiresharkCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -248,7 +232,6 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref WiresharkVXLANTargetGroup
-
   WiresharkRDPTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -261,7 +244,6 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-
   WiresharkVXLANTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -275,13 +257,11 @@ Resources:
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
       HealthCheckPort: '3389'
-
   WiresharkELBTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
     Properties:
       Description: "WiresharkELB"
       NetworkLoadBalancerArn: !Ref WiresharkELB
-
   WiresharkAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -396,20 +376,17 @@ Resources:
           packages:
             apt:
               wireshark: []
-              docker.io: []
               lxde: []
               xrdp: []
-          services:
-            sysvinit:
-              docker:
-                enabled: true
-                ensureRunning: true
         InstallNurxAgent:
           commands:
-            01_download_and_install:
-              command:
-                !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+            00_sleep:
+              command: "sleep 15"
+            01_update:
+              command: "apt-get update && apt-get upgrade -y"
+          packages:
+            apt:
+              docker.io: []
         #InstallVXLANInterface:
         #  commands:
         #    01_createVXLAN:
@@ -422,6 +399,12 @@ Resources:
         #      command: "echo 'ip link set vxlan333 up' >> /etc/rc.local"
         StartUpdate:
           commands:
+            00_startdocker:
+              command: "systemctl start docker && systemctl enable docker"
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
             01_addsrclocalupdate:
               command: "echo 'apt-get update -y' >> /etc/rc.local"
             02_addsmorerclocalupdate:

@@ -32,12 +32,6 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
-  PublicSubnet1ID:
-    Description: Subnet Id for Public Subnet1
-    Type: AWS::EC2::Subnet::Id
-  PublicSubnet2ID:
-    Description: Subnet Id for Public Subnet2
-    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
@@ -164,7 +158,6 @@ Resources:
     Properties:
       GroupDescription: Moloch Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow ssh
   MolochSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -173,7 +166,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Inbound- allow VXLAN
   MolochSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -182,7 +174,6 @@ Resources:
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  # Inbound- allow moloch
   MolochSecurityGroupViewerinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -191,7 +182,6 @@ Resources:
       FromPort: 8005
       ToPort: 8005
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Outbound- allow all
   MolochSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -221,10 +211,6 @@ Resources:
           Action:
           - 'sts:AssumeRole'
       Path: '/'
-#Add this back in when CloudWatch Services are complete for all suite#
-#I want to make this optional#
-#      ManagedPolicyArns:
-#      - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
       Policies:
       - PolicyName: MolochASGPolicy
         PolicyDocument:
@@ -264,34 +250,7 @@ Resources:
                 - "arn:aws:s3:::${S3Bucket}/*"
                 - S3Bucket: !Ref MolochPCAPBucket
 
-#  MolochS3User:
-#    Type: AWS::IAM::User
-#    Properties:
-#      Path: "/"
-#      Policies:
-#      - PolicyName: MolochS3BucketAccess
-#        PolicyDocument:
-#          Version: '2012-10-17'
-#          Statement:
-#          - Effect: Allow
-#            Action:
-#            - s3:List*
-#            Resource:
-#              Fn::Sub:
-#                - "arn:aws:s3:::${S3Bucket}/*"
-#                - S3Bucket: !Ref MolochPCAPBucket
-#          - Effect: Allow
-#            Action:
-#            - s3:*
-#            Resource:
-#              Fn::Sub:
-#                - "arn:aws:s3:::${S3Bucket}/*"
-#                - S3Bucket: !Ref MolochPCAPBucket
-#  MolochS3AccessKey:
-#    Type: AWS::IAM::AccessKey
-#    Properties:
-#      UserName:
-#        !Ref MolochS3User
+
   MolochPCAPBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -302,18 +261,10 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
 
-#  MolochS3Endpoint:
-#    Type: AWS::EC2::VPCEndpoint
-#    Properties:
-#      ServiceName": { "Fn::Sub": "com.amazonaws.${AWS::Region}.s3" },
-#      RouteTableIds": [{"Ref": "PrivateRouteTable1"}, {"Ref": "PrivateRouteTable2"}],
-#      VpcId: !Ref VPCID
-
   MolochElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     DependsOn: MolochELB
     Properties:
-      # DomainName: moloch-es
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes
@@ -350,8 +301,8 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
-          - !Ref PublicSubnet1ID
-          - !Ref PublicSubnet2ID
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
   MolochViewerListener:
@@ -569,22 +520,12 @@ Resources:
               command: !Sub
                 - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
                 - {bucket: !Ref MolochPCAPBucket}
-#            06c_updateConfig:
-#              command: !Sub
-#                - "echo 's3AccessKeyId='${S3IAMUser} >> /data/moloch/etc/config.ini"
-#                - {S3IAMUser: !Ref MolochS3AccessKey}
-#            06d_updateConfig:
-#              command: !Sub
-#                - "echo 's3SecretAccessKey='${S3IAMPass} >> /data/moloch/etc/config.ini"
-#                - {S3IAMPass: !GetAtt MolochS3AccessKey.SecretAccessKey}
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
               command: !Sub
                 - "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
                 - {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            #09_setupMolochGeoIP:
-            #  command: "/data/moloch/bin/moloch_update_geo.sh"
             10_setupMolochLogs:
               command: "mkdir /data/moloch/logs"
             11_setupMolochLogs:
@@ -632,8 +573,3 @@ Outputs:
     Value: !Sub
         - "http://${MolochDNS}:8005"
         - MolochDNS: !GetAtt MolochELB.DNSName
-#  MolochS3AccessKey:
-#    Value:
-#      !Ref MolochS3AccessKey
-#  MolochS3SecretKey:
-#    Value: !GetAtt MolochS3AccessKey.SecretAccessKey
