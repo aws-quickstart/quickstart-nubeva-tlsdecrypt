@@ -9,14 +9,14 @@ project:
     # - ap-southeast-2
     # - eu-central-1
     # - eu-north-1
-    # - eu-west-1
+    - eu-west-1
     # - eu-west-2
     # - eu-west-3
     # - sa-east-1
     # - us-east-1
     # - us-west-1
-    #- us-east-2
-    - us-west-2
+    # - us-east-2
+    # - us-west-2
     # - ca-central-1
 tests:
   default:
@@ -26,13 +26,14 @@ tests:
       APIKey: "$[taskcat_genpass_10]"
       RemoteAccessCIDR: "10.0.0.0/0"
       KeyPairName: "$[taskcat_getkeypair]"
+      ToolAdmin: "tooladmin"
+      MolochInstall: "true"
+      NtopInstall: "true"
+      WiresharkInstall: "true"
+      SuricataInstall: "true"
+      ZeekInstall: "true"
+      ClientInstall: "true"
+      ToolPassword: "$[taskcat_genpass_10]"
       QSS3KeyPrefix: "quickstart-nubeva-tlsdecrypt/"
       QSS3BucketName: "$[taskcat_autobucket]"
-      ToolAdmin: "tooladmin"
-      MolochInstall: "false"
-      NtopInstall: "false"
-      WiresharkInstall: "false"
-      SuricataInstall: "false"
-      ZeekInstall: "true"
-      ClientInstall: "false"
-      ToolPassword: "$[taskcat_genpass_10]"
+      QSS3BucketRegion: "$[taskcat_current_region]"
