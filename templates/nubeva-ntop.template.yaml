@@ -32,12 +32,6 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
-  PublicSubnet1ID:
-    Description: Subnet Id for Public Subnet1
-    Type: AWS::EC2::Subnet::Id
-  PublicSubnet2ID:
-    Description: Subnet Id for Public Subnet2
-    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
@@ -147,13 +141,11 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  # Security Groups
   NtopSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: ntopng Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow ssh
   NtopSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -162,7 +154,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Inbound- allow VXLAN from ONLY the VPC
   NtopSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -171,7 +162,6 @@ Resources:
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  # Inbound- allow ntop
   NtopSecurityGroupntopinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -180,7 +170,6 @@ Resources:
       FromPort: 3000
       ToPort: 3000
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Outbound- allow all
   NtopSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -227,8 +216,8 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
-          - !Ref PublicSubnet1ID
-          - !Ref PublicSubnet2ID
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
 
@@ -438,10 +427,10 @@ Resources:
             01_download_and_install:
               command: "docker run --net=host --name ntopng -dit -p 3000:3000 lucaderi/ntopng-docker"
             #This doesnt work at present
-            02_setupToolAdmin:
-              command: !Sub
-                - "echo -n \"${password}\" | md5sum | xargs -I {} redis-cli SET ntopng.user.${admin}.password {}"
-                - {admin: !Ref ToolAdmin, password: !Ref ToolPassword}
+            #02_setupToolAdmin:
+            #  command: !Sub
+            #    - "echo -n \"${password}\" | md5sum | xargs -I {} redis-cli SET ntopng.user.${admin}.password {}"
+            #    - {admin: !Ref ToolAdmin, password: !Ref ToolPassword}
 
     Properties:
       UserData:

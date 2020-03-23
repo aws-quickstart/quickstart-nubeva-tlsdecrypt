@@ -84,13 +84,11 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  # Security Groups
   ClientSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Client Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow ssh
   ClientSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -99,7 +97,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Outbound- allow all
   ClientSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -239,9 +236,3 @@ Resources:
       KeyName:
         Ref: KeyPairName
       AssociatePublicIpAddress: false
-
-
-#Outputs:
-#  Login:
-#    Description: The username & password defaults are in the documentation
-#    Value: "https://docs.nubeva.com/ntopng"
