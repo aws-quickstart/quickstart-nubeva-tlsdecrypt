@@ -50,25 +50,25 @@ Metadata:
       ClientInstall:
         default: Install TLS generation clients
       ToolAdmin:
-        default: User name for tool administration
+        default: Administrator name
       ToolPassword:
-        default: Password for tool administration
+        default: Administrator password
       KeyPairName:
         default: SSH key name
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3BucketRegion:
-        default: Quick Start S3 bucket region
+        default: Quick Start S3 bucket Region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       NodeInstanceType:
-        default: Nodes instance type
+        default: Node instance type
       NumberOfNodes:
         default: Number of nodes
       MaximumNodes:
-        default: Maximum number of nodes per tool
+        default: Maximum nodes per tool
       PrivateSubnet1ID:
         default: Private subnet 1 ID
       PrivateSubnet2ID:
