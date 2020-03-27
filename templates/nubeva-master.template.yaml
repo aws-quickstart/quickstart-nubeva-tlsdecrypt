@@ -54,9 +54,9 @@ Metadata:
       ClientInstall:
         default: Install TLS generation clients
       ToolAdmin:
-        default: User name for tool administration
+        default: Administrator name
       ToolPassword:
-        default: Password for tool administration
+        default: Administrator password
       AvailabilityZones:
         default: Availability Zones
       APIKey:
@@ -74,13 +74,13 @@ Metadata:
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3BucketRegion:
-        default: Quick Start S3 bucket region
+        default: Quick Start S3 bucket Region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       BastionAMIOS:
-        default: Bastion Amazon Machine Image (AMI) operating system
+        default: Bastion AMI operating system
       BastionInstanceType:
         default: Bastion instance type
       VPCCIDR:
@@ -88,9 +88,9 @@ Metadata:
       NodeInstanceType:
         default: Tool instance type
       NumberOfNodes:
-        default: Desired number of nodes per tool
+        default: Desired nodes per tool
       MaximumNodes:
-        default: Maximum number of nodes per tool
+        default: Maximum nodes per tool
 Parameters:
   MolochInstall:
     Default: true
