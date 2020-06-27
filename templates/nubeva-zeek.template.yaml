@@ -459,6 +459,8 @@ Resources:
           commands:
             01_addUpdaterclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
+            02_addEC2todockergroup:
+              command: "usermod -aG docker ec2-user"
             02_runZeekAlways:
               command: "echo '/opt/zeek/bin/start_zeek.sh' >> /etc/rc.local"
             03_installStartScript:
