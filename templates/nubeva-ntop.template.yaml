@@ -381,8 +381,7 @@ Resources:
           commands:
             01_addintrclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
-          02_adduprclocal:
-            04_chmod:
+            02_adduprclocal:
               command: "chmod +x /etc/rc.d/rc.local"
         AddRepo:
           commands:
@@ -425,7 +424,9 @@ Resources:
         StartNtop:
           commands:
             01_download_and_install:
-              command: "docker run --net=host --name ntopng -dit -p 3000:3000 lucaderi/ntopng-docker"
+              command: "docker run --net=host --name ntopng -dit -p 3000:3000 ntop/ntopng:stable"
+            02_addEC2todockergroup:
+              command: "usermod -aG docker ec2-user"
             #This doesnt work at present
             #02_setupToolAdmin:
             #  command: !Sub

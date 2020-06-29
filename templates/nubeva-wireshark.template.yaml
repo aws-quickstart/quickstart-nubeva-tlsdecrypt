@@ -12,14 +12,14 @@ Parameters:
     MaxLength: 16
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
-  # ToolPassword:
-  #   Description: The password that is associated with the user account for the cluster that is being created.
-  #   NoEcho: true
-  #   Type: String
-  #   MinLength: 8
-  #   MaxLength: 32
-  #   AllowedPattern: "[a-zA-Z0-9]*"
-  #   ConstraintDescription: must contain only 8-32 alphanumeric characters
+  ToolPassword:
+    Description: The password that is associated with the user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -100,42 +100,75 @@ Metadata:
 
 Mappings:
   AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
     # AMI:
     #   ubuntu1804: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
     # ap-east-1:
     #   ubuntu1804: "ami-e0ff8491"
-    ap-northeast-1:
-      ubuntu1804: "ami-0cb1c8cab7f5249b6"
-    ap-northeast-2:
-      ubuntu1804: "ami-081626bfb3fbc9f49"
-    ap-south-1:
-      ubuntu1804: "ami-0cf8402efdb171312"
-    ap-southeast-1:
-      ubuntu1804: "ami-099d318f80eab7e94"
-    ap-southeast-2:
-      ubuntu1804: "ami-08a648fb5cc86fb74"
-    eu-central-1:
-      ubuntu1804: "ami-0cdab515472ca0bac"
-    eu-north-1:
-      ubuntu1804: "ami-c37bf0bd"
-    eu-west-1:
-      ubuntu1804: "ami-01cca82393e531118"
-    eu-west-2:
-      ubuntu1804: "ami-0a7c91b6616d113b1"
-    eu-west-3:
-      ubuntu1804: "ami-033e0056c336ecff0"
-    us-east-1:
-      ubuntu1804: "ami-064a0193585662d74"
-    us-east-2:
-      ubuntu1804: "ami-021b7b04f1ac696c2"
-    us-west-1:
-      ubuntu1804: "ami-056d04da775d124d7"
-    us-west-2:
-      ubuntu1804: "ami-09a3d8a7177216dcf"
-    ca-central-1:
-      ubuntu1804: "ami-0bc1dd4eb012a451e"
-    sa-east-1:
-      ubuntu1804: "ami-094c359b4d8c6a8ca"
+    #ap-northeast-1:
+    #  ubuntu1804: "ami-0cb1c8cab7f5249b6"
+#    ap-northeast-2:
+#      ubuntu1804: "ami-081626bfb3fbc9f49"
+#    ap-south-1:
+#      ubuntu1804: "ami-0cf8402efdb171312"
+#    ap-southeast-1:
+#      ubuntu1804: "ami-099d318f80eab7e94"
+#    ap-southeast-2:
+#      ubuntu1804: "ami-08a648fb5cc86fb74"
+#    eu-central-1:
+#      ubuntu1804: "ami-0cdab515472ca0bac"
+#    eu-north-1:
+#      ubuntu1804: "ami-c37bf0bd"
+##      ubuntu1804: "ami-01cca82393e531118"
+#    eu-west-2:
+#      ubuntu1804: "ami-0a7c91b6616d113b1"
+#    eu-west-3:
+#      ubuntu1804: "ami-033e0056c336ecff0"
+#    us-east-1:
+#      ubuntu1804: "ami-064a0193585662d74"
+#    us-east-2:
+#      ubuntu1804: "ami-021b7b04f1ac696c2"
+#    us-west-1:
+#      ubuntu1804: "ami-056d04da775d124d7"
+#    us-west-2:
+#      ubuntu1804: "ami-09a3d8a7177216dcf"
+#    ca-central-1:
+#      ubuntu1804: "ami-0bc1dd4eb012a451e"
+#    sa-east-1:
+#      ubuntu1804: "ami-094c359b4d8c6a8ca"
 
 Resources:
   WiresharkSecurityGroup:
@@ -164,8 +197,8 @@ Resources:
     Properties:
       GroupId: !Ref "WiresharkSecurityGroup"
       IpProtocol: tcp
-      FromPort: 3389
-      ToPort: 3389
+      FromPort: 14500
+      ToPort: 14500
       CidrIp: !Ref "RemoteAccessCIDR"
   WiresharkSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
@@ -236,7 +269,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
-      Port: 3389
+      Port: 14500
       Protocol: TCP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
@@ -256,7 +289,7 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-      HealthCheckPort: '3389'
+      HealthCheckPort: '14500'
   WiresharkELBTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
     Properties:
@@ -366,27 +399,25 @@ Resources:
 
         ConfigStartup:
           commands:
-            01_touch:
-              command: "touch /etc/rc.local"
-            02_start:
-              command: "echo '#!/bin/bash -xe' >> /etc/rc.local"
-            03_chmod:
-              command: "chmod +x /etc/rc.local"
+            01_addintrclocal:
+              command: "echo 'yum update -y' >> /etc/rc.local"
+            02_adduprclocal:
+              command: "chmod +x /etc/rc.d/rc.local"
         InstallServices:
           packages:
-            apt:
-              wireshark: []
-              lxde: []
-              xrdp: []
+            yum:
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
         InstallNurxAgent:
           commands:
-            00_sleep:
-              command: "sleep 15"
-            01_update:
-              command: "apt-get update && apt-get upgrade -y"
-          packages:
-            apt:
-              docker.io: []
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
         #InstallVXLANInterface:
         #  commands:
         #    01_createVXLAN:
@@ -399,46 +430,28 @@ Resources:
         #      command: "echo 'ip link set vxlan333 up' >> /etc/rc.local"
         StartUpdate:
           commands:
-            00_startdocker:
-              command: "systemctl start docker && systemctl enable docker"
-            01_download_and_install:
+            01_addsrclocalupdate:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-            01_addsrclocalupdate:
-              command: "echo 'apt-get update -y' >> /etc/rc.local"
-            02_addsmorerclocalupdate:
-              command: "echo 'apt-get upgrade -y' >> /etc/rc.local"
-            03_allowXRDP:
-              command: "sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config"
-            04_addUser:
-              command: !Sub
-                - "useradd ${admin}"
-                - {admin: !Ref ToolAdmin}
-            #IN DEVELOPMENT
-            #05_passwdUser:
-              #command: !Sub
-                #- "echo -e '${password}\n${password}' | passwd ${admin}"
-                #- {password: !Ref ToolPassword, admin: !Ref ToolAdmin}
+                  docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name ${ToolAdmin} -e XPRA_PW=${ToolPassword} ffeldhaus/wireshark
+#              command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
+            02_addEC2todockergroup:
+              command: "usermod -aG docker ec2-user"
+
     Properties:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          export DEBIAN_FRONTEND=noninteractive
-          rm /boot/grub/menu.lst
-          update-grub-legacy-ec2 -y
-          apt-get dist-upgrade -qq --allow-change-held-packages
-          apt-get update
-          apt-get upgrade -yq
-          apt-get install python-pip -y
-          pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
-          cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
-          cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkAutoScalingGroup
+          amazon-linux-extras install epel -y
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
-        - ubuntu1804
+        - awslinux2
       SecurityGroups:
       - !Ref "WiresharkSecurityGroup"
       IamInstanceProfile: !Ref WiresharkInstanceProfile
@@ -449,11 +462,11 @@ Resources:
         Ebs:
           VolumeSize: 100
 Outputs:
-  RDPLogin:
+  Login:
     Description: See documentation for tool acceess details.
     Value: "https://docs.nubeva.com/en/cloudtools/tools/wireshark.html"
   URL:
-    Description: The RDP Connection for any instance's Wireshark
+    Description: The URL for any instance's Wireshark
     Value: !Sub
-      - "rdp://${WiresharkDNS}"
+      - "https://${WiresharkDNS}:14500"
       - WiresharkDNS: !GetAtt WiresharkELB.DNSName

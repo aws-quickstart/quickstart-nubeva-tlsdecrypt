@@ -27,6 +27,7 @@ Metadata:
       - ClientInstall
       - ToolAdmin
       - ToolPassword
+      - AddESRole
     - Label:
         default: Auto Scaling group configuration
       Parameters:
@@ -53,6 +54,8 @@ Metadata:
         default: Install Zeek ASG
       ClientInstall:
         default: Install TLS generation clients
+      AddESRole:
+        default: Install Elasticsearch Service Linked Role
       ToolAdmin:
         default: Administrator name
       ToolPassword:
@@ -133,6 +136,13 @@ Parameters:
     - true
     - false
     Description: Choose to install TLS generation clients.
+    Type: String
+  AddESRole:
+    Default: false
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Elasticsearch Service Linked Role.
     Type: String
   ToolAdmin:
     Description: User name associated with the administrator account for the created tools.
@@ -342,7 +352,7 @@ Resources:
   NubevaStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-existing-vpc.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -369,3 +379,4 @@ Resources:
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
         ClientInstall: !Ref ClientInstall
+        AddESRole: !Ref AddESRole

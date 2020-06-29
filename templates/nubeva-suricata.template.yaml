@@ -460,6 +460,8 @@ Resources:
               command: "echo 'suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata' >> /etc/rc.local"
             06_startSuricata:
               command: "suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata"
+            07_addEC2todockergroup:
+              command: "usermod -aG docker ec2-user"
 
 
 

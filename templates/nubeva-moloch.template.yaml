@@ -538,7 +538,9 @@ Resources:
               command: "echo 'sleep 30' >> /etc/rc.local"
             02_addMolochrclocal:
               command: "echo '/data/moloch/start_moloch.sh' >> /etc/rc.local"
-            03_startMoloch:
+            03_addEC2todockergroup:
+              command: "usermod -aG docker ec2-user"
+            04_startMoloch:
               command: "/data/moloch/start_moloch.sh"
 
     Properties:
