@@ -53,7 +53,7 @@ Metadata:
       ClientInstall:
         default: Install TLS generation clients
       AddESRole:
-        default: Install Elasticsearch Service Linked Role
+        default: Install Elasticsearch service-linked role
       ToolAdmin:
         default: Administrator name
       ToolPassword:
@@ -133,7 +133,7 @@ Parameters:
     AllowedValues:
     - true
     - false
-    Description: Choose to install Elasticsearch Service Linked Role.
+    Description: Choose to install Elasticsearch service-linked role.
     Type: String
   KeyPairName:
     Description: Name of an existing key pair, which allows you
@@ -148,7 +148,7 @@ Parameters:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
   ToolPassword:
-    Description: must contain only 8-32 alphanumeric characters.
+    Description: Must contain only 8-32 alphanumeric characters.
     NoEcho: true
     Type: String
     MinLength: 8
@@ -219,7 +219,7 @@ Parameters:
     Type: Number
   MaximumNodes:
     Default: 6
-    Description: Maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
+    Description: Maximum number of EC2 instance nodes in the tool Auto Scaling group.
     Type: String
   APIKey:
     Description: Token for your Nubeva account.
