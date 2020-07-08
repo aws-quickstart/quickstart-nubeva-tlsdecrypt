@@ -784,10 +784,14 @@ table p {
 </li>
 <li><a href="#_deployment_steps">Deployment Steps</a>
 <ul class="sectlevel2">
+<li><a href="#_sign_in_to_your_aws_account">Sign in to your AWS account</a></li>
+<li><a href="#_launch_the_quick_start">Launch the Quick Start</a></li>
 <li><a href="#_launch_into_an_existing_vpc">Launch into an existing VPC</a></li>
 <li><a href="#_launch_into_a_new_existing_vpc">Launch into a new existing VPC</a></li>
 </ul>
 </li>
+<li><a href="#_test_the_deployment">Test the deployment</a></li>
+<li><a href="#_faq">FAQ</a></li>
 <li><a href="#_send_us_feedback">Send us feedback</a></li>
 <li><a href="#_quick_start_reference_deployments">Quick Start reference deployments</a></li>
 <li><a href="#_github_repository">GitHub Repository</a>
@@ -803,20 +807,12 @@ table p {
 <div class="sectionbody">
 <h2 id="_nubeva_tls_decrypt_on_the_aws_cloud" class="discrete text-center"><em>Nubeva TLS Decrypt</em> on the AWS Cloud</h2>
 <h2 id="_quick_start_reference_deployment" class="discrete text-left text-center">Quick Start Reference Deployment</h2>
-<h3 id="_draft_document_unofficial_guidance" class="discrete text-center">DRAFT DOCUMENT / UNOFFICIAL GUIDANCE</h3>
-<div class="exampleblock">
-<div class="content">
 <div class="paragraph text-center">
 <p><strong>February, 2020</strong><br>
 <em>Erik Freeland, Nubeva</em><br>
 <em>Dylan Owen and Roy Rodan, Amazon Web Services</em></p>
 </div>
-</div>
-</div>
-<div class="paragraph">
-<p><em><strong>The above information is configured within <code>partner_editable/_settings.adoc</code></strong></em></p>
-</div>
-<div class="admonitionblock tip">
+<div class="admonitionblock tip text-left">
 <table>
 <tr>
 <td class="icon">
@@ -841,11 +837,6 @@ report bugs, or submit feature ideas for this Quick Start.
 <p>This Quick Start reference deployment guide provides step-by-step
 instructions for deploying <em>Nubeva TLS Decrypt</em> on the AWS Cloud.</p>
 </div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/overview_target_and_usage</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
 <div class="paragraph">
 <p>This Quick Start reference deployment guide provides step-by-step instructions for
 deploying an out-of-band, open-source monitoring stack for AWS. Launched tools come
@@ -878,8 +869,6 @@ data leakage within their virtual private cloud (VPC) and Amazon Elastic Compute
 </li>
 </ul>
 </div>
-</div>
-</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -900,11 +889,6 @@ collaborated with AWS on the content of the Quick Start.
 <h2 id="_nubeva_tls_decrypt_on_aws"><em>Nubeva TLS Decrypt</em> on AWS</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/product_description.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
-<div class="paragraph">
 <p>Nubeva’s TLS visibility solution is a software as a service (SaaS) that provides complete
 packet visibility of any public cloud with TLS decryption capabilities. All the open-source
 tools in this solution are complemented by Nubeva TLS Decrypt, which provides additional
@@ -917,8 +901,6 @@ Amazon VPC traffic mirroring isn’t available — as they flow through these in
 packets are sent through a secure channel to be analyzed and visualized by the open-source
 tools you choose. This provides clear visibility of your network traffic so you can identify
 unexpected network behavior, perform network analysis, and detect intrusions.</p>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -955,26 +937,14 @@ After you deploy the Quick Start, we recommend that you enable the <a href="http
 <h2 id="_software_licenses">Software Licenses</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/licenses.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
-<div class="paragraph">
 <p>This Quick Start requires an account on the Nubeva SaaS console, as described in the
 <a href="#_deployment_steps">Deployment Steps</a>, later in this guide.</p>
-</div>
-</div>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_architecture">Architecture</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/architecture.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
 <div class="paragraph">
 <p>Deploying this Quick Start for a new virtual private cloud (VPC) with
 <strong>default parameters</strong> builds the following Nubeva network and security monitoring environment in the
@@ -1069,8 +1039,6 @@ configuration.</p>
 </div>
 </div>
 </div>
-</div>
-</div>
 <div class="sect1">
 <h2 id="_planning_the_deployment">Planning the deployment</h2>
 <div class="sectionbody">
@@ -1084,14 +1052,6 @@ and the <a href="https://aws.amazon.com/training/">AWS Training and Certificatio
 website</a>. These sites provide materials for learning how to design,
 deploy, and operate your infrastructure and applications on the AWS
 Cloud.</p>
-</div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/specialized_knowledge.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
-
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -1113,11 +1073,6 @@ Cloud.</p>
 <div class="paragraph">
 <p>If necessary, request <a href="https://console.aws.amazon.com/servicequotas/home?region=us-east-2#!/">service quota increases</a> for the following resources. You might need to do this if an existing deployment uses these resources, and you might exceed the default quotas with this deployment. The <a href="https://console.aws.amazon.com/servicequotas/home?region=us-east-2#!/">Service Quotas console</a> displays your usage and quotas for some aspects of some services. For more information, see the <a href="https://docs.aws.amazon.com/servicequotas/latest/userguide/intro.html">AWS documentation</a>.</p>
 </div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/service_limits.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1132,51 +1087,36 @@ Cloud.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">VPCs</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Elastic IP addresses</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">AWS Identity and Access Management (IAM) security groups</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IAM roles</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Auto Scaling groups</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Application Load Balancers</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Elastic Load Balancers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Network Load Balancers</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;type&gt; instances</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;n&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">m5.large instances</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
 </div>
 <div class="sect3">
 <h4 id="_supported_regions">Supported Regions</h4>
 <div class="paragraph">
 <p>The following regions are currently supported by this Quick Start Reference Architecture.</p>
 </div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/regions.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
 <div class="ulist">
 <ul>
 <li>
@@ -1186,8 +1126,6 @@ Cloud.</p>
 <p><em>us-east-2 (Ohio)</em> (EXAMPLE)</p>
 </li>
 </ul>
-</div>
-</div>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1204,13 +1142,6 @@ Certain regions are available on an opt-in basis. Please refer to the AWS Docume
 </div>
 <div class="sect3">
 <h4 id="_ec2_key_pairs">EC2 Key Pairs</h4>
-<div class="exampleblock">
-<div class="content">
-<div class="paragraph">
-<p><em>This section is conditional on EC2 instances being used in the Cloudformation Templates</em></p>
-</div>
-</div>
-</div>
 <div class="paragraph">
 <p>Make sure that at least one <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html">Amazon EC2 key pair</a> exists in your AWS account in the Region where you plan to deploy the Quick Start. Make note of the key pair name. You need it during deployment. To create a key pair, follow the <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html">instructions in the AWS documentation</a>.</p>
 </div>
@@ -1226,14 +1157,9 @@ Certain regions are available on an opt-in basis. Please refer to the AWS Docume
 <div class="paragraph">
 <p>The <em>AdministratorAccess</em> managed policy within IAM provides sufficient permissions, although your organization may choose to use a custom policy with more restrictions.</p>
 </div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/pre-reqs.adoc</code></strong></em></p>
 </div>
-<div class="exampleblock">
-<div class="content">
-<div class="paragraph">
-<p>==== Prepare your Nubeva account</p>
-</div>
+<div class="sect3">
+<h4 id="_prepare_your_nubeva_account">Prepare your Nubeva account</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1255,15 +1181,8 @@ partners to log in.</p>
 <div class="title">Figure 2. Copy the Nubeva token</div>
 </div>
 </div>
-</div>
-</div>
 <div class="sect3">
 <h4 id="_deployment_options">Deployment options</h4>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/deployment_options.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
 <div class="paragraph">
 <p>This Quick Start provides two deployment options:</p>
 </div>
@@ -1284,19 +1203,11 @@ partners to log in.</p>
 </div>
 </div>
 </div>
-</div>
-</div>
 <div class="sect1">
 <h2 id="_deployment_steps">Deployment Steps</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/deploy_steps</em>.adoc</code></strong>_</p>
-</div>
-<div class="exampleblock">
-<div class="content">
-<div class="paragraph">
-<p>=== Sign in to your AWS account</p>
-</div>
+<div class="sect2">
+<h3 id="_sign_in_to_your_aws_account">Sign in to your AWS account</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1307,9 +1218,9 @@ partners to log in.</p>
 </li>
 </ol>
 </div>
-<div class="paragraph">
-<p>=== Launch the Quick Start</p>
 </div>
+<div class="sect2">
+<h3 id="_launch_the_quick_start">Launch the Quick Start</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1377,8 +1288,6 @@ If you’re deploying Nubeva TLS Decrypt into an existing VPC, make sure that yo
 </li>
 </ol>
 </div>
-</div>
-</div>
 <div class="paragraph">
 <p>In the following tables, parameters are listed by category and described separately for the deployment options. When you finish reviewing and customizing the parameters, choose <strong>Next</strong>.</p>
 </div>
@@ -1394,6 +1303,7 @@ Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick S
 </td>
 </tr>
 </table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_launch_into_an_existing_vpc">Launch into an existing VPC</h3>
@@ -1849,14 +1759,12 @@ Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick S
 </div>
 <div class="title">Figure 3. Nubeva TLS Decrypt outputs after successful deployment</div>
 </div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/additional_info.adoc</code></strong></em></p>
 </div>
-<div class="exampleblock">
-<div class="content">
-<div class="paragraph">
-<p>== Test the deployment</p>
 </div>
+</div>
+<div class="sect1">
+<h2 id="_test_the_deployment">Test the deployment</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>By default, this Quick Start includes TLS clients that generate standard web traffic as
 well as simulated attack instances. To validate the deployment and view the simulated
@@ -1934,14 +1842,9 @@ the output of the CloudFormation stack.</p>
 </div>
 </div>
 </div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/faq_troubleshooting.adoc</code></strong></em></p>
-</div>
-<div class="exampleblock">
-<div class="content">
-<div class="paragraph">
-<p>== FAQ</p>
-</div>
+<div class="sect1">
+<h2 id="_faq">FAQ</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p><strong>Q.</strong> I encountered a <strong>CREATE_FAILED</strong> error when I launched the Quick Start.</p>
 </div>
@@ -1968,9 +1871,6 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 </div>
 <div class="paragraph">
 <p><strong>A.</strong> We recommend that you launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information about AWS CloudFormation quotas, see the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html">AWS documentation</a>.</p>
-</div>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -2021,7 +1921,7 @@ and to share your customizations with others.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-07-08 02:08:10 UTC
+Last updated 2020-07-08 03:30:57 UTC
 </div>
 </div>
 </body>
