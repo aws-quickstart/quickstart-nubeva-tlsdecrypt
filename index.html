@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Example Product Name on the AWS Cloud</title>
+<title>Nubeva TLS Decrypt on the AWS Cloud</title>
 <style>
 
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -771,7 +771,7 @@ table p {
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_overview">Overview</a></li>
-<li><a href="#_example_product_name_on_aws"><em>Example Product Name</em> on AWS</a></li>
+<li><a href="#_nubeva_tls_decrypt_on_aws"><em>Nubeva TLS Decrypt</em> on AWS</a></li>
 <li><a href="#_cost">Cost</a></li>
 <li><a href="#_software_licenses">Software Licenses</a></li>
 <li><a href="#_architecture">Architecture</a></li>
@@ -791,12 +791,7 @@ table p {
 </ul>
 </li>
 <li><a href="#_test_the_deployment">Test the deployment</a></li>
-<li><a href="#_post_deployment_steps">Post deployment steps</a></li>
-<li><a href="#_best_practices_for_using_example_product_name_on_aws">Best practices for using Example Product Name on AWS</a></li>
-<li><a href="#_security">Security</a></li>
-<li><a href="#_other_useful_information">Other useful information</a></li>
 <li><a href="#_faq">FAQ</a></li>
-<li><a href="#_troubleshooting">Troubleshooting</a></li>
 <li><a href="#_send_us_feedback">Send us feedback</a></li>
 <li><a href="#_quick_start_reference_deployments">Quick Start reference deployments</a></li>
 <li><a href="#_github_repository">GitHub Repository</a>
@@ -810,12 +805,12 @@ table p {
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
-<h2 id="_example_product_name_on_the_aws_cloud" class="discrete text-center"><em>Example Product Name</em> on the AWS Cloud</h2>
+<h2 id="_nubeva_tls_decrypt_on_the_aws_cloud" class="discrete text-center"><em>Nubeva TLS Decrypt</em> on the AWS Cloud</h2>
 <h2 id="_quick_start_reference_deployment" class="discrete text-left text-center">Quick Start Reference Deployment</h2>
 <div class="paragraph text-center">
-<p><strong>May, 2020</strong><br>
-<em>John Doe and Jane Doe - Example Company Name, Ltd.</em><br>
-<em>Jim Smith - AWS Global Partner SA, AWS + Joe Jones - Technical Product Manager, AWS</em></p>
+<p><strong>February, 2020</strong><br>
+<em>Erik Freeland, Nubeva</em><br>
+<em>Dylan Owen and Roy Rodan, Amazon Web Services</em></p>
 </div>
 <div class="admonitionblock tip text-left">
 <table>
@@ -824,14 +819,14 @@ table p {
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Visit our <a href="https://github.com/aws-quickstart/quickstart-documentation-base">GitHub repository</a> for source files and to post feedback,
+Visit our <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt">GitHub repository</a> for source files and to post feedback,
 report bugs, or submit feature ideas for this Quick Start.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph text-left">
-<p>This Quick Start was created by <em>Example Company Name, Ltd.</em> in collaboration with Amazon Web Services (AWS). <a href="http://aws.amazon.com/quickstart/">Quick Starts</a> are automated reference deployments that use AWS CloudFormation templates to deploy key technologies on AWS, following AWS best practices.</p>
+<p>This Quick Start was created by <em>Nubeva</em> in collaboration with Amazon Web Services (AWS). <a href="http://aws.amazon.com/quickstart/">Quick Starts</a> are automated reference deployments that use AWS CloudFormation templates to deploy key technologies on AWS, following AWS best practices.</p>
 </div>
 </div>
 </div>
@@ -840,10 +835,39 @@ report bugs, or submit feature ideas for this Quick Start.
 <div class="sectionbody">
 <div class="paragraph">
 <p>This Quick Start reference deployment guide provides step-by-step
-instructions for deploying <em>Example Product Name</em> on the AWS Cloud.</p>
+instructions for deploying <em>Nubeva TLS Decrypt</em> on the AWS Cloud.</p>
 </div>
 <div class="paragraph">
-<p>This Quick Start is for users who &lt;target audience and usage scenario&gt;</p>
+<p>This Quick Start reference deployment guide provides step-by-step instructions for
+deploying an out-of-band, open-source monitoring stack for AWS. Launched tools come
+with the Nubeva Transport Layer Security (TLS) Decrypt platform pre-configured on the
+AWS Cloud. The stack includes the open-source tools Moloch, Ntopng, Suricata, Wireshark,
+and Zeek.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Moloch</strong> is a large-scale, open-source, indexed packet-capture-and-search system.</p>
+</li>
+<li>
+<p><strong>Ntopng</strong> is a free, open-source packet analyzer and flow collection tool.</p>
+</li>
+<li>
+<p><strong>Suricata</strong> is a high-performance engine that comprises a network intrusion detection
+system (IDS), an intrusion prevention system (IPS), and network security
+monitoring (NSM).</p>
+</li>
+<li>
+<p><strong>Wireshark</strong> is a free, open-source packet analyzer for network troubleshooting.</p>
+</li>
+<li>
+<p><strong>Zeek</strong> is a powerful network analysis framework used for intrusion detection by
+looking at anomalous network activity to find suspicious data flows.
+This Quick Start is for users who want to identify malicious activity, insider threats, and
+data leakage within their virtual private cloud (VPC) and Amazon Elastic Compute Cloud
+(Amazon EC2) instances with decrypted visibility.</p>
+</li>
+</ul>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -862,10 +886,21 @@ collaborated with AWS on the content of the Quick Start.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_example_product_name_on_aws"><em>Example Product Name</em> on AWS</h2>
+<h2 id="_nubeva_tls_decrypt_on_aws"><em>Nubeva TLS Decrypt</em> on AWS</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>&lt;Describe how the software works on AWS.&gt;</p>
+<p>Nubeva’s TLS visibility solution is a software as a service (SaaS) that provides complete
+packet visibility of any public cloud with TLS decryption capabilities. All the open-source
+tools in this solution are complemented by Nubeva TLS Decrypt, which provides additional
+intelligence and insight into encrypted data.</p>
+</div>
+<div class="paragraph">
+<p>Container-based Nubeva TLS Decrypt sensors are deployed on your monitored instances,
+which capture TLS session keys  — as well as associated packet traffic for any instance where
+Amazon VPC traffic mirroring isn’t available — as they flow through these instances. The
+packets are sent through a secure channel to be analyzed and visualized by the open-source
+tools you choose. This provides clear visibility of your network traffic so you can identify
+unexpected network behavior, perform network analysis, and detect intrusions.</p>
 </div>
 </div>
 </div>
@@ -902,19 +937,8 @@ After you deploy the Quick Start, we recommend that you enable the <a href="http
 <h2 id="_software_licenses">Software Licenses</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>These two paragraphs provide an example of the details you can provide. Provide links as appropriate.</p>
-</div>
-<div class="paragraph">
-<p>Example content below:</p>
-</div>
-<div class="paragraph">
-<p><em>&lt;license information&gt;This Quick Start requires a license for Example Product Name. To use the Quick Start in your production environment, sign up for a license at &lt;link&gt;. When you launch the Quick Start, place the license key in an S3 bucket and specify its location.</em></p>
-</div>
-<div class="paragraph">
-<p><em>If you don’t have a license, the Quick Start deploys with a trial license. The trial license gives you &lt;n&gt; days of free usage in a non-production environment. After this time, you can upgrade to a production license by following the instructions at &lt;link&gt;.</em></p>
-</div>
-<div class="paragraph">
-<p><em>&lt;AMI information&gt;The Quick Start requires a subscription to the Amazon Machine Image (AMI) for Example Product Name, which is available from <a href="https://aws.amazon.com/marketplace/">AWS Marketplace</a>. Additional pricing, terms, and conditions may apply. For instructions, see <a href="#step-2.-subscribe-to-the-software-ami">step 2</a> in the deployment section.</em></p>
+<p>This Quick Start requires an account on the Nubeva SaaS console, as described in the
+<a href="#_deployment_steps">Deployment Steps</a>, later in this guide.</p>
 </div>
 </div>
 </div>
@@ -923,17 +947,17 @@ After you deploy the Quick Start, we recommend that you enable the <a href="http
 <div class="sectionbody">
 <div class="paragraph">
 <p>Deploying this Quick Start for a new virtual private cloud (VPC) with
-<strong>default parameters</strong> builds the following <em>Example Product Name</em> environment in the
+<strong>default parameters</strong> builds the following Nubeva network and security monitoring environment in the
 AWS Cloud.</p>
 </div>
 <div id="architecture1" class="imageblock">
 <div class="content">
-<a class="image" href="images/architecture_diagram.png"><img src="images/architecture_diagram.png" alt="Architecture" width="648" height="439"></a>
+<a class="image" href="https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png"><img src="https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png" alt="Architecture" width="648" height="439"></a>
 </div>
-<div class="title">Figure 1. Quick Start architecture for <em>Example Product Name</em> on AWS</div>
+<div class="title">Figure 1. Quick Start architecture for <em>Nubeva TLS Decrypt</em> on AWS</div>
 </div>
 <div class="paragraph">
-<p>As shown in Figure 1, the Quick Start sets up the following:</p>
+<p>The Quick Start sets up the following:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -941,29 +965,72 @@ AWS Cloud.</p>
 <p>A highly available architecture that spans two Availability Zones.*</p>
 </li>
 <li>
-<p>A VPC configured with public and private subnets, according to AWS
-best practices, to provide you with your own virtual network on AWS.*</p>
+<p>A VPC configured with public and private subnets, according to AWS best practices, to
+provide you with your own virtual network on AWS.*</p>
 </li>
-</ul>
-</div>
-<div class="paragraph">
+<li>
+<p>Elastic Load Balancing (ELB) for each open-source tool, to provide scaling for the tool
+operation itself and for inbound packet mirroring using Amazon VPC traffic mirrors or
+internal replication.</p>
+</li>
+<li>
+<p>Amazon Elasticsearch Service (Amazon ES) for the open-source tools that require
+Elasticsearch, Moloch, or for managing the logs from Zeek and Suricata.</p>
+</li>
+<li>
+<p>An Amazon S3 bucket for Moloch packet capture (PCAP) storage.</p>
+</li>
+<li>
+<p>Amazon VPC traffic mirroring targets connected to each open-source load balancer.</p>
+</li>
+<li>
 <p>In the public subnets:</p>
-</div>
 <div class="ulist">
 <ul>
 <li>
 <p>Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the private subnets.*</p>
+internet access for resources in the subnets.*</p>
 </li>
 <li>
-<p>A Linux bastion host in an Auto Scaling group to allow inbound Secure
-Shell (SSH) access to EC2 instances in public and private subnets.*</p>
+<p>Bastion host for all inbound connectivity.*</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>In the private subnets:
-* &lt;describe any additional components&gt;.</p>
+</li>
+<li>
+<p>In the private subnets:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>A source instance in an Auto Scaling group (of size 2). This is a sample instance
+you can use to monitor TLS traffic. After deployment, use the Nubeva SaaS
+console to add more instances to monitor.</p>
+</li>
+<li>
+<p>The source instance has a container-based Nubeva TLS Decrypt agent deployed.
+This agent listens through all available interfaces, discovers TLS session keys,
+and, optionally, mirrors a copy of the packet stream to the open-source tools for
+analysis.</p>
+</li>
+<li>
+<p>Moloch packet capture in an Auto Scaling group (of size 2).</p>
+</li>
+<li>
+<p>Ntop network analysis in an Auto Scaling group (of size 2).</p>
+</li>
+<li>
+<p>Suricata signature detection in an Auto Scaling group (of size 2).</p>
+</li>
+<li>
+<p>Wireshark packet analysis in an Auto Scaling group (of size 2).</p>
+</li>
+<li>
+<p>Zeek anomaly detection in an Auto Scaling group (of size 2).</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>*The template that deploys the Quick Start into an existing VPC skips
@@ -985,9 +1052,6 @@ and the <a href="https://aws.amazon.com/training/">AWS Training and Certificatio
 website</a>. These sites provide materials for learning how to design,
 deploy, and operate your infrastructure and applications on the AWS
 Cloud.</p>
-</div>
-<div class="paragraph">
-<p>This Quick Start assumes familiarity with &lt;knowledge expectations&gt;.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1103,21 +1167,26 @@ Certain regions are available on an opt-in basis. Please refer to the AWS Docume
 </div>
 </div>
 <div class="sect3">
-<h4 id="_prepare_your_aws_account">Prepare your AWS account</h4>
-<div class="paragraph">
-<p><em>Describe any setup required in the AWS account prior to template launch</em></p>
+<h4 id="_prepare_your_nubeva_account">Prepare your Nubeva account</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to www.nubeva.com, and choose Login from the main menu.</p>
+</li>
+<li>
+<p>First-time users are prompted to create an account. You can use one of the OAuth
+partners to log in.</p>
+</li>
+<li>
+<p>Copy in the Nubeva token.</p>
+</li>
+</ol>
 </div>
+<div id="nubeva_saas" class="imageblock">
+<div class="content">
+<a class="image" href="../images/nubeva_sass.png"><img src="images/nubeva_sass.png" alt="nubeva_saas" width="648" height="439"></a>
 </div>
-<div class="sect3">
-<h4 id="_prepare_your_example_company_name_ltd_account">Prepare your Example Company Name, Ltd. account</h4>
-<div class="paragraph">
-<p><em>Describe any setup required in the partner portal/account prior to template launch</em></p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_prepare_for_the_deployment">Prepare for the deployment</h4>
-<div class="paragraph">
-<p><em>Describe any preparation required to complete the product build, such as obtaining licenses or placing files in S3</em></p>
+<div class="title">Figure 2. Copy the Nubeva token</div>
 </div>
 </div>
 <div class="sect3">
@@ -1128,15 +1197,15 @@ Certain regions are available on an opt-in basis. Please refer to the AWS Docume
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Deploy Example Product Name into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components. It then deploys Example Product Name into this new VPC.</p>
+<p><strong>Deploy Nubeva TLS Decrypt into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components. It then deploys Nubeva TLS Decrypt into this new VPC.</p>
 </li>
 <li>
-<p><strong>Deploy Example Product Name into an existing VPC</strong>. This option provisions Example Product Name in your existing AWS infrastructure.</p>
+<p><strong>Deploy Nubeva TLS Decrypt into an existing VPC</strong>. This option provisions Nubeva TLS Decrypt in your existing AWS infrastructure.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and Example Product Name settings, as discussed later in this guide.</p>
+<p>The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and Nubeva TLS Decrypt settings, as discussed later in this guide.</p>
 </div>
 </div>
 </div>
@@ -1150,10 +1219,10 @@ Certain regions are available on an opt-in basis. Please refer to the AWS Docume
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Sign in to your AWS account at <a href="https://aws.amazon.com" class="bare">https://aws.amazon.com</a> with an IAM user role that has the necessary permissions. For details, see <a href="#planning-the-deployment">Planning the deployment</a> earlier in this guide.</p>
+<p>Sign in to your AWS account at <a href="https://aws.amazon.com" class="bare">https://aws.amazon.com</a> with an IAM user role that has the necessary permissions. For details, see <a href="_planning_the_deployment">Planning the deployment</a> earlier in this guide.</p>
 </li>
 <li>
-<p>Make sure that your AWS account is configured correctly, as discussed in the <a href="#technical-requirements">Technical requirements</a> section.</p>
+<p>Make sure that your AWS account is configured correctly, as discussed in the <a href="#_technical_requirements">Technical requirements</a> section.</p>
 </li>
 </ol>
 </div>
@@ -1175,7 +1244,7 @@ You are responsible for the cost of the AWS services used while running this Qui
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Sign in to your AWS account, and choose one of the following options to launch the AWS CloudFormation template. For help with choosing an option, see <a href="#_Automated_Deployment">deployment options</a> earlier in this guide.</p>
+<p>Sign in to your AWS account, and choose one of the following options to launch the AWS CloudFormation template. For help with choosing an option, see <a href="#_deployment_options">deployment options</a> earlier in this guide.</p>
 </li>
 </ol>
 </div>
@@ -1185,10 +1254,10 @@ You are responsible for the cost of the AWS services used while running this Qui
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://qs_launch_link" target="_blank" rel="noopener">Deploy Example Product Name into a new VPC on AWS</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://fwd.aws/3xyNN" target="_blank" rel="noopener">Deploy Nubeva TLS Decrypt into a new VPC on AWS</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://qs_launch_link" target="_blank" rel="noopener">Deploy Example Product Name into an existing VPC on AWS</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://fwd.aws/wxQDK" target="_blank" rel="noopener">Deploy Nubeva TLS Decrypt into an existing VPC on AWS</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1199,7 +1268,7 @@ You are responsible for the cost of the AWS services used while running this Qui
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-If you’re deploying Example Product Name into an existing VPC, make sure that your VPC has two private subnets in different Availability Zones for the workload instances, and that the subnets aren’t shared. This Quick Start doesn’t support <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html">shared subnets</a>. These subnets require <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html">NAT gateways</a> in their route tables, to allow the instances to download packages and software without exposing them to the internet.
+If you’re deploying Nubeva TLS Decrypt into an existing VPC, make sure that your VPC has two private subnets in different Availability Zones for the workload instances, and that the subnets aren’t shared. This Quick Start doesn’t support <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html">shared subnets</a>. These subnets require <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html">NAT gateways</a> in their route tables, to allow the instances to download packages and software without exposing them to the internet.
 </td>
 </tr>
 </table>
@@ -1208,12 +1277,12 @@ If you’re deploying Example Product Name into an existing VPC, make sure that 
 <p>Also, make sure that the domain name option in the DHCP options is configured as explained in the <a href="http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_DHCP_Options.html">Amazon VPC documentation</a>. You provide your VPC settings when you launch the Quick Start.</p>
 </div>
 <div class="paragraph">
-<p>Each deployment takes about 30 minutes / 1 hour to complete.</p>
+<p>Each deployment takes about 15 minutes to complete.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic" start="2">
 <li>
-<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This is where the network infrastructure for Example Product Name will be built. The template is launched in the us-east-1 Region by default.</p>
+<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This is where the network infrastructure for Nubeva TLS Decrypt will be built. The template is launched in the us-east-2 Region by default.</p>
 </li>
 </ol>
 </div>
@@ -1685,7 +1754,7 @@ Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick S
 <p>Choose <strong>Create stack</strong> to deploy the stack.</p>
 </li>
 <li>
-<p>Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Example Product Name cluster is ready.</p>
+<p>Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Nubeva TLS Decrypt cluster is ready.</p>
 </li>
 <li>
 <p>Use the values displayed in the <strong>Outputs</strong> tab for the stack, as shown in Figure 2, to view the resources that were created.</p>
@@ -1696,7 +1765,7 @@ Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick S
 <div class="content">
 <img src="images/cfn_outputs.png" alt="cfn_outputs" width="648" height="439">
 </div>
-<div class="title">Figure 2. Example Product Name outputs after successful deployment</div>
+<div class="title">Figure 3. Nubeva TLS Decrypt outputs after successful deployment</div>
 </div>
 </div>
 </div>
@@ -1704,36 +1773,80 @@ Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick S
 <div class="sect1">
 <h2 id="_test_the_deployment">Test the deployment</h2>
 <div class="sectionbody">
-
-</div>
-</div>
-<div class="sect1">
-<h2 id="_post_deployment_steps">Post deployment steps</h2>
-<div class="sectionbody">
-
-</div>
-</div>
-<div class="sect1">
-<h2 id="_best_practices_for_using_example_product_name_on_aws">Best practices for using Example Product Name on AWS</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p><em>Add any best practices for using the software.</em></p>
+<p>By default, this Quick Start includes TLS clients that generate standard web traffic as
+well as simulated attack instances. To validate the deployment and view the simulated
+threats, follow these steps:</p>
 </div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to the Nubeva SaaS console using the credentials you created in Step 2.</p>
+</li>
+<li>
+<p>Ensure that you see two instances connected to the console.</p>
+</li>
+</ol>
 </div>
+<div id="nubeva_console" class="imageblock">
+<div class="content">
+<a class="image" href="../images/nubeva_test.png"><img src="images/nubeva_test.png" alt="nubeva_console" width="648" height="439"></a>
 </div>
-<div class="sect1">
-<h2 id="_security">Security</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><em>Add any security-related information.</em></p>
+<div class="title">Figure 4. Checking instances in the Nubeva console</div>
 </div>
+<div class="olist arabic">
+<ol class="arabic" start="3">
+<li>
+<p>Mirror the traffic from the sources to the tools. Amazon VPC mirror targets have
+been preconfigured on the open-source tools. Create an Amazon VPC traffic
+mirroring session for your clients, and direct them to the pre-configured
+destinations.</p>
+</li>
+</ol>
 </div>
+<div id="vpc_mirror" class="imageblock">
+<div class="content">
+<a class="image" href="../images/vpc_mirror.png"><img src="images/vpc_mirror.png" alt="vpc_mirror" width="648" height="439"></a>
 </div>
-<div class="sect1">
-<h2 id="_other_useful_information">Other useful information</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><em>Add any other details that will help the customer use the software on AWS.</em></p>
+<div class="title">Figure 5. List of potential traffic mirror targets listed in the AWS Console</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="4">
+<li>
+<p>Optional: Monitor additional application instances by launching more Nubeva
+agents. Choose the Launch a Sensor icon for instructions on how to deploy a new
+agent. Ensure that you define a group for the newly launched agents.</p>
+</li>
+<li>
+<p>Each tool should be accessed directly:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Moloch: Connect to the administration console using the link listed on the
+output of the CloudFormation stack, <a href="http://elbaddress:8005" class="bare">http://elbaddress:8005</a>. The user
+name and password are the tooladmin credentials you submitted.</p>
+</li>
+<li>
+<p>Ntopng: Connect to the administrator console using the link listed on the
+output of the CloudFormation stack, <a href="http://elbaddress:3000" class="bare">http://elbaddress:3000</a>. The user
+name and password are the default Ntopng credentials.</p>
+</li>
+<li>
+<p>Wireshark: Connect by using SSH to the instance with ssh
+ubuntu@ipaddress. Set the password for tooladmin using sudo passwd
+tooladmin. This enables remote desktop protocol (RDP) access for the
+defined user, which is used to connect to the Domain Name System of the
+Wireshark ELB instance. Then start Wireshark from the UI using sudo
+wireshark. Monitor the nurx0 interface for decrypted cloud traffic.</p>
+</li>
+<li>
+<p>Suricata and Zeek: Connect to the Kibana interface using the link listed on
+the output of the CloudFormation stack.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
 </div>
 </div>
 </div>
@@ -1770,18 +1883,10 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_troubleshooting">Troubleshooting</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>&lt;Steps for troubleshooting the deployment go here.&gt;</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_send_us_feedback">Send us feedback</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To post feedback, submit feature ideas, or report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-documentation-base">GitHub repository</a> for this Quick Start. If you’d like to submit code, please review the <a href="https://aws-quickstart.github.io/">Quick Start Contributor’s Guide</a>.</p>
+<p>To post feedback, submit feature ideas, or report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt">GitHub repository</a> for this Quick Start. If you’d like to submit code, please review the <a href="https://aws-quickstart.github.io/">Quick Start Contributor’s Guide</a>.</p>
 </div>
 </div>
 </div>
@@ -1802,13 +1907,13 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 <h2 id="_github_repository">GitHub Repository</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can visit our <a href="https://github.com/aws-quickstart/quickstart-documentation-base">GitHub repository</a> to download
+<p>You can visit our <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt">GitHub repository</a> to download
 the templates and scripts for this Quick Start, to post your comments,
 and to share your customizations with others.</p>
 </div>
 <hr>
 <div class="paragraph">
-<p>© 2020, Amazon Web Services, Inc. or its affiliates, and Example Company Name, Ltd.. All rights reserved.</p>
+<p>© 2020, Amazon Web Services, Inc. or its affiliates, and Nubeva. All rights reserved.</p>
 </div>
 <div class="sect3">
 <h4 id="_notices">Notices</h4>
@@ -1824,7 +1929,7 @@ and to share your customizations with others.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-07-08 00:03:28 UTC
+Last updated 2020-07-08 01:23:00 UTC
 </div>
 </div>
 </body>

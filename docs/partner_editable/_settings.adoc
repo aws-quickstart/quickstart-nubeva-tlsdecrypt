@@ -1,14 +1,17 @@
-:quickstart-project-name: quickstart-documentation-base
-:partner-product-name: Example Product Name
-:partner-company-name: Example Company Name, Ltd.
-:doc-month: May
+:quickstart-project-name: quickstart-nubeva-tlsdecrypt
+:partner-product-name: Nubeva TLS Decrypt
+:partner-company-name: Nubeva
+:doc-month: February
 :doc-year: 2020
-:partner-contributors: John Doe and Jane Doe - {partner-company-name}
-:quickstart-contributors: Jim Smith - AWS Global Partner SA, AWS + Joe Jones - Technical Product Manager, AWS
-:deployment_time: 30 minutes / 1 hour
-:default_deployment_region: us-east-1
+:partner-contributors: Erik Freeland, {partner-company-name}
+:quickstart-contributors: Dylan Owen and Roy Rodan, Amazon Web Services
+:deployment_time: 15 minutes
+:default_deployment_region: us-east-2
 // Uncomment these two attributes if you are leveraging
 // - an AWS Marketplace listing.
 // Additional content will be auto-generated based on these attributes.
 // :marketplace_subscription:
 // :marketplace_listing_url: https://example.com/
+
+
+// :production_build:
