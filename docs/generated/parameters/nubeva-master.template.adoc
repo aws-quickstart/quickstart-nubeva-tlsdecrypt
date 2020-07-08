@@ -1,0 +1,47 @@
+
+.VPC network configuration
+[width="100%",cols="16%,11%,73%",options="header",]
+|===
+|Parameter label (name) |Default Value|Description|Availability Zones
+(`AvailabilityZones`)|`**__Requires Input__**`|List of Availability Zones to use for the subnets in the VPC. Two Availability Zones are used for this deployment.|VPC CIDR
+(`VPCCIDR`)|`10.0.0.0/16`|CIDR block for the VPC.|Private subnet 1 CIDR
+(`PrivateSubnet1CIDR`)|`10.0.16.0/20`|CIDR block for private subnet 1 located in Availability Zone 1.|Private subnet 2 CIDR
+(`PrivateSubnet2CIDR`)|`10.0.32.0/20`|CIDR block for private subnet 2 located in Availability Zone 2.|Public subnet 1 CIDR
+(`PublicSubnet1CIDR`)|`10.0.48.0/20`|CIDR block for the public (DMZ) subnet 1 located in Availability Zone 1.|Public subnet 2 CIDR
+(`PublicSubnet2CIDR`)|`10.0.64.0/20`|CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2.|Allowed external access CIDR
+(`RemoteAccessCIDR`)|`**__Requires Input__**`|CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.|Bastion AMI operating system
+(`BastionAMIOS`)|`Amazon-Linux-HVM`|Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.|Bastion instance type
+(`BastionInstanceType`)|`t3.small`|Amazon EC2 instance type for the bastion instances.
+|===
+.Nubeva configuration
+[width="100%",cols="16%,11%,73%",options="header",]
+|===
+|Parameter label (name) |Default Value|Description|Nubeva token
+(`APIKey`)|`**__Requires Input__**`|Token for your Nubeva account.|Install Moloch ASG
+(`MolochInstall`)|`True`|Choose to install Moloch.|Install ntop ASG
+(`NtopInstall`)|`True`|Choose to install ntop.|Install Wireshark ASG
+(`WiresharkInstall`)|`True`|Choose to install Wireshark.|Install Suricata ASG
+(`SuricataInstall`)|`True`|Choose to install Suricata.|Install Zeek ASG
+(`ZeekInstall`)|`True`|Choose to install Zeek.|Install TLS generation clients
+(`ClientInstall`)|`True`|Choose to install TLS generation clients.|Administrator name
+(`ToolAdmin`)|`tooladmin`|User name associated with the administrator account for the created tools.|Administrator password
+(`ToolPassword`)|`**__Requires Input__**`|must contain only 8-32 alphanumeric characters|Install Elasticsearch Service Linked Role
+(`AddESRole`)|`False`|Choose to install Elasticsearch Service Linked Role.
+|===
+.Auto Scaling group configuration
+[width="100%",cols="16%,11%,73%",options="header",]
+|===
+|Parameter label (name) |Default Value|Description|SSH key name
+(`KeyPairName`)|`**__Requires Input__**`|Name of an existing key pair, which allows you to securely connect to your instance after it launches.|Tool instance type
+(`NodeInstanceType`)|`m5.large`|Type of EC2 instance for the node instances.|Desired nodes per tool
+(`NumberOfNodes`)|`2`|Number of EC2 instance nodes in each Auto Scaling group.|Maximum nodes per tool
+(`MaximumNodes`)|`6`|Maximum number of EC2 instance nodes in each Auto Scaling group.
+|===
+.AWS Quick Start configuration
+[width="100%",cols="16%,11%,73%",options="header",]
+|===
+|Parameter label (name) |Default Value|Description|Quick Start S3 bucket name
+(`QSS3BucketName`)|`aws-quickstart`|S3 bucket name for the Quick Start assets. This string can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).|Quick Start S3 bucket Region
+(`QSS3BucketRegion`)|`us-east-1`|The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.|Quick Start S3 key prefix
+(`QSS3KeyPrefix`)|`quickstart-nubeva-tlsdecrypt/`|S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).
+|===

@@ -1,1 +1,25 @@
-// placeholder
+:template_autoscaling:
+:template_aws_autoscaling_autoscalinggroup:
+:template_aws_autoscaling_launchconfiguration:
+:template_aws_autoscaling_scalingpolicy:
+:template_aws_cloudformation_stack:
+:template_aws_cloudwatch_alarm:
+:template_aws_ec2_securitygroup:
+:template_aws_ec2_securitygroupegress:
+:template_aws_ec2_securitygroupingress:
+:template_aws_ec2_trafficmirrortarget:
+:template_aws_elasticloadbalancingv2_listener:
+:template_aws_elasticloadbalancingv2_loadbalancer:
+:template_aws_elasticloadbalancingv2_targetgroup:
+:template_aws_elasticsearch_domain:
+:template_aws_iam_instanceprofile:
+:template_aws_iam_role:
+:template_aws_iam_servicelinkedrole:
+:template_aws_s3_bucket:
+:template_cloudformation:
+:template_cloudwatch:
+:template_ec2:
+:template_elasticloadbalancingv2:
+:template_elasticsearch:
+:template_iam:
+:template_s3:
