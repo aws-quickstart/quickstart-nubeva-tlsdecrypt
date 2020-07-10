@@ -18,6 +18,9 @@ project:
    - us-east-2
    - us-west-2
    - ca-central-1
+   - eu-south-1
+   - ap-east-1
+   - ap-northeast-3
 tests:
   default:
     template: ./templates/nubeva-master.template.yaml
