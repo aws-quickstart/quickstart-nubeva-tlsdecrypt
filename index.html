@@ -768,12 +768,12 @@ table p {
 <body class="book toc2 toc-left">
 <div id="header">
 <div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
+<div id="toctitle"></div>
 <ul class="sectlevel1">
 <li><a href="#_overview">Overview</a></li>
-<li><a href="#_nubeva_tls_decrypt_on_aws"><em>Nubeva TLS Decrypt</em> on AWS</a></li>
+<li><a href="#_nubeva_tls_decrypt_on_aws">Nubeva TLS Decrypt on AWS</a></li>
 <li><a href="#_cost">Cost</a></li>
-<li><a href="#_software_licenses">Software Licenses</a></li>
+<li><a href="#_software_licenses">Software licenses</a></li>
 <li><a href="#_architecture">Architecture</a></li>
 <li><a href="#_planning_the_deployment">Planning the deployment</a>
 <ul class="sectlevel2">
@@ -782,7 +782,7 @@ table p {
 <li><a href="#_technical_requirements">Technical requirements</a></li>
 </ul>
 </li>
-<li><a href="#_deployment_steps">Deployment Steps</a>
+<li><a href="#_deployment_steps">Deployment steps</a>
 <ul class="sectlevel2">
 <li><a href="#_sign_in_to_your_aws_account">Sign in to your AWS account</a></li>
 <li><a href="#_launch_the_quick_start">Launch the Quick Start</a></li>
@@ -794,7 +794,7 @@ table p {
 <li><a href="#_faq">FAQ</a></li>
 <li><a href="#_send_us_feedback">Send us feedback</a></li>
 <li><a href="#_quick_start_reference_deployments">Quick Start reference deployments</a></li>
-<li><a href="#_github_repository">GitHub Repository</a>
+<li><a href="#_github_repository">GitHub repository</a>
 <ul class="sectlevel3">
 <li><a href="#_notices">Notices</a></li>
 </ul>
@@ -805,8 +805,13 @@ table p {
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
-<h2 id="_nubeva_tls_decrypt_on_the_aws_cloud" class="discrete text-center"><em>Nubeva TLS Decrypt</em> on the AWS Cloud</h2>
+<h2 id="_nubeva_tls_decrypt_on_the_aws_cloud" class="discrete text-center">Nubeva TLS Decrypt on the AWS Cloud</h2>
 <h2 id="_quick_start_reference_deployment" class="discrete text-left text-center">Quick Start Reference Deployment</h2>
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://aws-quickstart.s3.amazonaws.com/quickstart-nubeva-tlsdecrypt/docs/images/aws-quickstart-graphic.png" alt="QS" width="80" height="80">
+</div>
+</div>
 <div class="paragraph text-center">
 <p><strong>February, 2020</strong><br>
 <em>Erik Freeland, Nubeva</em><br>
@@ -819,24 +824,20 @@ table p {
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Visit our <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt">GitHub repository</a> for source files and to post feedback,
+Visit our <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt" target="_blank" rel="noopener">GitHub repository</a> for source files and to post feedback,
 report bugs, or submit feature ideas for this Quick Start.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph text-left">
-<p>This Quick Start was created by <em>Nubeva</em> in collaboration with Amazon Web Services (AWS). <a href="http://aws.amazon.com/quickstart/">Quick Starts</a> are automated reference deployments that use AWS CloudFormation templates to deploy key technologies on AWS, following AWS best practices.</p>
+<p>This Quick Start was created by Nubeva in collaboration with Amazon Web Services (AWS). <a href="http://aws.amazon.com/quickstart/" target="_blank" rel="noopener">Quick Starts</a> are automated reference deployments that use AWS CloudFormation templates to deploy key technologies on AWS, following AWS best practices.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_overview">Overview</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>This Quick Start reference deployment guide provides step-by-step
-instructions for deploying <em>Nubeva TLS Decrypt</em> on the AWS Cloud.</p>
-</div>
 <div class="paragraph">
 <p>This Quick Start reference deployment guide provides step-by-step instructions for
 deploying an out-of-band, open-source monitoring stack for AWS. Launched tools come
@@ -886,7 +887,7 @@ collaborated with AWS on the content of the Quick Start.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_nubeva_tls_decrypt_on_aws"><em>Nubeva TLS Decrypt</em> on AWS</h2>
+<h2 id="_nubeva_tls_decrypt_on_aws">Nubeva TLS Decrypt on AWS</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Nubeva’s TLS visibility solution is a software as a service (SaaS) that provides complete
@@ -909,15 +910,14 @@ unexpected network behavior, perform network analysis, and detect intrusions.</p
 <div class="sectionbody">
 <div class="paragraph">
 <p>You are responsible for the cost of the AWS services used while running
-this Quick Start reference deployment. There is no additional cost for
+this Quick Start. There is no additional cost for
 using the Quick Start.</p>
 </div>
 <div class="paragraph">
 <p>The AWS CloudFormation template for this Quick Start includes
 configuration parameters that you can customize. Some of the settings,
 such as the instance type, affect the cost of deployment. For cost estimates,
-see the pricing pages for each AWS service you will use. Prices are subject to change.
-To get an estimate, you can use the</p>
+see the pricing pages for each AWS service you will use. Prices are subject to change.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -926,7 +926,7 @@ To get an estimate, you can use the</p>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-After you deploy the Quick Start, we recommend that you enable the <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-gettingstarted-turnonreports.html">AWS Cost and Usage Report</a>. This report delivers billing metrics to an Amazon Simple Storage Service (Amazon S3) bucket in your account. It provides cost estimates based on usage throughout each month and finalizes the data at the end of the month. For more information about the report, see the <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-costusage.html">AWS documentation</a>.
+After you deploy the Quick Start, enable the <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-gettingstarted-turnonreports.html" target="_blank" rel="noopener">AWS Cost and Usage Report</a> to deliver billing metrics to an Amazon Simple Storage Service (Amazon S3) bucket in your account. It provides cost estimates based on usage throughout each month and finalizes the data at the end of the month. For more information about the report, see the <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-costusage.html" target="_blank" rel="noopener">AWS documentation</a>.
 </td>
 </tr>
 </table>
@@ -934,7 +934,7 @@ After you deploy the Quick Start, we recommend that you enable the <a href="http
 </div>
 </div>
 <div class="sect1">
-<h2 id="_software_licenses">Software Licenses</h2>
+<h2 id="_software_licenses">Software licenses</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This Quick Start requires an account on the Nubeva SaaS console, as described in the
@@ -1047,7 +1047,7 @@ configuration.</p>
 <div class="paragraph">
 <p>This deployment guide requires a moderate level of familiarity with
 AWS services. If you’re new to AWS, visit the
-<a href="https://aws.amazon.com/getting-started/">Getting Started Resource Center</a>
+<a href="https://aws.amazon.com/getting-started/" target="_blank" rel="noopener">Getting Started Resource Center</a>
 and the <a href="https://aws.amazon.com/training/">AWS Training and Certification
 website</a>. These sites provide materials for learning how to design,
 deploy, and operate your infrastructure and applications on the AWS
@@ -1057,7 +1057,7 @@ Cloud.</p>
 <div class="sect2">
 <h3 id="_aws_account">AWS account</h3>
 <div class="paragraph">
-<p>If you don’t already have an AWS account, create one at <a href="https://aws.amazon.com/">https://aws.amazon.com</a> by following the on-screen instructions. Part of the sign-up process involves receiving a phone call and entering a PIN using the phone keypad.</p>
+<p>If you don’t already have an AWS account, create one at <a href="https://aws.amazon.com/" target="_blank" rel="noopener">https://aws.amazon.com</a> by following the on-screen instructions. Part of the sign-up process involves receiving a phone call and entering a PIN using the phone keypad.</p>
 </div>
 <div class="paragraph">
 <p>Your AWS account is automatically signed up for all AWS services. You are charged only for the services you use.</p>
@@ -1069,9 +1069,9 @@ Cloud.</p>
 <p>Before you launch the Quick Start, your account must be configured as specified below. Otherwise, deployment might fail.</p>
 </div>
 <div class="sect3">
-<h4 id="_resource_limits">Resource Limits</h4>
+<h4 id="_resource_limits">Resource limits</h4>
 <div class="paragraph">
-<p>If necessary, request <a href="https://console.aws.amazon.com/servicequotas/home?region=us-east-2#!/">service quota increases</a> for the following resources. You might need to do this if an existing deployment uses these resources, and you might exceed the default quotas with this deployment. The <a href="https://console.aws.amazon.com/servicequotas/home?region=us-east-2#!/">Service Quotas console</a> displays your usage and quotas for some aspects of some services. For more information, see the <a href="https://docs.aws.amazon.com/servicequotas/latest/userguide/intro.html">AWS documentation</a>.</p>
+<p>If necessary, request <a href="https://console.aws.amazon.com/servicequotas/home?region=us-east-2#!/" target="_blank" rel="noopener">service quota increases</a> for the following resources. You might need to request increases if your existing deployment currently uses these resources, and this Quick Start deployment could result in exceeding the default quotas. The <a href="https://console.aws.amazon.com/servicequotas/home?region=us-east-2#!/" target="_blank" rel="noopener">Service Quotas console</a> displays your usage and quotas for some aspects of some services. For more information, see the <a href="https://docs.aws.amazon.com/servicequotas/latest/userguide/intro.html" target="_blank" rel="noopener">AWS documentation</a>.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1113,17 +1113,59 @@ Cloud.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_supported_regions">Supported Regions</h4>
+<h4 id="_supported_regions">Supported regions</h4>
 <div class="paragraph">
-<p>The following regions are currently supported by this Quick Start Reference Architecture.</p>
+<p>The following regions are currently supported by this Quick Start.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><em>us-east-1 (N. Virginia)</em> (EXAMPLE)</p>
+<p>us-east-1 (N. Virginia)</p>
 </li>
 <li>
-<p><em>us-east-2 (Ohio)</em> (EXAMPLE)</p>
+<p>us-east-2 (Ohio)</p>
+</li>
+<li>
+<p>us-west-1 (N. California)</p>
+</li>
+<li>
+<p>us-west-2 (Oregon)</p>
+</li>
+<li>
+<p>ca-central-1 (Canada Central)</p>
+</li>
+<li>
+<p>eu-central-1 (Frankfurt)</p>
+</li>
+<li>
+<p>eu-west-1 (Ireland)</p>
+</li>
+<li>
+<p>eu-west-2 (London)</p>
+</li>
+<li>
+<p>eu-west-3 (Paris)</p>
+</li>
+<li>
+<p>ap-southeast-1 (Singapore)</p>
+</li>
+<li>
+<p>ap-southeast-2 (Sydney)</p>
+</li>
+<li>
+<p>ap-northeast-1 (Tokyo)</p>
+</li>
+<li>
+<p>ap-northeast-2 (Seoul)</p>
+</li>
+<li>
+<p>sa-east-1 (South America)</p>
+</li>
+<li>
+<p>eu-north-1 (Stockholm)</p>
+</li>
+<li>
+<p>ap-east-1 (Hong Kong)</p>
 </li>
 </ul>
 </div>
@@ -1134,25 +1176,25 @@ Cloud.</p>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Certain regions are available on an opt-in basis. Please refer to the AWS Documentaiton on <a href="https://docs.aws.amazon.com/general/latest/gr/rande-manage.html">Managing Regions</a> for more information.
+Certain regions are available on an opt-in basis. Refer to the AWS Documentation on <a href="https://docs.aws.amazon.com/general/latest/gr/rande-manage.html" target="_blank" rel="noopener">Managing Regions</a> for more information.
 </td>
 </tr>
 </table>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_ec2_key_pairs">EC2 Key Pairs</h4>
+<h4 id="_ec2_key_pairs">EC2 key pairs</h4>
 <div class="paragraph">
-<p>Make sure that at least one <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html">Amazon EC2 key pair</a> exists in your AWS account in the Region where you plan to deploy the Quick Start. Make note of the key pair name. You need it during deployment. To create a key pair, follow the <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html">instructions in the AWS documentation</a>.</p>
+<p>Make sure that at least one <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html" target="_blank" rel="noopener">Amazon EC2 key pair</a> exists in your AWS account in the Region where you plan to deploy the Quick Start. Make note of the key pair name. You need it during deployment. To create a key pair, follow the <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html" target="_blank" rel="noopener">instructions in the AWS documentation</a>.</p>
 </div>
 <div class="paragraph">
 <p>For testing or proof-of-concept purposes, we recommend creating a new key pair instead of using one that’s already being used by a production instance.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_iam_permissions">IAM Permissions</h4>
+<h4 id="_iam_permissions">IAM permissions</h4>
 <div class="paragraph">
-<p>Before launching the Quick Start, you must log in to the AWS Management Console with <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html">IAM permissions</a> for the resources and actions the templates deploy.</p>
+<p>Before launching the Quick Start, you must log in to the AWS Management Console with <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html" target="_blank" rel="noopener">IAM permissions</a> for the resources and actions the templates deploy.</p>
 </div>
 <div class="paragraph">
 <p>The <em>AdministratorAccess</em> managed policy within IAM provides sufficient permissions, although your organization may choose to use a custom policy with more restrictions.</p>
@@ -1204,7 +1246,7 @@ partners to log in.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_deployment_steps">Deployment Steps</h2>
+<h2 id="_deployment_steps">Deployment steps</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_sign_in_to_your_aws_account">Sign in to your AWS account</h3>
@@ -1299,7 +1341,7 @@ If you’re deploying Nubeva TLS Decrypt into an existing VPC, make sure that yo
 </td>
 <td class="content">
 We recommend keeping the default settings for the three parameters labled 'Quick Start S3 bucket name', 'Quick Start S3 bucket
-Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick Start templates for your own deployment projects. Changing these parameter settings automatically updates code references to point to a new Quick Start location. For additional details, see the <a href="https://aws-quickstart.github.io/option1.html">AWS Quick Start Contributor’s Guide</a>.
+Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick Start templates for your own deployment projects. Changing these parameter settings automatically updates code references to point to a new Quick Start location. For additional details, see the <a href="https://aws-quickstart.github.io/option1.html" target="_blank" rel="noopener">AWS Quick Start Contributor’s Guide</a>.
 </td>
 </tr>
 </table>
@@ -1737,7 +1779,7 @@ Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick S
 <div class="olist arabic">
 <ol class="arabic" start="5">
 <li>
-<p>On the options page, you can <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html">specify tags</a> (key-value pairs) for resources in your stack and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-add-tags.html">set advanced options</a>. When you’re done, choose <strong>Next</strong>.</p>
+<p>On the options page, you can <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html" target="_blank" rel="noopener">specify tags</a> (key-value pairs) for resources in your stack and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-add-tags.html" target="_blank" rel="noopener">set advanced options</a>. When you’re done, choose <strong>Next</strong>.</p>
 </li>
 <li>
 <p>On the <strong>Review</strong> page, review and confirm the template settings. Under <strong>Capabilities</strong>, select the two check boxes to acknowledge that the template creates IAM resources and might require the ability to automatically expand macros.</p>
@@ -1746,7 +1788,7 @@ Region', and 'Quick Start S3 key prefix', unless you are customizing the Quick S
 <p>Choose <strong>Create stack</strong> to deploy the stack.</p>
 </li>
 <li>
-<p>Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Nubeva TLS Decrypt cluster is ready.</p>
+<p>Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Nubeva TLS Decrypt deployment is ready.</p>
 </li>
 <li>
 <p>Use the values displayed in the <strong>Outputs</strong> tab for the stack, as shown in Figure 2, to view the resources that were created.</p>
@@ -1878,28 +1920,23 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 <h2 id="_send_us_feedback">Send us feedback</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To post feedback, submit feature ideas, or report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt">GitHub repository</a> for this Quick Start. If you’d like to submit code, please review the <a href="https://aws-quickstart.github.io/">Quick Start Contributor’s Guide</a>.</p>
+<p>To post feedback, submit feature ideas, or report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt" target="_blank" rel="noopener">GitHub repository</a> for this Quick Start. If you’d like to submit code, please review the <a href="https://aws-quickstart.github.io/" target="_blank" rel="noopener">Quick Start Contributor’s Guide</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_quick_start_reference_deployments">Quick Start reference deployments</h2>
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>AWS Quick Start home page<br>
-<a href="https://aws.amazon.com/quickstart/" class="bare">https://aws.amazon.com/quickstart/</a></p>
-</li>
-</ul>
+<div class="paragraph">
+<p>See the <a href="https://aws.amazon.com/quickstart/">AWS Quick Start home page</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_github_repository">GitHub Repository</h2>
+<h2 id="_github_repository">GitHub repository</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can visit our <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt">GitHub repository</a> to download
+<p>You can visit our <a href="https://github.com/aws-quickstart/quickstart-nubeva-tlsdecrypt" target="_blank" rel="noopener">GitHub repository</a> to download
 the templates and scripts for this Quick Start, to post your comments,
 and to share your customizations with others.</p>
 </div>
@@ -1921,7 +1958,7 @@ and to share your customizations with others.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-07-08 03:30:57 UTC
+Last updated 2020-07-15 23:23:26 UTC
 </div>
 </div>
 </body>
