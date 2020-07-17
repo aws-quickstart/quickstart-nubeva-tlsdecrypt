@@ -2,5 +2,5 @@
 === Launch into an existing VPC
 include::nubeva-existing-vpc.template.adoc[]
 
-=== Launch into a new existing VPC
+=== Launch into a new VPC
 include::nubeva-master.template.adoc[]
