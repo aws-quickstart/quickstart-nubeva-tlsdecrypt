@@ -10,7 +10,7 @@
 (`PublicSubnet1CIDR`)|`10.0.48.0/20`|CIDR block for the public (DMZ) subnet 1 located in Availability Zone 1.|Public subnet 2 CIDR
 (`PublicSubnet2CIDR`)|`10.0.64.0/20`|CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2.|Allowed external access CIDR
 (`RemoteAccessCIDR`)|`**__Requires Input__**`|CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.|Bastion AMI operating system
-(`BastionAMIOS`)|`Amazon-Linux-HVM`|Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.|Bastion instance type
+(`BastionAMIOS`)|`Amazon-Linux2-HVM`|Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.|Bastion instance type
 (`BastionInstanceType`)|`t3.small`|Amazon EC2 instance type for the bastion instances.
 |===
 .Nubeva configuration
