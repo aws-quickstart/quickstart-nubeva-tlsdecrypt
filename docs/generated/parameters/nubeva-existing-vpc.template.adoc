@@ -2,18 +2,18 @@
 .VPC network configuration
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
-|Parameter label (name) |Default Value|Description|VPC ID
-(`VPCID`)|`**__Requires Input__**`|ID of your existing VPC (for example, vpc-0343606e).|VPC CIDR
+|Parameter label (name) |Default value|Description|VPC ID
+(`VPCID`)|`**__Requires input__**`|ID of your existing VPC (for example, vpc-0343606e).|VPC CIDR
 (`VPCCIDR`)|`10.0.0.0/16`|CIDR block for the VPC.|Private subnet 1 ID
-(`PrivateSubnet1ID`)|`**__Requires Input__**`|ID of the private subnet in Availability Zone 1 in your existing VPC (for example, subnet-fe9a8b32).|Private subnet 2 ID
-(`PrivateSubnet2ID`)|`**__Requires Input__**`|ID of the private subnet in Availability Zone 2 in your existing VPC (for example, subnet-be8b01ea).|Allowed external access CIDR
-(`RemoteAccessCIDR`)|`**__Requires Input__**`|CIDR IP range permitted to access the instances. We recommend that you set this value to a trusted IP range.
+(`PrivateSubnet1ID`)|`**__Requires input__**`|ID of the private subnet in Availability Zone 1 in your existing VPC (for example, subnet-fe9a8b32).|Private subnet 2 ID
+(`PrivateSubnet2ID`)|`**__Requires input__**`|ID of the private subnet in Availability Zone 2 in your existing VPC (for example, subnet-be8b01ea).|Allowed external access CIDR
+(`RemoteAccessCIDR`)|`**__Requires input__**`|CIDR IP range permitted to access the instances. We recommend that you set this value to a trusted IP range.
 |===
 .Nubeva configuration
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
-|Parameter label (name) |Default Value|Description|Nubeva token
-(`APIKey`)|`**__Requires Input__**`|Token for your Nubeva account.|Install Moloch ASG
+|Parameter label (name) |Default value|Description|Nubeva token
+(`APIKey`)|`**__Requires input__**`|Token for your Nubeva account.|Install Moloch ASG
 (`MolochInstall`)|`True`|Choose to install Moloch.|Install ntop ASG
 (`NtopInstall`)|`True`|Choose to install ntop.|Install Wireshark ASG
 (`WiresharkInstall`)|`True`|Choose to install Wireshark.|Install Suricata ASG
@@ -21,14 +21,14 @@
 (`ZeekInstall`)|`True`|Choose to install Zeek.|Install TLS generation clients
 (`ClientInstall`)|`True`|Choose to install TLS generation clients.|Administrator name
 (`ToolAdmin`)|`tooladmin`|User name associated with the administrator account for the created tools.|Administrator password
-(`ToolPassword`)|`**__Requires Input__**`|Must contain only 8-32 alphanumeric characters.|Install Elasticsearch service-linked role
+(`ToolPassword`)|`**__Requires input__**`|Must contain only 8-32 alphanumeric characters.|Install Elasticsearch service-linked role
 (`AddESRole`)|`False`|Choose to install Elasticsearch service-linked role.
 |===
 .Auto Scaling group configuration
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
-|Parameter label (name) |Default Value|Description|SSH key name
-(`KeyPairName`)|`**__Requires Input__**`|Name of an existing key pair, which allows you to securely connect to your instance after it launches.|Node instance type
+|Parameter label (name) |Default value|Description|SSH key name
+(`KeyPairName`)|`**__Requires input__**`|Name of an existing key pair, which allows you to securely connect to your instance after it launches.|Node instance type
 (`NodeInstanceType`)|`m5.large`|Type of EC2 instance for the node instances.|Number of nodes
 (`NumberOfNodes`)|`2`|Number of tool node instances. The default is one for each of the two Availability Zones.|Maximum nodes per tool
 (`MaximumNodes`)|`6`|Maximum number of EC2 instance nodes in the tool Auto Scaling group.
@@ -36,7 +36,7 @@
 .AWS Quick Start configuration
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
-|Parameter label (name) |Default Value|Description|Quick Start S3 bucket name
+|Parameter label (name) |Default value|Description|Quick Start S3 bucket name
 (`QSS3BucketName`)|`aws-quickstart`|S3 bucket name for the Quick Start assets. This string can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).|Quick Start S3 bucket Region
 (`QSS3BucketRegion`)|`us-east-1`|The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.|Quick Start S3 key prefix
 (`QSS3KeyPrefix`)|`quickstart-nubeva-tlsdecrypt/`|S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).
