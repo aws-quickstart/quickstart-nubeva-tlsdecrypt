@@ -6,7 +6,7 @@
 
 ==== Prepare your {partner-company-name} account
 
-. Navigate to www.nubeva.com, and choose Login from the main menu.
+. Navigate to https://www.nubeva.com, and choose *Login* from the main menu.
 . First-time users are prompted to create an account. You can use one of the OAuth
 partners to log in.
 . Copy in the Nubeva token.
