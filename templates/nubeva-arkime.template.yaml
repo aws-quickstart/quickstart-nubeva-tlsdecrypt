@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Moloch as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn5n)
+Description: Deploys Arkime as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn5n)
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -143,62 +143,62 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  MolochESSecurityGroup:
+  ArkimeESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Moloch ElasticSearch Service Security Group
+      GroupDescription: Arkime ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
       SecurityGroupIngress:
         - FromPort: 443
           IpProtocol: tcp
           ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
-  MolochSecurityGroup:
+  ArkimeSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Moloch Security Group
+      GroupDescription: Arkime Security Group
       VpcId: !Ref 'VPCID'
-  MolochSecurityGroupSSHinbound:
+  ArkimeSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "MolochSecurityGroup"
+      GroupId: !Ref "ArkimeSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  MolochSecurityGroupVXLANinbound:
+  ArkimeSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "MolochSecurityGroup"
+      GroupId: !Ref "ArkimeSecurityGroup"
       CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  MolochSecurityGroupViewerinbound:
+  ArkimeSecurityGroupViewerinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "MolochSecurityGroup"
+      GroupId: !Ref "ArkimeSecurityGroup"
       IpProtocol: tcp
       FromPort: 8005
       ToPort: 8005
       CidrIp: !Ref "RemoteAccessCIDR"
-  MolochSecurityGroupOutbound:
+  ArkimeSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "MolochSecurityGroup"
+      GroupId: !Ref "ArkimeSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
 
-  MolochInstanceProfile:
+  ArkimeInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref MolochIAMRole
+      - !Ref ArkimeIAMRole
 
-  MolochIAMRole:
+  ArkimeIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -212,7 +212,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: MolochASGPolicy
+      - PolicyName: ArkimeASGPolicy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -223,7 +223,7 @@ Resources:
             - 'ec2:DescribeInstances'
             Resource:
             - '*'
-      - PolicyName: MolochS3Policy
+      - PolicyName: ArkimeS3Policy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -239,7 +239,7 @@ Resources:
             Resource:
               Fn::Sub:
                 - "arn:aws:s3:::${S3Bucket}"
-                - S3Bucket: !Ref MolochPCAPBucket
+                - S3Bucket: !Ref ArkimePCAPBucket
           - Effect: Allow
             Action:
             - s3:PutObject
@@ -248,10 +248,10 @@ Resources:
             Resource:
               Fn::Sub:
                 - "arn:aws:s3:::${S3Bucket}/*"
-                - S3Bucket: !Ref MolochPCAPBucket
+                - S3Bucket: !Ref ArkimePCAPBucket
 
 
-  MolochPCAPBucket:
+  ArkimePCAPBucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
@@ -261,11 +261,11 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
 
-  MolochElasticsearchDomain:
+  ArkimeElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
-    DependsOn: MolochELB
+    DependsOn: ArkimeELB
     Properties:
-      ElasticsearchVersion: '6.8'
+      ElasticsearchVersion: '7.9'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes
         InstanceType: !Sub
@@ -296,8 +296,8 @@ Resources:
           - !Ref PrivateSubnet1ID
           - !Ref PrivateSubnet2ID
         SecurityGroupIds:
-          - !Ref MolochESSecurityGroup
-  MolochELB:
+          - !Ref ArkimeESSecurityGroup
+  ArkimeELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
@@ -305,25 +305,25 @@ Resources:
           - !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
-  MolochViewerListener:
+  ArkimeViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      LoadBalancerArn: !Ref MolochELB
+      LoadBalancerArn: !Ref ArkimeELB
       Port: 8005
       Protocol: TCP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref MolochViewerTargetGroup
-  MolochCaptureListener:
+          TargetGroupArn: !Ref ArkimeViewerTargetGroup
+  ArkimeCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      LoadBalancerArn: !Ref MolochELB
+      LoadBalancerArn: !Ref ArkimeELB
       Port: 4789
       Protocol: UDP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref MolochVXLANTargetGroup
-  MolochViewerTargetGroup:
+          TargetGroupArn: !Ref ArkimeVXLANTargetGroup
+  ArkimeViewerTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
@@ -335,7 +335,7 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-  MolochVXLANTargetGroup:
+  ArkimeVXLANTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
@@ -348,24 +348,24 @@ Resources:
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
       HealthCheckPort: '8005'
-  MolochELBTrafficMirrorTarget:
+  ArkimeELBTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
     Properties:
-      Description: "MolochELB"
-      NetworkLoadBalancerArn: !Ref MolochELB
-  MolochAutoScalingGroup:
+      Description: "ArkimeELB"
+      NetworkLoadBalancerArn: !Ref ArkimeELB
+  ArkimeAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn: MolochElasticsearchDomain
+    DependsOn: ArkimeElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref MolochLaunchConfiguration
+      LaunchConfigurationName: !Ref ArkimeLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
-        - !Ref MolochVXLANTargetGroup
-        - !Ref MolochViewerTargetGroup
+        - !Ref ArkimeVXLANTargetGroup
+        - !Ref ArkimeViewerTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -388,24 +388,24 @@ Resources:
         - AlarmNotification
         WaitOnResourceSignals: true
 
-  MolochScaleOutPolicy:
+  ArkimeScaleOutPolicy:
     Type : AWS::AutoScaling::ScalingPolicy
     Properties:
-      AutoScalingGroupName: !Ref MolochAutoScalingGroup
+      AutoScalingGroupName: !Ref ArkimeAutoScalingGroup
       AdjustmentType: 'ChangeInCapacity'
       Cooldown: '120'
       ScalingAdjustment: 1
-  MolochScaleOutAlarm:
+  ArkimeScaleOutAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName:
         Fn::Join:
         - '-'
         - - !Ref 'AWS::StackName'
-          - 'moloch-traffic-high'
+          - 'arkime-traffic-high'
       AlarmActions:
-        - !Ref 'MolochScaleOutPolicy'
-      AlarmDescription: 'This metric monitors high Moloch network utilization'
+        - !Ref 'ArkimeScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Arkime network utilization'
       ComparisonOperator: 'GreaterThanOrEqualToThreshold'
       EvaluationPeriods: 2
       MetricName: 'NetworkIn'
@@ -415,25 +415,25 @@ Resources:
       Threshold: 15000000000
       Dimensions:
         - Name: 'AutoScalingGroupName'
-          Value: !Ref MolochAutoScalingGroup
-  MolochScaleInPolicy:
+          Value: !Ref ArkimeAutoScalingGroup
+  ArkimeScaleInPolicy:
     Type : AWS::AutoScaling::ScalingPolicy
     Properties:
-      AutoScalingGroupName: !Ref MolochAutoScalingGroup
+      AutoScalingGroupName: !Ref ArkimeAutoScalingGroup
       AdjustmentType: 'ChangeInCapacity'
       Cooldown: '120'
       ScalingAdjustment: -1
-  MolochScaleInAlarm:
+  ArkimeScaleInAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName:
         Fn::Join:
         - '-'
         - - !Ref 'AWS::StackName'
-          - 'moloch-traffic-low'
+          - 'arkime-traffic-low'
       AlarmActions:
-        - !Ref 'MolochScaleInPolicy'
-      AlarmDescription: 'This metric monitors low Moloch network utilization'
+        - !Ref 'ArkimeScaleInPolicy'
+      AlarmDescription: 'This metric monitors low Arkime network utilization'
       ComparisonOperator: 'LessThanOrEqualToThreshold'
       EvaluationPeriods: 2
       MetricName: 'NetworkIn'
@@ -443,9 +443,9 @@ Resources:
       Threshold: 7500000000
       Dimensions:
         - Name: 'AutoScalingGroupName'
-          Value: !Ref MolochAutoScalingGroup
+          Value: !Ref ArkimeAutoScalingGroup
 
-  MolochLaunchConfiguration:
+  ArkimeLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -455,9 +455,9 @@ Resources:
           Install:
             - "InstallServices"
             - "InstallNurxAgent"
-            - "InstallMoloch"
+            - "InstallArkime"
           Start:
-            - "StartMoloch"
+            - "StartArkime"
 
         ConfigStartup:
           commands:
@@ -496,7 +496,9 @@ Resources:
         #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
         #    04_addsmorerclocalupdate:
         #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
-        InstallMoloch:
+
+######START REVIEW HERE
+        InstallArkime:
           commands:
             01_wget:
               command: "wget -nv https://s3.amazonaws.com/files.molo.ch/moloch-master.centos7.x86_64.rpm -O /tmp/moloch-master.centos7.x86_64.rpm"
@@ -513,34 +515,34 @@ Resources:
             06_updateConfig:
               command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
-                ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint
+                ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint
             06a_updateConfig:
-              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
+              command: !Sub "echo 's3Region='${AWS::Region} >> /data/Arkime/etc/config.ini"
             06b_updateConfig:
               command: !Sub
                 - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
-                - {bucket: !Ref MolochPCAPBucket}
+                - {bucket: !Ref ArkimePCAPBucket}
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
               command: !Sub
                 - "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
-                - {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            10_setupMolochLogs:
+                - {ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
+            10_setupArkimeLogs:
               command: "mkdir /data/moloch/logs"
-            11_setupMolochLogs:
+            11_setupArkimeLogs:
               command: "mkdir /data/moloch/raw"
             12_cleanup:
               command: "rm /tmp/moloch-master.centos7.x86_64.rpm"
-        StartMoloch:
+        StartArkime:
           commands:
             01_adddelayrclocal:
               command: "echo 'sleep 30' >> /etc/rc.local"
-            02_addMolochrclocal:
+            02_addArkimerclocal:
               command: "echo '/data/moloch/start_moloch.sh' >> /etc/rc.local"
             03_addEC2todockergroup:
               command: "usermod -aG docker ec2-user"
-            04_startMoloch:
+            04_startArkime:
               command: "/data/moloch/start_moloch.sh"
 
     Properties:
@@ -550,16 +552,16 @@ Resources:
           amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource MolochLaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource MolochAutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroups:
-      - !Ref "MolochSecurityGroup"
-      IamInstanceProfile: !Ref MolochInstanceProfile
+      - !Ref "ArkimeSecurityGroup"
+      IamInstanceProfile: !Ref ArkimeInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
@@ -573,5 +575,5 @@ Outputs:
   URL:
     Description: The URL for any instance's Moloch Dashboard
     Value: !Sub
-        - "http://${MolochDNS}:8005"
-        - MolochDNS: !GetAtt MolochELB.DNSName
+        - "http://${ArkimeDNS}:8005"
+        - ArkimeDNS: !GetAtt ArkimeELB.DNSName
