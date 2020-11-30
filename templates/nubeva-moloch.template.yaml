@@ -265,7 +265,7 @@ Resources:
     Type: AWS::Elasticsearch::Domain
     DependsOn: MolochELB
     Properties:
-      ElasticsearchVersion: '6.8'
+      ElasticsearchVersion: '7.9'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes
         InstanceType: !Sub
