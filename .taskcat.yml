@@ -27,7 +27,7 @@ tests:
       RemoteAccessCIDR: "10.0.0.0/0"
 #      KeyPairName: "$[taskcat_getkeypair]" in .taskcat_overrides.yml
       ToolAdmin: "tooladmin"
-      MolochInstall: "true"
+      ArkimeInstall: "true"
       NtopInstall: "false"
       WiresharkInstall: "false"
       SuricataInstall: "false"
