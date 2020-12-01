@@ -19,10 +19,28 @@ project:
 #    - us-west-2
 #    - ca-central-1
 tests:
+#  default:
+#    template: ./templates/nubeva-master.template.yaml
+#    parameters:
+#      AvailabilityZones: "$[taskcat_genaz_2]"
+#      APIKey: "$[taskcat_genpass_10]"
+#      RemoteAccessCIDR: "10.0.0.0/0"
+#      KeyPairName: "$[taskcat_getkeypair]" in .taskcat_overrides.yml
+#      ToolAdmin: "tooladmin"
+#      ArkimeInstall: "true"
+#      NtopInstall: "false"
+#      WiresharkInstall: "false"
+#      SuricataInstall: "false"
+#      ZeekInstall: "false"
+#      ClientInstall: "false"
+#      AddESRole: "false"
+#      ToolPassword: "$[taskcat_genpass_10]"
+#      QSS3KeyPrefix: "quickstart-nubeva-tlsdecrypt/"
+#      QSS3BucketName: "$[taskcat_autobucket]"
+#      QSS3BucketRegion: "us-east-1"
   default:
-    template: ./templates/nubeva-master.template.yaml
+    template: ./templates/nubeva-existing-vpc.template.yaml
     parameters:
-      AvailabilityZones: "$[taskcat_genaz_2]"
       APIKey: "$[taskcat_genpass_10]"
       RemoteAccessCIDR: "10.0.0.0/0"
 #      KeyPairName: "$[taskcat_getkeypair]" in .taskcat_overrides.yml
@@ -38,3 +56,6 @@ tests:
       QSS3KeyPrefix: "quickstart-nubeva-tlsdecrypt/"
       QSS3BucketName: "$[taskcat_autobucket]"
       QSS3BucketRegion: "us-east-1"
+      PrivateSubnet1ID: "subnet-0b21f8a80e117f903"
+      PrivateSubnet2ID: "subnet-0ed88a6ff7598f025"
+      VPCID: "vpc-09106387bb70b216d"

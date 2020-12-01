@@ -517,7 +517,7 @@ Resources:
               env:
                 ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint
             06a_updateConfig:
-              command: !Sub "echo 's3Region='${AWS::Region} >> /data/Arkime/etc/config.ini"
+              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
             06b_updateConfig:
               command: !Sub
                 - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
