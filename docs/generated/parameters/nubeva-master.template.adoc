@@ -17,8 +17,8 @@
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
 |Parameter label (name) |Default value|Description|Nubeva token
-(`APIKey`)|`**__Requires input__**`|Token for your Nubeva account.|Install Moloch ASG
-(`MolochInstall`)|`True`|Choose to install Moloch.|Install ntop ASG
+(`APIKey`)|`**__Requires input__**`|Token for your Nubeva account.|Install Arkime ASG
+(`ArkimeInstall`)|`True`|Choose to install Arkime.|Install ntop ASG
 (`NtopInstall`)|`True`|Choose to install ntop.|Install Wireshark ASG
 (`WiresharkInstall`)|`True`|Choose to install Wireshark.|Install Suricata ASG
 (`SuricataInstall`)|`True`|Choose to install Suricata.|Install Zeek ASG

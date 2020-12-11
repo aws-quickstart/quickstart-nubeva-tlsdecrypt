@@ -17,7 +17,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - MolochInstall
+      - ArkimeInstall
       - NtopInstall
       - WiresharkInstall
       - SuricataInstall
@@ -40,8 +40,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      MolochInstall:
-        default: Install Moloch ASG
+      ArkimeInstall:
+        default: Install Arkime ASG
       NtopInstall:
         default: Install ntop ASG
       WiresharkInstall:
@@ -86,12 +86,12 @@ Metadata:
         default: Nubeva token
 
 Parameters:
-  MolochInstall:
+  ArkimeInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Moloch.
+    Description: Choose to install Arkime.
     Type: String
   NtopInstall:
     Default: true
@@ -242,8 +242,8 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  MolochInstallTrue: !Equals
-    - !Ref MolochInstall
+  ArkimeInstallTrue: !Equals
+    - !Ref ArkimeInstall
     - 'true'
   NtopInstallTrue: !Equals
     - !Ref NtopInstall
@@ -296,13 +296,13 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
-  MolochStack:
-    Condition: MolochInstallTrue
+  ArkimeStack:
+    Condition: ArkimeInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-moloch.template.yaml'
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-arkime.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:

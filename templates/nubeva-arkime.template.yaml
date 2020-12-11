@@ -1,0 +1,579 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploys Arkime as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn5n)
+Parameters:
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  ToolAdmin:
+    Description: The user name that is associated with the admin account for the tools that are being created.
+    Type: String
+    Default: tooladmin
+    MinLength: 4
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
+  ToolPassword:
+    Description: The password that is associated with the master user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC to install into.
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+  PrivateSubnet1ID:
+    Description: Subnet Id for Private Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id
+  NumberOfNodes:
+    Description: 'The number of EC2 instances'
+    Type: Number
+    Default: 2
+  MaximumNodes:
+    Type: Number
+    Default: 6
+    Description: Maximum number of instances that can be launched in your tool cluster.
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC
+    Type: String
+  NodeInstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: m5.large
+    AllowedValues:
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
+    ConstraintDescription: Please choose a valid instance type.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Nubeva configuration
+        Parameters:
+        - APIKey
+        - ToolAdmin
+        - ToolPassword
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - NodeInstanceType
+          - NumberOfNodes
+          - MaximumNodes
+
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
+
+Resources:
+  ArkimeESSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Arkime ElasticSearch Service Security Group
+      VpcId: !Ref 'VPCID'
+      SecurityGroupIngress:
+        - FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+          CidrIp: !Ref 'VPCCIDR'
+  ArkimeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Arkime Security Group
+      VpcId: !Ref 'VPCID'
+  ArkimeSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ArkimeSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  ArkimeSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ArkimeSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  ArkimeSecurityGroupViewerinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ArkimeSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 8005
+      ToPort: 8005
+      CidrIp: !Ref "RemoteAccessCIDR"
+  ArkimeSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "ArkimeSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+
+  ArkimeInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref ArkimeIAMRole
+
+  ArkimeIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: ArkimeASGPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'autoscaling:DescribeAutoScalingGroups'
+            - 'autoscaling:DescribeAutoScalingInstances'
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
+      - PolicyName: ArkimeS3Policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:ListAllMyBuckets
+            - s3:GetBucketLocation
+            Resource:
+            - '*'
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource:
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}"
+                - S3Bucket: !Ref ArkimePCAPBucket
+          - Effect: Allow
+            Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+            Resource:
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}/*"
+                - S3Bucket: !Ref ArkimePCAPBucket
+
+
+  ArkimePCAPBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  ArkimeElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    DependsOn: ArkimeELB
+    Properties:
+      ElasticsearchVersion: '7.9'
+      ElasticsearchClusterConfig:
+        InstanceCount: !Ref NumberOfNodes
+        InstanceType: !Sub
+          - ${InstanceType}.elasticsearch
+          - InstanceType: !Ref NodeInstanceType
+        ZoneAwarenessEnabled: true
+        ZoneAwarenessConfig:
+          AvailabilityZoneCount: 2
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 100
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: 0
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: 'es:*'
+            Resource: '*'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: 'true'
+      VPCOptions:
+        SubnetIds:
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+        SecurityGroupIds:
+          - !Ref ArkimeESSecurityGroup
+  ArkimeELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+      Type: network
+      Scheme: internal
+  ArkimeViewerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ArkimeELB
+      Port: 8005
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ArkimeViewerTargetGroup
+  ArkimeCaptureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ArkimeELB
+      Port: 4789
+      Protocol: UDP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ArkimeVXLANTargetGroup
+  ArkimeViewerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 8005
+      Protocol: TCP_UDP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+  ArkimeVXLANTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 4789
+      Protocol: UDP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      HealthCheckPort: '8005'
+  ArkimeELBTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "ArkimeELB"
+      NetworkLoadBalancerArn: !Ref ArkimeELB
+  ArkimeAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: ArkimeElasticsearchDomain
+    Properties:
+      VPCZoneIdentifier:
+      - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
+      LaunchConfigurationName: !Ref ArkimeLaunchConfiguration
+      MinSize: '1'
+      MaxSize: !Ref 'MaximumNodes'
+      TargetGroupARNs:
+        - !Ref ArkimeVXLANTargetGroup
+        - !Ref ArkimeViewerTargetGroup
+      DesiredCapacity: !Ref 'NumberOfNodes'
+      MetricsCollection:
+      - Granularity: 1Minute
+        Metrics:
+        - GroupInServiceInstances
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+        PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT10M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: !Ref NumberOfNodes
+        MaxBatchSize: 1
+        PauseTime: PT5M
+        SuspendProcesses:
+        - AlarmNotification
+        WaitOnResourceSignals: true
+
+  ArkimeScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref ArkimeAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  ArkimeScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'arkime-traffic-high'
+      AlarmActions:
+        - !Ref 'ArkimeScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Arkime network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref ArkimeAutoScalingGroup
+  ArkimeScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref ArkimeAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  ArkimeScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'arkime-traffic-low'
+      AlarmActions:
+        - !Ref 'ArkimeScaleInPolicy'
+      AlarmDescription: 'This metric monitors low Arkime network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref ArkimeAutoScalingGroup
+
+  ArkimeLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallNurxAgent"
+            - "InstallArkime"
+          Start:
+            - "StartArkime"
+
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              perl-JSON: []
+              perl-libwww-perl: []
+              libyaml-devel: []
+              wget: []
+              perl-LWP-Protocol-https: []
+              perl-Crypt-SSLeay: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+        #InstallVXLANInterface:
+        #  commands:
+        #    01_createVXLAN:
+        #      command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
+        #    02_interfaceUp:
+        #      command: "ip link set vxlan555 up"
+        #    03_autoLaunchVXLAN:
+        #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #    04_addsmorerclocalupdate:
+        #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
+
+######START REVIEW HERE
+        InstallArkime:
+          commands:
+            01_wget:
+              command: "wget -nv https://s3.amazonaws.com/files.molo.ch/moloch-master.centos7.x86_64.rpm -O /tmp/moloch-master.centos7.x86_64.rpm"
+            02_install:
+              command: "rpm -Uvh /tmp/moloch-master.centos7.x86_64.rpm"
+            03_installconfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochs3config.ini -O /data/moloch/etc/config.ini"
+            03a_installoui:
+              command: "wget -nv https://raw.githubusercontent.com/wireshark/wireshark/master/manuf -O /data/moloch/etc/oui.txt"
+            04_installStartScript:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_moloch.sh -O /data/moloch/start_moloch.sh"
+            05_allowExecute:
+              command: "chmod +x /data/moloch/start_moloch.sh"
+            06_updateConfig:
+              command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
+              env:
+                ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint
+            06a_updateConfig:
+              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
+            06b_updateConfig:
+              command: !Sub
+                - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
+                - {bucket: !Ref ArkimePCAPBucket}
+            07_randomSleep:
+              command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
+            08_setupNewDB:
+              command: !Sub
+                - "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
+                - {ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
+            10_setupArkimeLogs:
+              command: "mkdir /data/moloch/logs"
+            11_setupArkimeLogs:
+              command: "mkdir /data/moloch/raw"
+            12_cleanup:
+              command: "rm /tmp/moloch-master.centos7.x86_64.rpm"
+        StartArkime:
+          commands:
+            01_adddelayrclocal:
+              command: "echo 'sleep 30' >> /etc/rc.local"
+            02_addArkimerclocal:
+              command: "echo '/data/moloch/start_moloch.sh' >> /etc/rc.local"
+            03_addEC2todockergroup:
+              command: "usermod -aG docker ec2-user"
+            04_startArkime:
+              command: "/data/moloch/start_moloch.sh"
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel -y
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeAutoScalingGroup
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      SecurityGroups:
+      - !Ref "ArkimeSecurityGroup"
+      IamInstanceProfile: !Ref ArkimeInstanceProfile
+      KeyName:
+        Ref: KeyPairName
+      BlockDeviceMappings:
+      - DeviceName: "/dev/xvda"
+        Ebs:
+          VolumeSize: 100
+Outputs:
+  Login:
+    Description: The username & password defaults are in the documentation
+    Value: "https://docs.nubeva.com/en/cloudtools/tools/moloch.html"
+  URL:
+    Description: The URL for any instance's Moloch Dashboard
+    Value: !Sub
+        - "http://${ArkimeDNS}:8005"
+        - ArkimeDNS: !GetAtt ArkimeELB.DNSName

@@ -21,7 +21,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - MolochInstall
+      - ArkimeInstall
       - NtopInstall
       - WiresharkInstall
       - SuricataInstall
@@ -44,8 +44,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      MolochInstall:
-        default: Install Moloch ASG
+      ArkimeInstall:
+        default: Install Arkime ASG
       NtopInstall:
         default: Install ntop ASG
       WiresharkInstall:
@@ -97,12 +97,12 @@ Metadata:
       MaximumNodes:
         default: Maximum nodes per tool
 Parameters:
-  MolochInstall:
+  ArkimeInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Moloch.
+    Description: Choose to install Arkime.
     Type: String
   NtopInstall:
     Default: true
@@ -370,7 +370,7 @@ Resources:
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
-        MolochInstall: !Ref MolochInstall
+        ArkimeInstall: !Ref ArkimeInstall
         NtopInstall: !Ref NtopInstall
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
