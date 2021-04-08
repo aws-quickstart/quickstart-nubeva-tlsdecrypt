@@ -4,15 +4,16 @@ Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
-  KeyPairName:
+  SKdbIP:
+    Description: "The IP address of the KeyServer"
+    Type: String
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
   VPCID:
     Type: AWS::EC2::VPC::Id
     Description: Select the VPC to install into.
   RemoteAccessCIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+              jnjjnnn    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
@@ -135,7 +136,6 @@ Resources:
             Action:
             - 'autoscaling:DescribeAutoScalingGroups'
             - 'autoscaling:DescribeAutoScalingInstances'
-            - 'ec2:DescribeInstances'
             Resource:
             - '*'
 
@@ -179,7 +179,7 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
-            - "InstallNubevaAgent"
+            - "InstallNubevaSKISensor"
           Start:
             - "StartTLSGenerator"
         ConfigStartup:
@@ -198,26 +198,49 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-        InstallNubevaAgent:
+        InstallNubevaSKISensor:
           commands:
-            01_download_and_install:
+            01_dockergroup:
+              command: "usermod -a -G docker ec2-user"
+            02_etchosts:
+                !Sub |
+                  echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts
+#              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
+#              env:
+#                SKdbIP: !GetAtt KeyServer.PrivateIp
+            03_install_sensor:
+#              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG     -noautoupdate --nocloudwatch  --debug=none --disable metrics --sslcredobj eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo= --baseurl https://key.nubedge.com:4433/ --ssl-baseurl http://key.nubedge.com:8080/"
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host nubeva/nuagent --accept-eula --nutoken ${APIKey}
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -nutoken ${APIKey} --noautoupdate --nocloudwatch  -debug none -disable metrics -disable tagupdates -sslcredobj eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo= -baseurl https://key.nubedge.com:4433/ -ssl-baseurl http://key.nubedge.com:8080/
+
+            02_nuagent_config:
+              command: "mkdir /opt/nuagent"
+            02a_nuagent_config:
+#              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_create -o /opt/nuagent/sensor_create"
+              files:
+                /opt/nuagent/sensor_create:
+                  content: |
+                    {
+                        "status": "success",
+                        "response": {
+                            "sensorid": "i-0216d54994df6bcc1x631140662218946579075626",
+                            "account_id": "default",
+                            "plan_id": "default"
+                        }
+                    }
+            02b_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_login -o /opt/nuagent/sensor_login"
+            02c_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_get -o /opt/nuagent/sensor_get"
+            03_install_sensor:
+              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG     -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/"
+
         StartTLSGenerator:
           commands:
-            01_createDirectory:
-              command: "mkdir /opt/nubevaTools"
-            01_installscript:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/NubevaTools/master/awsGenerateTLS.sh -O /opt/nubevaTools/awsGenerateTLS.sh"
-            03_allowExecute:
-              command: "chmod +x /opt/nubevaTools/awsGenerateTLS.sh"
-            04_startTLSgen:
-              command: "/opt/nubevaTools/awsGenerateTLS.sh > dev/null 2>&1 &"
-            05_addintrclocal:
-              command: "echo '/opt/nubevaTools/awsGenerateTLS.sh > dev/null 2>&1 &' >> /etc/rc.local"
-            06_addEC2todockergroup:
-              command: "usermod -aG docker ec2-user"
+            01_copycrontab:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/tlsgencronjob -O /etc/cron.d/tlscronjob"
+
     Properties:
       UserData:
         Fn::Base64: !Sub |
