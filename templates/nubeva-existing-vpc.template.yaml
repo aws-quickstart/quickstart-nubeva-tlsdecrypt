@@ -429,7 +429,7 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        SKdbIP: !GetAtt KeyServerELB.DNSName
+#        SKdbIP: !GetAtt KeyServerELB.DNSName
 
   KeyServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -634,8 +634,6 @@ Resources:
               command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
             02_KeyServer:
               command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
-            03_SigServer:
-              command: "docker run -p 8080:8080/tcp --name nubeva-sig -dit nubevalab/sigserver"
     Properties:
       UserData:
         Fn::Base64: !Sub |
