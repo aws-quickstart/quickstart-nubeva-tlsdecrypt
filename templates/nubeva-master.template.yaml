@@ -19,7 +19,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - ArkimeInstall
+#      - ArkimeInstall
       - NtopInstall
       - WiresharkInstall
       - SuricataInstall
@@ -42,8 +42,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      ArkimeInstall:
-        default: Install Arkime ASG
+#      ArkimeInstall:
+#        default: Install Arkime ASG
       NtopInstall:
         default: Install ntop ASG
       WiresharkInstall:
@@ -95,13 +95,13 @@ Metadata:
       MaximumNodes:
         default: Maximum nodes per tool
 Parameters:
-  ArkimeInstall:
-    Default: true
-    AllowedValues:
-    - true
-    - false
-    Description: Choose to install Arkime.
-    Type: String
+#  ArkimeInstall:
+#    Default: true
+#    AllowedValues:
+#    - true
+#    - false
+#    Description: Choose to install Arkime.
+#    Type: String
   NtopInstall:
     Default: true
     AllowedValues:
@@ -163,9 +163,10 @@ Parameters:
   BastionAMIOS:
     AllowedValues:
     - Amazon-Linux-HVM
-    - CentOS-7-HVM
-    - Ubuntu-Server-14.04-LTS-HVM
-    - Ubuntu-Server-16.04-LTS-HVM
+#restricting choice to fix bug
+#    - CentOS-7-HVM
+#    - Ubuntu-Server-14.04-LTS-HVM
+#    - Ubuntu-Server-16.04-LTS-HVM
     Default: Amazon-Linux-HVM
     Description: Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.
     Type: String
@@ -368,7 +369,7 @@ Resources:
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
-        ArkimeInstall: !Ref ArkimeInstall
+#        ArkimeInstall: !Ref ArkimeInstall
         NtopInstall: !Ref NtopInstall
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall

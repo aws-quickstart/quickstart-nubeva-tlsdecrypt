@@ -410,17 +410,6 @@ Resources:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-        #InstallVXLANInterface:
-        #  commands:
-        #    01_createVXLAN:
-        #      command: "ip link add vxlan111 type vxlan id 111 remote 0.0.0.0 dstport 4789"
-        #    02_interfaceUp:
-        #      command: "ip link set vxlan111 up"
-        #    03_autoLaunchVXLAN:
-        #      command: "echo 'ip link add vxlan111 type vxlan id 111 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
-        #    04_addsmorerclocalupdate:
-        #      command: "echo 'ip link set vxlan111 up' >> /etc/rc.local"
-
         StartNtop:
           commands:
             01_download_and_install:
