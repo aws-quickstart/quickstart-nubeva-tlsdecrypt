@@ -13,8 +13,9 @@ Metadata:
       - PublicSubnet1CIDR
       - PublicSubnet2CIDR
       - RemoteAccessCIDR
-      - BastionAMIOS
-      - BastionInstanceType
+#commenting out choice of Bastion OS until issue resolved
+#      - BastionAMIOS
+#      - BastionInstanceType
     - Label:
         default: Nubeva configuration
       Parameters:
@@ -163,9 +164,16 @@ Parameters:
   BastionAMIOS:
     AllowedValues:
     - Amazon-Linux-HVM
-    - CentOS-7-HVM
-    - Ubuntu-Server-14.04-LTS-HVM
-    - Ubuntu-Server-16.04-LTS-HVM
+#commenting out until fixed
+#    - CentOS-7-HVM
+#    - Ubuntu-Server-14.04-LTS-HVM
+#    - Ubuntu-Server-16.04-LTS-HVM
+#from bastion template
+#    - Amazon-Linux2-HVM
+#    - Amazon-Linux-HVM
+#    - CentOS-7-HVM
+#    - Ubuntu-Server-18.04-LTS-HVM
+#    - Ubuntu-Server-16.04-LTS-HVM
     Default: Amazon-Linux-HVM
     Description: Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.
     Type: String

@@ -40,6 +40,8 @@ Metadata:
     ParameterLabels:
       #KeyServerInstall:
       #  default: Install KeyServer ASG
+      ArkimeInstall:
+        default: Install Arkime ASG
       NtopInstall:
         default: Install ntop ASG
       WiresharkInstall:
@@ -91,6 +93,13 @@ Parameters:
   #  - false
   #  Description: Choose to install KeyServer.
   #  Type: String
+  ArkimeInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Arkime.
+    Type: String
   NtopInstall:
     Default: true
     AllowedValues:
