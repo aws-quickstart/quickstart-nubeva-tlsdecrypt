@@ -1,0 +1,12 @@
+// Replace the <n> in each row to specify the number of resources used in this deployment. Remove the rows for resources that aren’t used.
+|===
+|Resource |This deployment uses
+
+// Space needed to maintain table headers
+|VPCs |1
+|AWS Identity and Access Management (IAM) security groups |8
+|IAM roles |6
+|Auto Scaling groups |5
+|Elastic Load Balancers |5
+|m5.large instances |10
+|===

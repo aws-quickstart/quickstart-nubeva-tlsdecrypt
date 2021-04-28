@@ -1,0 +1,22 @@
+// Replace the content in <>
+// Identify your target audience and explain how/why they would use this Quick Start.
+//Avoid borrowing text from third-party websites (copying text from AWS service documentation is fine). Also, avoid marketing-speak, focusing instead on the technical aspect.
+
+This Quick Start reference deployment guide provides step-by-step instructions for
+deploying an out-of-band, open-source monitoring stack for AWS. Launched tools come
+with the Nubeva Transport Layer Security (TLS) Decrypt platform pre-configured on the
+AWS Cloud. The stack includes the open-source tools Moloch, Ntopng, Suricata, Wireshark,
+and Zeek.
+
+* **Moloch** is a large-scale, open-source, indexed packet-capture-and-search system.
+* **Ntopng** is a free, open-source packet analyzer and flow collection tool.
+* **Suricata** is a high-performance engine that comprises a network intrusion detection
+system (IDS), an intrusion prevention system (IPS), and network security
+monitoring (NSM).
+* **Wireshark** is a free, open-source packet analyzer for network troubleshooting.
+* **Zeek** is a powerful network analysis framework used for intrusion detection by
+looking at anomalous network activity to find suspicious data flows.
+
+This Quick Start is for users who want to identify malicious activity, insider threats, and
+data leakage within their virtual private cloud (VPC) and Amazon Elastic Compute Cloud
+(Amazon EC2) instances with decrypted visibility.

@@ -1,0 +1,4 @@
+// Include details about the license and how they can sign up. If no license is required, clarify that. 
+
+This Quick Start requires an account on the Nubeva SaaS console, as described in the
+<<_deployment_steps,Deployment Steps>>, later in this guide.
