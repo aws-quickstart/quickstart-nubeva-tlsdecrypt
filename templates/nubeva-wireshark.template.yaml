@@ -81,7 +81,13 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
-
+  FastKeyIP:
+    Description: IP Address of FastKey Server
+    Type: String
+  FastKeyDNS:
+    Description: FastKey Server Domain Name
+    Type: String
+    Default: key.nubedge.com
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -376,20 +382,53 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
+        InstallNubevaDecryptor:
+          files:
+            /opt/rx/rx_create:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "rxid": "rx-1234567890",
+                        "account_id": "default",
+                        "plan_id": "default"
+                    }
+                }
+            /opt/nurx/rx_login:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "user_id": "default",
+                        "token": "default",
+                        "expires": 31536000,
+                    }
+                }
+            /opt/nurx/rx_get:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+                        "Mtu": 65535
+                    }
+                }
         InstallDecryptor:
           commands:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
             02_etchosts:
-              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
-#              env:
-#                SKdbIP: !GetAtt KeyServerELB.PrivateIp
+              command: "echo ${FastkeyIP}'    key.nubedge.com' >> /etc/hosts"
             03_install_decryptor:
-#              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl https://key.nubedge.com:4433/"
-              command:
-                !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --disable metrics --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl https://key.nubedge.com:4433/
-
+              command: !Join
+                - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
+                - !Ref APIKey
+                - " --sslcredobj "
+                - Fn::Base64: !Sub
+                    - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+                            - Domain: !Ref FastKeyDNS
+#                !Sub |
+#                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate
 
         StartWireshark:
           commands:

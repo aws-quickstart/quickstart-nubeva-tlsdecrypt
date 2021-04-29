@@ -81,6 +81,12 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
+  FastKeyIP:
+    Description: IP Address of FastKey Server
+    Type: String
+  FastKeyDNS:
+    Description: FastKey Server Domain Name
+    Type: String
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -480,24 +486,48 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-        InstallNurxAgent:
+        InstallNubevaDecryptor:
+          files:
+            /opt/rx/rx_create:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "rxid": "rx-1234567890",
+                        "account_id": "default",
+                        "plan_id": "default"
+                    }
+                }
+            /opt/nurx/rx_login:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "user_id": "default",
+                        "token": "default",
+                        "expires": 31536000,
+                    }
+                }
+            /opt/nurx/rx_get:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+                        "Mtu": 65535
+                    }
+                }
+        InstallDecryptor:
           commands:
-            01_download_and_install:
+            01_dockergroup:
+              command: "sudo usermod -a -G docker ec2-user"
+            02_etchosts:
+              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
+            03_install_decryptor:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-        #InstallVXLANInterface:
-        #  commands:
-        #    01_createVXLAN:
-        #      command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
-        #    02_interfaceUp:
-        #      command: "ip link set vxlan555 up"
-        #    03_autoLaunchVXLAN:
-        #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
-        #    04_addsmorerclocalupdate:
-        #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate
 
-######START REVIEW HERE
         InstallArkime:
           commands:
             01_wget:

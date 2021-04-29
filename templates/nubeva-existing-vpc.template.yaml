@@ -17,7 +17,6 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - NtopInstall
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -39,8 +38,6 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      NtopInstall:
-        default: Install ntop ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -83,13 +80,6 @@ Metadata:
         default: Nubeva token
 
 Parameters:
-  NtopInstall:
-    Default: true
-    AllowedValues:
-    - true
-    - false
-    Description: Choose to install ntop.
-    Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
@@ -232,9 +222,6 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  NtopInstallTrue: !Equals
-    - !Ref NtopInstall
-    - 'true'
   WiresharkInstallTrue: !Equals
     - !Ref WiresharkInstall
     - 'true'
@@ -296,28 +283,6 @@ Resources:
       AWSServiceName: es.amazonaws.com
       Description: Default ES Service Linked IAM Role
 
-  NtopStack:
-    Condition: NtopInstallTrue
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL:
-        !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-ntop.template.yaml'
-          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        KeyPairName: !Ref KeyPairName
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        NumberOfNodes: !Ref NumberOfNodes
-        MaximumNodes: !Ref MaximumNodes
-        NodeInstanceType: !Ref NodeInstanceType
-        RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        VPCID: !Ref VPCID
-        VPCCIDR: !Ref VPCCIDR
-        APIKey: !Ref APIKey
-        ToolAdmin: !Ref ToolAdmin
-        ToolPassword: !Ref ToolPassword
   WiresharkStack:
     Condition: WiresharkInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -340,6 +305,8 @@ Resources:
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
         VPCCIDR: !Ref VPCCIDR
+        FastKeyIP: !GetAtt KeyServer.PrivateIp
+#        FastKeyDNS: !GetAtt KeyServer.PrivateIp
   SuricataStack:
     Condition: SuricataInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -360,6 +327,8 @@ Resources:
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
+        FastKeyIP: !GetAtt KeyServer.PrivateIp
+        FastKeyDNS: !GetAtt KeyServer.PrivateIp
   ZeekStack:
     Condition: ZeekInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -380,6 +349,8 @@ Resources:
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
+        FastKeyIP: !GetAtt KeyServer.PrivateIp
+        FastKeyDNS: !GetAtt KeyServer.PrivateIp
   ClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -396,7 +367,8 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-#        SKdbIP: !GetAtt KeyServerELB.DNSName
+        FastKeyIP: !GetAtt KeyServer.PrivateIp
+        FastKeyDNS: !GetAtt KeyServer.PrivateIp
 
   KeyServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -427,14 +399,6 @@ Resources:
       IpProtocol: udp
       FromPort: 4433
       ToPort: 4433
-  KeyServerSecurityGroupSiginbound:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref "KeyServerSecurityGroup"
-      CidrIp: !Ref 'VPCCIDR'
-      IpProtocol: tcp
-      FromPort: 8080
-      ToPort: 8080
   KeyServerSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -443,130 +407,189 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-
-  KeyServerInstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
-    Properties:
-      Path: '/'
-      Roles:
-      - !Ref KeyServerIAMRole
-
-  KeyServerIAMRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - 'ec2.amazonaws.com'
-          Action:
-          - 'sts:AssumeRole'
-      Path: '/'
-      Policies:
-      - PolicyName: KeyServerASGPolicy
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - 'autoscaling:DescribeAutoScalingGroups'
-            - 'autoscaling:DescribeAutoScalingInstances'
-            Resource:
-            - '*'
-
-  KeyServerELB:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Subnets:
-          - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
-      Type: network
-      Scheme: internal
-  KeyServerDTLSListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref KeyServerELB
-      Port: 4433
-      Protocol: TCP_UDP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref KeyServerDTLSTargetGroup
-  KeyServerSigListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref KeyServerELB
-      Port: 8080
-      Protocol: TCP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref KeyServerSigTargetGroup
-  KeyServerDTLSTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VPCID
-      Port: 4433
-      Protocol: TCP_UDP
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
-      HealthCheckProtocol: TCP
-      HealthCheckTimeoutSeconds: 10
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-  KeyServerSigTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VPCID
-      Port: 8080
-      Protocol: TCP
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
-      HealthCheckProtocol: TCP
-      HealthCheckTimeoutSeconds: 10
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-  KeyServerELBTrafficMirrorTarget:
-    Type: AWS::EC2::TrafficMirrorTarget
-    Properties:
-      Description: "KeyServerELB"
-      NetworkLoadBalancerArn: !Ref KeyServerELB
-  KeyServerAutoScalingGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      VPCZoneIdentifier:
-      - !Ref PrivateSubnet1ID
-      - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref KeyServerLaunchConfiguration
-      MinSize: '1'
-      MaxSize: !Ref 'MaximumNodes'
-      TargetGroupARNs:
-        - !Ref KeyServerSigTargetGroup
-        - !Ref KeyServerDTLSTargetGroup
-      DesiredCapacity: '1'
-      MetricsCollection:
-      - Granularity: 1Minute
-        Metrics:
-        - GroupInServiceInstances
-      Tags:
-      - Key: Name
-        Value: !Sub ${AWS::StackName}
-        PropagateAtLaunch: true
+#-------
+#  KeyServerInstanceProfile:
+#    Type: 'AWS::IAM::InstanceProfile'
+#    Properties:
+#      Path: '/'
+#      Roles:
+#      - !Ref KeyServerIAMRole
+#
+#  KeyServerIAMRole:
+#    Type: 'AWS::IAM::Role'
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: '2012-10-17'
+#        Statement:
+#        - Effect: Allow
+#          Principal:
+#            Service:
+#            - 'ec2.amazonaws.com'
+#          Action:
+#          - 'sts:AssumeRole'
+#      Path: '/'
+#      Policies:
+#      - PolicyName: KeyServerASGPolicy
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - 'autoscaling:DescribeAutoScalingGroups'
+#            - 'autoscaling:DescribeAutoScalingInstances'
+#            Resource:
+#            - '*'
+#
+#  KeyServerELB:
+#    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+#    Properties:
+#      Subnets:
+#          - !Ref PrivateSubnet1ID
+#          - !Ref PrivateSubnet2ID
+#      Type: network
+#      Scheme: internal
+#  KeyServerDTLSListener:
+#    Type: AWS::ElasticLoadBalancingV2::Listener
+#    Properties:
+#      LoadBalancerArn: !Ref KeyServerELB
+#      Port: 4433
+#      Protocol: TCP_UDP
+#      DefaultActions:
+#        - Type: forward
+#          TargetGroupArn: !Ref KeyServerDTLSTargetGroup
+#  KeyServerSigListener:
+#    Type: AWS::ElasticLoadBalancingV2::Listener
+#    Properties:
+#      LoadBalancerArn: !Ref KeyServerELB
+#      Port: 8080
+#      Protocol: TCP
+#      DefaultActions:
+#        - Type: forward
+#          TargetGroupArn: !Ref KeyServerSigTargetGroup
+#  KeyServerDTLSTargetGroup:
+#    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#    Properties:
+#      VpcId: !Ref VPCID
+#      Port: 4433
+#      Protocol: TCP_UDP
+#      HealthCheckEnabled: true
+#      HealthCheckIntervalSeconds: 10
+#      HealthCheckProtocol: TCP
+#      HealthCheckTimeoutSeconds: 10
+#      HealthyThresholdCount: 3
+#      UnhealthyThresholdCount: 3
+#  KeyServerSigTargetGroup:
+#    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#    Properties:
+#      VpcId: !Ref VPCID
+#      Port: 8080
+#      Protocol: TCP
+#      HealthCheckEnabled: true
+#      HealthCheckIntervalSeconds: 10
+#      HealthCheckProtocol: TCP
+#      HealthCheckTimeoutSeconds: 10
+#      HealthyThresholdCount: 3
+#      UnhealthyThresholdCount: 3
+#  KeyServerELBTrafficMirrorTarget:
+#    Type: AWS::EC2::TrafficMirrorTarget
+#    Properties:
+#      Description: "KeyServerELB"
+#      NetworkLoadBalancerArn: !Ref KeyServerELB
+#  KeyServerAutoScalingGroup:
+#    Type: AWS::AutoScaling::AutoScalingGroup
+#    Properties:
+#      VPCZoneIdentifier:
+#      - !Ref PrivateSubnet1ID
+#      - !Ref PrivateSubnet2ID
+#      LaunchConfigurationName: !Ref KeyServerLaunchConfiguration
+#      MinSize: '1'
+#      MaxSize: !Ref 'MaximumNodes'
+#      TargetGroupARNs:
+#        - !Ref KeyServerSigTargetGroup
+#        - !Ref KeyServerDTLSTargetGroup
+#      DesiredCapacity: '1'
+#      MetricsCollection:
+#      - Granularity: 1Minute
+#        Metrics:
+#        - GroupInServiceInstances
+#      Tags:
+#      - Key: Name
+#        Value: !Sub ${AWS::StackName}
+#        PropagateAtLaunch: true
+#    CreationPolicy:
+#      ResourceSignal:
+#        Count: 1
+#        Timeout: PT10M
+#    UpdatePolicy:
+#      AutoScalingRollingUpdate:
+#        MaxBatchSize: 1
+#        PauseTime: PT5M
+#        SuspendProcesses:
+#        - AlarmNotification
+#        WaitOnResourceSignals: true
+#
+#  KeyServerLaunchConfiguration:
+#    Type: AWS::AutoScaling::LaunchConfiguration
+#    Metadata:
+#      AWS::CloudFormation::Init:
+#        configSets:
+#          Configure:
+#            - "ConfigStartup"
+#          Install:
+#            - "InstallServices"
+#          Start:
+#            - "StartKeyServer"
+#        ConfigStartup:
+#          commands:
+#            01_updaterclocal:
+#             command: "echo 'yum update -y' >> /etc/rc.local"
+#            02_chmod:
+#              command: "chmod +x /etc/rc.d/rc.local"
+#        InstallServices:
+#          packages:
+#            yum:
+#              wget: []
+#              docker: []
+#          services:
+#            sysvinit:
+#              docker:
+#                enabled: true
+#                ensureRunning: true
+#          commands:
+#            00_dockergroup:
+#              command: "sudo usermod -a -G docker ec2-user"
+#        StartKeyServer:
+#          commands:
+#            00_etc-hosts:
+#              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
+#            02_KeyServer:
+#              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
+#    Properties:
+#      UserData:
+#        Fn::Base64: !Sub |
+#          #!/bin/bash -xe
+#          amazon-linux-extras install epel -y
+#          yum update -y
+#          yum update -y aws-cfn-bootstrap
+#          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServerLaunchConfiguration --configsets Configure,Install,Start
+#          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServerAutoScalingGroup
+#      InstanceType: !Ref NodeInstanceType
+#      ImageId: !FindInMap
+#        - AWSAMIRegionMap
+#        - !Ref 'AWS::Region'
+#        - awslinux2
+#      SecurityGroups:
+#      - !Ref "KeyServerSecurityGroup"
+#      IamInstanceProfile: !Ref KeyServerInstanceProfile
+#      KeyName:
+#        Ref: KeyPairName
+#---------
+  KeyServer:
+    Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
-        Count: 1
-        Timeout: PT10M
-    UpdatePolicy:
-      AutoScalingRollingUpdate:
-        MinInstancesInService: !Ref NumberOfNodes
-        MaxBatchSize: 1
-        PauseTime: PT5M
-        SuspendProcesses:
-        - AlarmNotification
-        WaitOnResourceSignals: true
-
-  KeyServerLaunchConfiguration:
-    Type: AWS::AutoScaling::LaunchConfiguration
+        Count: '1'
+        Timeout: PT15M
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -599,8 +622,15 @@ Resources:
           commands:
             00_etc-hosts:
               command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
-            02_KeyServer:
-              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
+            01_createdirectory:
+              command: "mkdir /opt/nubevaTools"
+            01a_downloadnudemobundle:
+              command: "curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
+            01b_installcerts:
+              command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
+            02_FastKeyServer:
+              command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
+
     Properties:
       UserData:
         Fn::Base64: !Sub |
@@ -608,15 +638,18 @@ Resources:
           amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServerLaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServerAutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroups:
-      - !Ref "KeyServerSecurityGroup"
-      IamInstanceProfile: !Ref KeyServerInstanceProfile
+      SecurityGroupIds:
+          - !GetAtt "KeyServerSecurityGroup.GroupId"
       KeyName:
         Ref: KeyPairName
+      SubnetId: !Ref PrivateSubnet1ID
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-Fastkey Server"

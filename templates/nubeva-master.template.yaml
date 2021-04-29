@@ -22,7 +22,6 @@ Metadata:
       Parameters:
       - APIKey
 #      - ArkimeInstall
-      - NtopInstall
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -46,8 +45,6 @@ Metadata:
     ParameterLabels:
 #      ArkimeInstall:
 #        default: Install Arkime ASG
-      NtopInstall:
-        default: Install ntop ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -104,13 +101,6 @@ Parameters:
 #    - false
 #    Description: Choose to install Arkime.
 #    Type: String
-  NtopInstall:
-    Default: true
-    AllowedValues:
-    - true
-    - false
-    Description: Choose to install ntop.
-    Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
@@ -371,7 +361,6 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
 #        ArkimeInstall: !Ref ArkimeInstall
-        NtopInstall: !Ref NtopInstall
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
         ZeekInstall: !Ref ZeekInstall
