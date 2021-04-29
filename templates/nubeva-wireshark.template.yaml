@@ -363,7 +363,7 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
-            - "InstallDecryptor"
+            - "InstallNubevaDecryptor"
           Start:
             - "StartWireshark"
 
@@ -384,7 +384,7 @@ Resources:
                 ensureRunning: true
         InstallNubevaDecryptor:
           files:
-            /opt/rx/rx_create:
+            /opt/nurx/rx_create:
               content: |
                 {
                     "status": "success",
@@ -409,11 +409,10 @@ Resources:
                 {
                     "status": "success",
                     "response": {
-                        "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+                        "SslCredObj": "",
                         "Mtu": 65535
                     }
                 }
-        InstallDecryptor:
           commands:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
@@ -421,23 +420,18 @@ Resources:
               command: "echo ${FastkeyIP}'    key.nubedge.com' >> /etc/hosts"
             03_install_decryptor:
               command: !Join
-                - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
-                - !Ref APIKey
-                - " --sslcredobj "
-                - Fn::Base64: !Sub
-                    - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
-                            - Domain: !Ref FastKeyDNS
-#                !Sub |
-#                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate
+                - ''
+                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
+                  - !Ref APIKey
+                  - " --sslcredobj "
+                  - Fn::Base64: !Sub
+                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+                      - Domain: !Ref FastKeyDNS
 
         StartWireshark:
           commands:
             01_wireshark:
               command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
-
-
-
-
     Properties:
       UserData:
         Fn::Base64: !Sub |

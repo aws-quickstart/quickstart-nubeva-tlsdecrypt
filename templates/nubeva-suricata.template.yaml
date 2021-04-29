@@ -407,9 +407,10 @@ Resources:
               command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
             02_get_repo_info:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
+
         InstallNubevaDecryptor:
           files:
-            /opt/rx/rx_create:
+            /opt/nurx/rx_create:
               content: |
                 {
                     "status": "success",
@@ -438,16 +439,21 @@ Resources:
                         "Mtu": 65535
                     }
                 }
-        InstallDecryptor:
           commands:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
             02_etchosts:
-              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
+              command: "echo ${FastkeyIP}'    key.nubedge.com' >> /etc/hosts"
             03_install_decryptor:
-              command:
-                !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate
+              command: !Join
+                - ''
+                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
+                  - !Ref APIKey
+                  - " --sslcredobj "
+                  - Fn::Base64: !Sub
+                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+                      - Domain: !Ref FastKeyDNS
+
 
         InstallSuricata:
           packages:

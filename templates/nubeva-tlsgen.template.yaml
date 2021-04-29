@@ -210,7 +210,7 @@ Resources:
                 {
                     "status": "success",
                     "response": {
-                        "sensorid": "i-0216d54994df6bcc1x631140662218946579075626",
+                        "sensorid": "631140662218946579075626",
                         "account_id": "default",
                         "plan_id": "default"
                     }
@@ -230,12 +230,12 @@ Resources:
                 {
                     "status": "success",
                     "response": {
-                        "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+                        "SslCredObj": "",
                         "SrcGroups": [
                                 {
                                         "_type": "custom.srcgroup",
                                         "sensorlist_list_custom_sensor": [
-                                        "i-0e10220c920a2b565x483481900564264137491702"
+                                        "631140662218946579075626"
                                         ],
                                 "ssl": true,
                                 "_id": "1234567890AAAA"
@@ -251,9 +251,16 @@ Resources:
                 !Sub |
                   echo ${FastKeyIP}'    key.nubedge.com' >> /etc/hosts
             03_install_sensor:
-              command:
-                !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey}  -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/
+              command: !Join
+                - ''
+                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/ --nutoken "
+                  - !Ref APIKey
+                  - " --sslcredobj "
+                  - Fn::Base64: !Sub
+                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+                      - Domain: !Ref FastKeyDNS
+
+
         StartTLSGenerator:
           commands:
             01_copycrontab:
