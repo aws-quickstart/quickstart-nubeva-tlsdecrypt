@@ -454,7 +454,9 @@ Resources:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
             02_etchosts:
-              command: "echo ${FastkeyIP}'    key.nubedge.com' >> /etc/hosts"
+              command:
+                !Sub |
+                  echo ${FastKeyIP}'    key.nubedge.com' >> /etc/hosts
             03_install_decryptor:
               command: !Join
                 - ''

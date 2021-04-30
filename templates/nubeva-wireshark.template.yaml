@@ -452,7 +452,9 @@ Resources:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
             02_etchosts:
-              command: "echo ${FastkeyIP}'    key.nubedge.com' >> /etc/hosts"
+              command:
+                !Sub |
+                  echo ${FastKeyIP}'    key.nubedge.com' >> /etc/hosts
             03_install_decryptor:
               command: !Join
                 - ''
@@ -496,7 +498,7 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-wiressharkclient.template.yaml'
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-wireshark-client.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
