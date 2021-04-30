@@ -231,9 +231,9 @@ Conditions:
   ZeekInstallTrue: !Equals
     - !Ref ZeekInstall
     - 'true'
-  ClientInstallTrue: !Equals
-    - !Ref ClientInstall
-    - 'true'
+#  ClientInstallTrue: !Equals
+#    - !Ref ClientInstall
+#    - 'true'
   ESRoleInstallTrue: !Equals
     - !Ref AddESRole
     - 'true'
@@ -306,7 +306,9 @@ Resources:
         ToolPassword: !Ref ToolPassword
         VPCCIDR: !Ref VPCCIDR
         FastKeyIP: !GetAtt KeyServer.PrivateIp
+        ClientInstall: !Ref ClientInstall
 #        FastKeyDNS: !GetAtt KeyServer.PrivateIp
+
   SuricataStack:
     Condition: SuricataInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -352,7 +354,7 @@ Resources:
         FastKeyIP: !GetAtt KeyServer.PrivateIp
         FastKeyDNS: !GetAtt KeyServer.PrivateIp
   ClientStack:
-    Condition: ClientInstallTrue
+    Condition: ZeekInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL:

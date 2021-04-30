@@ -4,7 +4,7 @@
 
 // _Describe any setup required in the AWS account prior to template launch_
 
-==== Prepare your {partner-company-name} account
+==== Prepare your Nubeva account
 
 . Navigate to https://www.nubeva.com, and choose *Login* from the main menu.
 . First-time users are prompted to create an account. You can use one of the OAuth
