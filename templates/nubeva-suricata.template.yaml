@@ -412,7 +412,7 @@ Resources:
           Install:
             - "InstallServices"
             - "SetupElastic"
-            - "InstallNurxAgent"
+            - "InstallNubevaDecryptor"
             - "InstallSuricata"
           Start:
             - "StartSuricata"

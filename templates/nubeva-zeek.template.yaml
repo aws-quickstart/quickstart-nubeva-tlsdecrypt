@@ -422,7 +422,7 @@ Resources:
           Install:
             - "InstallServices"
             - "SetupElastic"
-            - "InstallNurxAgent"
+            - "InstallNubevaDecryptor"
             - "InstallZeek"
           Start:
             - "StartZeek"
