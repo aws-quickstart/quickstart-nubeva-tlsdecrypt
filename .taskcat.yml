@@ -54,10 +54,11 @@ tests:
       ArkimeInstall: "false"
       NtopInstall: "false"
       WiresharkInstall: "true"
-      SuricataInstall: "false"
-      ZeekInstall: "false"
+      SuricataInstall: "true"
+      ZeekInstall: "true"
       ClientInstall: "true"
       AddESRole: "false"
+      FastKeyDNS: "key.nubedge.com"
       ToolPassword: $[taskcat_genpass_10]
       QSS3KeyPrefix: quickstart-nubeva-tlsdecrypt/
       QSS3BucketName: $[taskcat_autobucket]

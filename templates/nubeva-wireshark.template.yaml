@@ -87,7 +87,6 @@ Parameters:
   FastKeyDNS:
     Description: FastKey Server Domain Name
     Type: String
-    Default: key.nubedge.com
   ClientInstall:
     AllowedValues:
     - true

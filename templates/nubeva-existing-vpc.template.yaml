@@ -17,6 +17,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
+      - FastKeyDNS
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -78,6 +79,8 @@ Metadata:
         default: VPC CIDR
       APIKey:
         default: Nubeva token
+      FastKeyDNS:
+        default: FastKey Server FQDN
 
 Parameters:
   WiresharkInstall:
@@ -219,6 +222,9 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String
+  FastKeyDNS:
+    Description: FastKey Server Domain Name
+    Type: String
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -304,7 +310,7 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         FastKeyIP: !GetAtt KeyServer.PrivateIp
         ClientInstall: !Ref ClientInstall
-#        FastKeyDNS: !GetAtt KeyServer.PrivateIp
+        FastKeyDNS: !Ref FastKeyDNS
         QSS3BucketName: !Ref QSS3BucketName
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3KeyPrefix:  !Ref QSS3KeyPrefix
@@ -330,7 +336,11 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
         FastKeyIP: !GetAtt KeyServer.PrivateIp
-        FastKeyDNS: !GetAtt KeyServer.PrivateIp
+        ClientInstall: !Ref ClientInstall
+        FastKeyDNS: !Ref FastKeyDNS
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix:  !Ref QSS3KeyPrefix
   ZeekStack:
     Condition: ZeekInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -352,25 +362,11 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
         FastKeyIP: !GetAtt KeyServer.PrivateIp
-        FastKeyDNS: !GetAtt KeyServer.PrivateIp
-  ClientStack:
-    Condition: ZeekInstallTrue
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL:
-        !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-tlsgen.template.yaml'
-          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        KeyPairName: !Ref KeyPairName
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        VPCID: !Ref VPCID
-        APIKey: !Ref APIKey
-        FastKeyIP: !GetAtt KeyServer.PrivateIp
-        FastKeyDNS: !GetAtt KeyServer.PrivateIp
+        ClientInstall: !Ref ClientInstall
+        FastKeyDNS: !Ref FastKeyDNS
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix:  !Ref QSS3KeyPrefix
 
   KeyServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
