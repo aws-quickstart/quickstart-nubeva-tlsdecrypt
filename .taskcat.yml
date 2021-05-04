@@ -44,12 +44,13 @@ tests:
 #      QSS3BucketName: "$[taskcat_autobucket]"
 #      QSS3BucketRegion: "us-east-1"
     template: ./templates/nubeva-existing-vpc.template.yaml
+#    s3_bucket: taskcat-nubevaquickstart
     parameters:
 #      APIKey: "$[taskcat_genpass_10]"
-      APIKey: "avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG"
-      RemoteAccessCIDR: "10.0.0.0/0"
+      APIKey: avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG
+      RemoteAccessCIDR: 10.0.0.0/0
 #      KeyPairName: in .taskcat_overrides.yml
-      ToolAdmin: "tooladmin"
+      ToolAdmin: tooladmin
       ArkimeInstall: "false"
       NtopInstall: "false"
       WiresharkInstall: "true"
@@ -57,10 +58,10 @@ tests:
       ZeekInstall: "false"
       ClientInstall: "true"
       AddESRole: "false"
-      ToolPassword: "$[taskcat_genpass_10]"
-      QSS3KeyPrefix: "quickstart-nubeva-tlsdecrypt/"
-      QSS3BucketName: "$[taskcat_autobucket]"
-      QSS3BucketRegion: "us-east-1"
+      ToolPassword: $[taskcat_genpass_10]
+      QSS3KeyPrefix: quickstart-nubeva-tlsdecrypt/
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: us-east-1
 #      PrivateSubnet1ID: in .taskcat_overrides.yml
 #      PrivateSubnet2ID: in .taskcat_overrides.yml
 #      VPCID: in .taskcat_overrides.yml

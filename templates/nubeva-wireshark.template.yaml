@@ -444,7 +444,7 @@ Resources:
                 {
                     "status": "success",
                     "response": {
-                        "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+                        "SslCredObj": "",
                         "Mtu": 65535
                     }
                 }
@@ -462,7 +462,8 @@ Resources:
                   - !Ref APIKey
                   - " --sslcredobj "
                   - Fn::Base64: !Sub
-                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
+#                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
                       - Domain: !Ref FastKeyDNS
 
         StartWireshark:
@@ -498,7 +499,7 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-wireshark-client.template.yaml'
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-wiresharkclient.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
@@ -509,7 +510,9 @@ Resources:
         APIKey: !Ref APIKey
         FastKeyIP: !Ref FastKeyIP
         FastKeyDNS: !Ref FastKeyDNS
-        WiresharkELB: !GetAtt WiresharkELB.DNSName
+        WiresharkELBTrafficMirrorTarget: !Ref WiresharkELBTrafficMirrorTarget
+
+
 Outputs:
   Login:
     Description: See documentation for tool acceess details.

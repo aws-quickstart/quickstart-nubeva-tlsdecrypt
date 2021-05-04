@@ -231,9 +231,6 @@ Conditions:
   ZeekInstallTrue: !Equals
     - !Ref ZeekInstall
     - 'true'
-#  ClientInstallTrue: !Equals
-#    - !Ref ClientInstall
-#    - 'true'
   ESRoleInstallTrue: !Equals
     - !Ref AddESRole
     - 'true'
@@ -308,6 +305,9 @@ Resources:
         FastKeyIP: !GetAtt KeyServer.PrivateIp
         ClientInstall: !Ref ClientInstall
 #        FastKeyDNS: !GetAtt KeyServer.PrivateIp
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix:  !Ref QSS3KeyPrefix
 
   SuricataStack:
     Condition: SuricataInstallTrue
@@ -654,4 +654,4 @@ Resources:
       SubnetId: !Ref PrivateSubnet1ID
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-Fastkey Server"
+        Value: !Sub "Fastkey Server-${AWS::StackName}"

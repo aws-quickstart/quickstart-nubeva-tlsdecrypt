@@ -71,6 +71,36 @@ Parameters:
   FastKeyDNS:
     Description: FastKey Server Domain Name
     Type: String
+  ClientInstall:
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install TLS generation clients.
+    Type: String
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: "The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value."
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-nubeva-tlsdecrypt/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
+
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -128,6 +158,12 @@ Mappings:
       awslinux2: "ami-0d4ae09ec9361d8ac"
     sa-east-1:
       awslinux2: "ami-058943e7d9b9cabfb"
+
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  ClientInstallTrue: !Equals
+    - !Ref ClientInstall
+    - 'true'
 
 Resources:
   ZeekESSecurityGroup:
@@ -446,7 +482,7 @@ Resources:
                 {
                     "status": "success",
                     "response": {
-                        "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+                        "SslCredObj": "",
                         "Mtu": 65535
                     }
                 }
@@ -464,7 +500,8 @@ Resources:
                   - !Ref APIKey
                   - " --sslcredobj "
                   - Fn::Base64: !Sub
-                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
+#                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
                       - Domain: !Ref FastKeyDNS
 
 
@@ -533,6 +570,25 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: 100
+  WiresharkClientStack:
+    Condition: ClientInstallTrue
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-wiresharkclient.template.yaml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        APIKey: !Ref APIKey
+        FastKeyIP: !Ref FastKeyIP
+        FastKeyDNS: !Ref FastKeyDNS
+        ZeekELBTrafficMirrorTarget: !Ref ZeekELBTrafficMirrorTarget
+
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
