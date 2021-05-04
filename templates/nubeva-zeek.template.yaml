@@ -342,7 +342,7 @@ Resources:
         - GroupInServiceInstances
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "Zeek-${AWS::StackName}"
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
@@ -436,7 +436,10 @@ Resources:
             yum:
               libpcap-devel: []
               openssl-devel: []
-              python-devel: []
+              python3-devel: []
+              python3: []
+              python3-libs: []
+              swig: []          
               zlib-devel: []
               java-1.8.0-openjdk: []
               wget: []
@@ -500,15 +503,15 @@ Resources:
                   - !Ref APIKey
                   - " --sslcredobj "
                   - Fn::Base64: !Sub
-                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
-#                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+#                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
+                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
                       - Domain: !Ref FastKeyDNS
 
 
         InstallZeek:
           packages:
             yum:
-              zeek-lts: []
+              zeek: []
               logstash: []
           commands:
             01_configLogstash:

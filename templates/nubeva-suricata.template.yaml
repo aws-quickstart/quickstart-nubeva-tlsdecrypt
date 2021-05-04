@@ -332,7 +332,7 @@ Resources:
         - GroupInServiceInstances
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "Suricata-${AWS::StackName}"
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
@@ -488,8 +488,8 @@ Resources:
                   - !Ref APIKey
                   - " --sslcredobj "
                   - Fn::Base64: !Sub
-                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
-#                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+#                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
+                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
                       - Domain: !Ref FastKeyDNS
 
 

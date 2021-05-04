@@ -379,7 +379,7 @@ Resources:
         - GroupInServiceInstances
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "Arkime-${AWS::StackName}"
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:

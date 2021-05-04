@@ -17,8 +17,8 @@ provide you with your own virtual network on AWS.*
 operation itself and for inbound packet mirroring using Amazon VPC traffic mirrors or
 internal replication.
 * Amazon Elasticsearch Service (Amazon ES) for the open-source tools that require
-Elasticsearch, Moloch, or for managing the logs from Zeek and Suricata.
-* An Amazon S3 bucket for Moloch packet capture (PCAP) storage.
+Elasticsearch, Arkime, or for managing the logs from Zeek and Suricata.
+* An Amazon S3 bucket for Arkime packet capture (PCAP) storage.
 * Amazon VPC traffic mirroring targets connected to each open-source load balancer.
 * In the public subnets:
 ** Managed network address translation (NAT) gateways to allow outbound
@@ -32,8 +32,7 @@ console to add more instances to monitor.
 This agent listens through all available interfaces, discovers TLS session keys,
 and, optionally, mirrors a copy of the packet stream to the open-source tools for
 analysis.
-** Moloch packet capture in an Auto Scaling group (of size 2).
-** Ntop network analysis in an Auto Scaling group (of size 2).
+** Arkime packet capture in an Auto Scaling group (of size 2).
 ** Suricata signature detection in an Auto Scaling group (of size 2).
 ** Wireshark packet analysis in an Auto Scaling group (of size 2).
 ** Zeek anomaly detection in an Auto Scaling group (of size 2).
