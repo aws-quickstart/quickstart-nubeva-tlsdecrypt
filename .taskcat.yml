@@ -53,8 +53,8 @@ tests:
       ToolAdmin: tooladmin
       ArkimeInstall: "false"
       NtopInstall: "false"
-      WiresharkInstall: "true"
-      SuricataInstall: "true"
+      WiresharkInstall: "false"
+      SuricataInstall: "false"
       ZeekInstall: "true"
       ClientInstall: "true"
       AddESRole: "false"

@@ -431,6 +431,14 @@ Resources:
           commands:
             01_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
+#apt update
+#sudo apt upgrade -y
+#sudo apt install -y libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
+#echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/security:zeek.list
+#curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/security_zeek.gpg > /dev/null
+#sudo apt update
+#sudo apt install zeek
+
         InstallServices:
           packages:
             yum:
@@ -439,7 +447,7 @@ Resources:
               python3-devel: []
               python3: []
               python3-libs: []
-              swig: []          
+              swig: []
               zlib-devel: []
               java-1.8.0-openjdk: []
               wget: []
@@ -457,7 +465,7 @@ Resources:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
             03_get_ZeekEepo_info:
               command: "wget -nv https://download.opensuse.org/repositories/security:zeek/CentOS_7/security:zeek.repo -O /etc/yum.repos.d/security:zeek.repo"
-
+                            
         InstallNubevaDecryptor:
           files:
             /opt/nurx/rx_create:
@@ -511,7 +519,7 @@ Resources:
         InstallZeek:
           packages:
             yum:
-              zeek: []
+              zeek-core: []
               logstash: []
           commands:
             01_configLogstash:
