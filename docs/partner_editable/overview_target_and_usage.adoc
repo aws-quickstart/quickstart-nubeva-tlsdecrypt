@@ -4,11 +4,11 @@
 
 This Quick Start reference deployment guide provides step-by-step instructions for
 deploying an out-of-band, open-source monitoring stack for AWS. Launched tools come
-with the Nubeva Transport Layer Security (TLS) Decrypt platform pre-configured on the
-AWS Cloud. The stack includes the open-source tools Arkime, Suricata, Wireshark,
+with the Nubeva Session Key Intercept (SKI) platform for TLS decryption pre-configured on the
+AWS Cloud. The stack includes the open-source tools Suricata, Wireshark,
 and Zeek.
 
-* **Arkime** is a large-scale, open-source, indexed packet-capture-and-search system.
+//* **Arkime** is a large-scale, open-source, indexed packet-capture-and-search system.
 * **Suricata** is a high-performance engine that comprises a network intrusion detection
 system (IDS), an intrusion prevention system (IPS), and network security
 monitoring (NSM).

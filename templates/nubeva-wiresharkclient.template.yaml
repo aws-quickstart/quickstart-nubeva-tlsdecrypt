@@ -23,17 +23,11 @@ Parameters:
   KeyPairName:
     Description: Name of an existing key pair, which allows you to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName
-#  FastKeyIP:
-#    Description: IP Address of FastKey Server
-#    Type: String
-#  FastKeyDNS:
-#    Description: FastKey Server Domain Name
-#    Type: String
-  WiresharkELBTrafficMirrorTarget:
-    Description: Wireshark ELB TMT Info
-    Type: String
   SSLdbWriteAuth:
     Description: Nubeva Sensor Parameter
+    Type: String
+  WiresharkELBTrafficMirrorTarget:
+    Description: Wireshark ELB TMT Info
     Type: String
 
 Metadata:
@@ -224,19 +218,10 @@ Resources:
           commands:
             01_dockergroup:
               command: "usermod -a -G docker ec2-user"
-            02_etchosts:
+            02_install_sensor:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/ --nutoken ${APIKey} --sslcredobj ${SSLdbWriteAuth}
-#            03_install_sensor:
-#              command: !Join
-#                - ''
-#                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/ --nutoken "
-#                  - !Ref APIKey
-#                  - " --sslcredobj "
-#                  - Fn::Base64: !Sub
-#                      - '{"type":"dtls","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
-#                      - Domain: !Ref FastKeyDNS
         StartSource:
           commands:
             01_copycrontab:

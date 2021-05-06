@@ -17,6 +17,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
+#      - ArkimeInstall
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -38,6 +39,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
+#      ArkimeInstall:
+#        default: Install Wireshark ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -80,6 +83,13 @@ Metadata:
         default: Nubeva token
 
 Parameters:
+#  ArkimeInstall:
+#    Default: true
+#    AllowedValues:
+#    - true
+#    - false
+#    Description: Choose to install Arkime.
+#    Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
@@ -223,6 +233,9 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+#  ArkimeInstallTrue: !Equals
+#    - !Ref ArkimeInstall
+#    - 'true'
   WiresharkInstallTrue: !Equals
     - !Ref WiresharkInstall
     - 'true'
@@ -235,43 +248,6 @@ Conditions:
   ESRoleInstallTrue: !Equals
     - !Ref AddESRole
     - 'true'
-
-Mappings:
-  AWSAMIRegionMap:
-    AMI:
-      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-    ap-northeast-1:
-      awslinux2: "ami-0c3fd0f5d33134a76"
-    ap-northeast-2:
-      awslinux2: "ami-095ca789e0549777d"
-    ap-south-1:
-      awslinux2: "ami-0d2692b6acea72ee6"
-    ap-southeast-1:
-      awslinux2: "ami-01f7527546b557442"
-    ap-southeast-2:
-      awslinux2: "ami-0dc96254d5535925f"
-    eu-central-1:
-      awslinux2: "ami-0cc293023f983ed53"
-    eu-north-1:
-      awslinux2: "ami-3f36be41"
-    eu-west-1:
-      awslinux2: "ami-0bbc25e23a7640b9b"
-    eu-west-2:
-      awslinux2: "ami-0d8e27447ec2c8410"
-    eu-west-3:
-      awslinux2: "ami-0adcddd3324248c4c"
-    us-east-1:
-      awslinux2: "ami-0b898040803850657"
-    us-east-2:
-      awslinux2: "ami-0d8f6eb4f641ef691"
-    us-west-1:
-      awslinux2: "ami-056ee704806822732"
-    us-west-2:
-      awslinux2: "ami-082b5a644766e0e6f"
-    ca-central-1:
-      awslinux2: "ami-0d4ae09ec9361d8ac"
-    sa-east-1:
-      awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
   BaseESSLR:
@@ -382,86 +358,19 @@ Resources:
         - AttributeName: "clientrandom"
           KeyType: "HASH"
       BillingMode: PAY_PER_REQUEST
-#      ProvisionedThroughput:
-#        ReadCapacityUnits: 5
-#        WriteCapacityUnits: 5
-#  WriteCapacityScalableTarget:
-#    Type: AWS::ApplicationAutoScaling::ScalableTarget
-#    Properties:
-#      MaxCapacity: 15
-#      MinCapacity: 5
-#      ResourceId: !Join
-#        - /
-#        - - table
-#          - !Ref NubevaDDBTable
-#      RoleARN: !GetAtt ScalingRole.Arn
-##      ServiceNamespace: dynamodb
-#  ScalingRole:
-#    Type: AWS::IAM::Role
-#    Properties:
-#      AssumeRolePolicyDocument:
-#        Version: "2012-10-17"
-#        Statement:
-#          -
-#            Effect: "Allow"
-#            Principal:
-#              Service:
-#                - application-autoscaling.amazonaws.com
-#            Action:
-#              - "sts:AssumeRole"
-#      Path: "/"
-#      Policies:
-#        -
-#          PolicyName: "root"
-#          PolicyDocument:
-#            Version: "2012-10-17"
-#            Statement:
-#              -
-#                Effect: "Allow"
-#                Action:
-#                  - "dynamodb:DescribeTable"
-#                  - "dynamodb:UpdateTable"
-#                  - "cloudwatch:PutMetricAlarm"
-#                  - "cloudwatch:DescribeAlarms"
-#                  - "cloudwatch:GetMetricStatistics"
-#                  - "cloudwatch:SetAlarmState"
-#                  - "cloudwatch:DeleteAlarms"
-#                Resource: "*"
-#  WriteScalingPolicy:
-#    Type: AWS::ApplicationAutoScaling::ScalingPolicy
-#    Properties:
-#      PolicyName: WriteAutoScalingPolicy
-#      ScalingTargetId: !Ref WriteCapacityScalableTarget
-#      TargetTrackingScalingPolicyConfiguration:
-#        TargetValue: 50.0
-#        ScaleInCooldown: 60
-#        ScaleOutCooldown: 60
-#        PredefinedMetricSpecification:
-#          PredefinedMetricType: DynamoDBWriteCapacityUtilization
   NubevaSKIAdministrator:
     Type: AWS::IAM::Group
     Properties :
-      GroupName: !Join
-        - '-'
-        - - 'NubevaSKIAdministrator'
-          - !Ref NubevaDDBTable
+      GroupName: 'NubevaSKIAdministrators'
   NubevaSKISensorUser:
     Type: AWS::IAM::User
     Properties:
-      UserName: !Join
-        - '-'
-        - - 'Nubeva'
-          - 'Source'
-#          - !Ref NubevaDDBTable
+      UserName: 'Nubeva-Sensor'
       Path: "/"
   NubevaSKIDecryptorUser:
     Type: AWS::IAM::User
     Properties:
-      UserName: !Join
-        - '-'
-        - - 'Nubeva'
-          - 'Decryptor'
-#          - !Ref NubevaDDBTable
+      UserName: 'Nubeva-Decryptor'
       Path: "/"
   NubevaSensorAccessKey:
     Type: AWS::IAM::AccessKey
@@ -490,9 +399,7 @@ Resources:
             Action:
               - "dynamodb:PutItem"
               - "dynamodb:BatchWriteItem"
-#            Resource: "*"
             Resource: !GetAtt NubevaDDBTable.Arn
-#            Resource: !Ref NubevaDDBTable
   NubevaKeyReader:
     Type: AWS::IAM::Policy
     Properties:
@@ -510,8 +417,7 @@ Resources:
             Action:
               - "dynamodb:GetItem"
               - "dynamodb:BatchGetItem"
-            Resource: "*"
-#            Resource: !Ref NubevaDDBTable
+            Resource: !GetAtt NubevaDDBTable.Arn
   NubevaKeyAdmin:
     Type: AWS::IAM::Policy
     Properties:
@@ -524,5 +430,4 @@ Resources:
           - Effect: "Allow"
             Action:
               - "dynamodb:*"
-            Resource: "*"
-#            Resource: !Ref NubevaDDBTable
+            Resource: !GetAtt NubevaDDBTable.Arn

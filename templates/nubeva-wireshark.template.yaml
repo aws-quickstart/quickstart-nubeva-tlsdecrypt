@@ -255,7 +255,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       LoadBalancerArn: !Ref WiresharkELB
-      Port: 3389
+      Port: 14500
       Protocol: TCP
       DefaultActions:
         - Type: forward
@@ -418,17 +418,18 @@ Resources:
                 ensureRunning: true
         InstallNubevaDecryptor:
           files:
-            /opt/nurx2/rx_create:
+            /opt/nurx/rx_create:
               content: |
                 {
                     "status": "success",
                     "response": {
                         "rxid": "rx-1234567890",
                         "account_id": "default",
-                        "plan_id": "default"
+                        "plan_id": "default",
+                        "message": "Hello"
                     }
                 }
-            /opt/nurx2/rx_login:
+            /opt/nurx/rx_login:
               content: |
                 {
                     "status": "success",
@@ -438,41 +439,22 @@ Resources:
                         "expires": 31536000
                     }
                 }
-            /opt/nurx2/rx_get:
+            /opt/nurx/rx_get:
               content: |
                 {
                     "status": "success",
                     "response": {
-                        "SslCredObj": "",
+                        "SslCredObj": "eyJ0eXBlIjoic2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9",
                         "Mtu": 65535
                     }
                 }
           commands:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
-            02_nuagent_config:
-              command: "mkdir /opt/nurx"
-            02a_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_create -o /opt/nurx/sensor_create"
-            02b_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_login -o /opt/nurx/sensor_login"
-            02c_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_get -o /opt/nurx/sensor_get"
             02_launch_decryptor:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken ${APIKey} --sslcredobj ${SSLdbReadAuth}
-#            03_install_decryptor:
-#              command: !Join
-#                - ''
-#                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
-#                  - !Ref APIKey
-#                  - " --sslcredobj "
-#                  - Fn::Base64: !Sub
-#                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
-#                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
-#                      - Domain: !Ref FastKeyDNS
-
         StartWireshark:
           commands:
             01_wireshark:

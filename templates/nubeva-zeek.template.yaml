@@ -65,11 +65,11 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
-  FastKeyIP:
-    Description: IP Address of FastKey Server
+  SSLdbReadAuth:
+    Description: Nubeva Decryptor Parameter
     Type: String
-  FastKeyDNS:
-    Description: FastKey Server Domain Name
+  SSLdbWriteAuth:
+    Description: Nubeva Sensor Parameter
     Type: String
   ClientInstall:
     AllowedValues:
@@ -465,7 +465,6 @@ Resources:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
             03_get_ZeekEepo_info:
               command: "wget -nv https://download.opensuse.org/repositories/security:zeek/CentOS_7/security:zeek.repo -O /etc/yum.repos.d/security:zeek.repo"
-                            
         InstallNubevaDecryptor:
           files:
             /opt/nurx/rx_create:
@@ -475,7 +474,8 @@ Resources:
                     "response": {
                         "rxid": "rx-1234567890",
                         "account_id": "default",
-                        "plan_id": "default"
+                        "plan_id": "default",
+                        "message": "Hello"
                     }
                 }
             /opt/nurx/rx_login:
@@ -485,7 +485,7 @@ Resources:
                     "response": {
                         "user_id": "default",
                         "token": "default",
-                        "expires": 31536000,
+                        "expires": 31536000
                     }
                 }
             /opt/nurx/rx_get:
@@ -493,29 +493,17 @@ Resources:
                 {
                     "status": "success",
                     "response": {
-                        "SslCredObj": "",
+                        "SslCredObj": "eyJ0eXBlIjoic2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9",
                         "Mtu": 65535
                     }
                 }
           commands:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
-            02_etchosts:
+            02_launch_decryptor:
               command:
                 !Sub |
-                  echo ${FastKeyIP}'    key.nubedge.com' >> /etc/hosts
-            03_install_decryptor:
-              command: !Join
-                - ''
-                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
-                  - !Ref APIKey
-                  - " --sslcredobj "
-                  - Fn::Base64: !Sub
-#                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
-                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
-                      - Domain: !Ref FastKeyDNS
-
-
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken ${APIKey} --sslcredobj ${SSLdbReadAuth}
         InstallZeek:
           packages:
             yum:
@@ -596,10 +584,8 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        FastKeyIP: !Ref FastKeyIP
-        FastKeyDNS: !Ref FastKeyDNS
         ZeekELBTrafficMirrorTarget: !Ref ZeekELBTrafficMirrorTarget
-
+        SSLdbWriteAuth: !Ref SSLdbWriteAuth
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
