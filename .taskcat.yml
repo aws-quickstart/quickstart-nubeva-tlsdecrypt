@@ -53,9 +53,9 @@ tests:
       ToolAdmin: tooladmin
       ArkimeInstall: "false"
       NtopInstall: "false"
-      WiresharkInstall: "false"
+      WiresharkInstall: "true"
       SuricataInstall: "false"
-      ZeekInstall: "true"
+      ZeekInstall: "false"
       ClientInstall: "true"
       AddESRole: "false"
       FastKeyDNS: "key.nubedge.com"

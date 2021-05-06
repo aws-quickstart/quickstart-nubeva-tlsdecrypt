@@ -81,11 +81,11 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
-  FastKeyIP:
-    Description: IP Address of FastKey Server
+  SSLdbReadAuth:
+    Description: Nubeva Decryptor Parameter
     Type: String
-  FastKeyDNS:
-    Description: FastKey Server Domain Name
+  SSLdbWriteAuth:
+    Description: Nubeva Sensor Parameter
     Type: String
   ClientInstall:
     AllowedValues:
@@ -418,7 +418,7 @@ Resources:
                 ensureRunning: true
         InstallNubevaDecryptor:
           files:
-            /opt/nurx/rx_create:
+            /opt/nurx2/rx_create:
               content: |
                 {
                     "status": "success",
@@ -428,17 +428,17 @@ Resources:
                         "plan_id": "default"
                     }
                 }
-            /opt/nurx/rx_login:
+            /opt/nurx2/rx_login:
               content: |
                 {
                     "status": "success",
                     "response": {
                         "user_id": "default",
                         "token": "default",
-                        "expires": 31536000,
+                        "expires": 31536000
                     }
                 }
-            /opt/nurx/rx_get:
+            /opt/nurx2/rx_get:
               content: |
                 {
                     "status": "success",
@@ -450,20 +450,28 @@ Resources:
           commands:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
-            02_etchosts:
+            02_nuagent_config:
+              command: "mkdir /opt/nurx"
+            02a_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_create -o /opt/nurx/sensor_create"
+            02b_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_login -o /opt/nurx/sensor_login"
+            02c_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_get -o /opt/nurx/sensor_get"
+            02_launch_decryptor:
               command:
                 !Sub |
-                  echo ${FastKeyIP}'    key.nubedge.com' >> /etc/hosts
-            03_install_decryptor:
-              command: !Join
-                - ''
-                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
-                  - !Ref APIKey
-                  - " --sslcredobj "
-                  - Fn::Base64: !Sub
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken ${APIKey} --sslcredobj ${SSLdbReadAuth}
+#            03_install_decryptor:
+#              command: !Join
+#                - ''
+#                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
+#                  - !Ref APIKey
+#                  - " --sslcredobj "
+#                  - Fn::Base64: !Sub
 #                      - '{"type":"kdb","domain":"test","region":"${Domain}:4433","ak":"user","sk":"password"}'
-                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
-                      - Domain: !Ref FastKeyDNS
+#                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+#                      - Domain: !Ref FastKeyDNS
 
         StartWireshark:
           commands:
@@ -507,9 +515,8 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        FastKeyIP: !Ref FastKeyIP
-        FastKeyDNS: !Ref FastKeyDNS
         WiresharkELBTrafficMirrorTarget: !Ref WiresharkELBTrafficMirrorTarget
+        SSLdbWriteAuth: !Ref SSLdbWriteAuth
 
 
 Outputs:

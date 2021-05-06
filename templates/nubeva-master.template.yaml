@@ -284,10 +284,7 @@ Parameters:
   APIKey:
     Description: Token for your Nubeva account.
     Type: String
-  FastKeyDNS:
-    Description: FastKey Server Domain Name
-    Type: String
-    Default: key.nubedge.com
+
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -375,4 +372,3 @@ Resources:
         ToolPassword: !Ref ToolPassword
         ClientInstall: !Ref ClientInstall
         AddESRole: !Ref AddESRole
-        FastKeyDNS: !Ref FastKeyDNS
