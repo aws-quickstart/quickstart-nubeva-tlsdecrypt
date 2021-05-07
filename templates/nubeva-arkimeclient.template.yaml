@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploys TLSGen ArkimeClient for Arkime as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn72)
+Description: Deploys TLSGen ArkimeClient for Arkime as part of the SKI Decrypt & Open Source Tools. (qs-1qsdipn72)
 Parameters:
   APIKey:
     Description: "The Token for your Nubeva account"

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploys TLSGen SuricataClient for Suricata as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn72)
+Description: Deploys TLSGen SuricataClient for Suricata as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn72)
 Parameters:
   APIKey:
     Description: "The Token for your Nubeva account"

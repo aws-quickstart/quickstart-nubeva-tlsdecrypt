@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Nubeva TLS Decrypt & Open-Source Tools in a new VPC (qs-1qsdipn35).
+Description: Deploys Nubeva SKI & Open-Source Tools in a new VPC (qs-1qsdipn35).
 Metadata:
   QuickStartDocumentation:
     EntrypointName: "Launch into a new VPC"

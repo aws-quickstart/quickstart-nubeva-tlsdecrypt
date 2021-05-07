@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Suricata as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn6k)
+Description: Deploys Suricata as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn6k)
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"

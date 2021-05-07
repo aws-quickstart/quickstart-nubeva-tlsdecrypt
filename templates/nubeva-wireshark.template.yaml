@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Wireshark as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn7l)
+Description: Deploys Wireshark as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn7l)
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
