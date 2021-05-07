@@ -495,7 +495,7 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
-            - "InstallNurxAgent"
+            - "InstallNubevaDecryptor"
             - "InstallArkime"
           Start:
             - "StartArkime"
