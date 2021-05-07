@@ -526,6 +526,8 @@ Resources:
               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
             06_zeekAccess:
               command: "usermod -a -G zeek logstash"
+            07_zeekLogs:
+              command: "mkdir /opt/zeek/logs && chgrp zeek /opt/zeek/logs"
           services:
             sysvinit:
               logstash:
