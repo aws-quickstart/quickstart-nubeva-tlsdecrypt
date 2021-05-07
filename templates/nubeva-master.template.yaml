@@ -21,7 +21,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-#      - ArkimeInstall
+      - ArkimeInstall
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -43,8 +43,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-#      ArkimeInstall:
-#        default: Install Arkime ASG
+      ArkimeInstall:
+        default: Install Arkime ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -94,13 +94,13 @@ Metadata:
       MaximumNodes:
         default: Maximum nodes per tool
 Parameters:
-#  ArkimeInstall:
-#    Default: true
-#    AllowedValues:
-#    - true
-#    - false
-#    Description: Choose to install Arkime.
-#    Type: String
+  ArkimeInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Arkime.
+    Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
@@ -274,7 +274,7 @@ Parameters:
     Description: Type of EC2 instance for the node instances.
     Type: String
   NumberOfNodes:
-    Default: 2
+    Default: 1
     Description: Number of EC2 instance nodes in each Auto Scaling group.
     Type: Number
   MaximumNodes:
@@ -361,7 +361,7 @@ Resources:
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
-#        ArkimeInstall: !Ref ArkimeInstall
+        ArkimeInstall: !Ref ArkimeInstall
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
         ZeekInstall: !Ref ZeekInstall

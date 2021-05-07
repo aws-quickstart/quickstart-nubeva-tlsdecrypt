@@ -25,7 +25,7 @@ Parameters:
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
-    Default: 2
+    Default: 1
   MaximumNodes:
     Type: Number
     Default: 6
@@ -174,7 +174,7 @@ Resources:
         - FromPort: 443
           IpProtocol: tcp
           ToPort: 443
-          CidrIp: !Ref 'VPCCIDR'
+          CidrIp: !Ref 'RemoteAccessCIDR'
   SuricataSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -244,7 +244,7 @@ Resources:
     Properties:
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
-        InstanceCount: !Ref NumberOfNodes
+        InstanceCount: 2
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
           - InstanceType: !Ref NodeInstanceType
@@ -505,6 +505,9 @@ Resources:
               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
             07_suricataAccess:
               command: "usermod -a -G suricata logstash"
+#            08_installSuricataConfig:
+#              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata.yaml -O /etc/suricata/suricata.yaml"
+
           services:
             sysvinit:
               logstash:

@@ -25,7 +25,7 @@ Parameters:
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
-    Default: 2
+    Default: 1
   MaximumNodes:
     Type: Number
     Default: 6
@@ -175,7 +175,7 @@ Resources:
         - FromPort: 443
           IpProtocol: tcp
           ToPort: 443
-          CidrIp: !Ref 'VPCCIDR'
+          CidrIp: !Ref 'RemoteAccessCIDR'
   ZeekSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -253,7 +253,7 @@ Resources:
     Properties:
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
-        InstanceCount: !Ref NumberOfNodes
+        InstanceCount: 2
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
           - InstanceType: !Ref NodeInstanceType

@@ -41,7 +41,7 @@ Parameters:
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
-    Default: 2
+    Default: 1
   MaximumNodes:
     Type: Number
     Default: 6

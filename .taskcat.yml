@@ -52,12 +52,13 @@ tests:
 #      KeyPairName: in .taskcat_overrides.yml
       ToolAdmin: tooladmin
       ArkimeInstall: "true"
-      WiresharkInstall: "false"
-      SuricataInstall: "false"
-      ZeekInstall: "false"
+      WiresharkInstall: "true"
+      SuricataInstall: "true"
+      ZeekInstall: "true"
       ClientInstall: "true"
       AddESRole: "false"
-      ToolPassword: $[taskcat_genpass_10]
+#      ToolPassword: $[taskcat_genpass_10]
+      ToolPassword: BANzai99
       QSS3KeyPrefix: quickstart-nubeva-tlsdecrypt/
       QSS3BucketName: $[taskcat_autobucket]
       QSS3BucketRegion: us-east-1

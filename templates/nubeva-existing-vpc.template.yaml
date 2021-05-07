@@ -204,7 +204,7 @@ Parameters:
     Description: Type of EC2 instance for the node instances.
     Type: String
   NumberOfNodes:
-    Default: 2
+    Default: 1
     Description: Number of tool node instances. The default is one for each of the two Availability Zones.
     Type: Number
   MaximumNodes:

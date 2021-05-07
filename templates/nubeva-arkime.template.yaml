@@ -41,7 +41,7 @@ Parameters:
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
-    Default: 2
+    Default: 1
   MaximumNodes:
     Type: Number
     Default: 6
@@ -308,7 +308,7 @@ Resources:
     Properties:
       ElasticsearchVersion: '7.9'
       ElasticsearchClusterConfig:
-        InstanceCount: !Ref NumberOfNodes
+        InstanceCount: 2
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
           - InstanceType: !Ref NodeInstanceType
