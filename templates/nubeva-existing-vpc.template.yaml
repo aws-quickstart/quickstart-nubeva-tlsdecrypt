@@ -17,7 +17,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-#      - ArkimeInstall
+      - ArkimeInstall
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -39,8 +39,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-#      ArkimeInstall:
-#        default: Install Wireshark ASG
+      ArkimeInstall:
+        default: Install Wireshark ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -83,13 +83,13 @@ Metadata:
         default: Nubeva token
 
 Parameters:
-#  ArkimeInstall:
-#    Default: true
-#    AllowedValues:
-#    - true
-#    - false
-#    Description: Choose to install Arkime.
-#    Type: String
+  ArkimeInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Arkime.
+    Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
@@ -233,9 +233,9 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-#  ArkimeInstallTrue: !Equals
-#    - !Ref ArkimeInstall
-#    - 'true'
+  ArkimeInstallTrue: !Equals
+    - !Ref ArkimeInstall
+    - 'true'
   WiresharkInstallTrue: !Equals
     - !Ref WiresharkInstall
     - 'true'
@@ -256,7 +256,48 @@ Resources:
     Properties:
       AWSServiceName: es.amazonaws.com
       Description: Default ES Service Linked IAM Role
-
+  ArkimeStack:
+    Condition: ArkimeInstallTrue
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-arkime.template.yaml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        NumberOfNodes: !Ref NumberOfNodes
+        MaximumNodes: !Ref MaximumNodes
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
+        APIKey: !Ref APIKey
+        ToolAdmin: !Ref ToolAdmin
+        ToolPassword: !Ref ToolPassword
+        ClientInstall: !Ref ClientInstall
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix:  !Ref QSS3KeyPrefix
+        SSLdbReadAuth: !Join
+          - ''
+          - - Fn::Base64: !Sub
+                - '{"type":"ddb","domain":"${Domain}","region":"${Region}","ak":"${AccessKey}","sk":"${SecretKey}"}'
+                - Domain: !Ref NubevaDDBTable
+                  Region: !Ref AWS::Region
+                  AccessKey: !Ref NubevaDecryptorAccessKey
+                  SecretKey: !GetAtt NubevaDecryptorAccessKey.SecretAccessKey
+        SSLdbWriteAuth: !Join
+          - ''
+          - - Fn::Base64: !Sub
+                - '{"type":"ddb","domain":"${Domain}","region":"${Region}","ak":"${AccessKey}","sk":"${SecretKey}"}'
+                - Domain: !Ref NubevaDDBTable
+                  Region: !Ref AWS::Region
+                  AccessKey: !Ref NubevaSensorAccessKey
+                  SecretKey: !GetAtt NubevaSensorAccessKey.SecretAccessKey
   WiresharkStack:
     Condition: WiresharkInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -276,8 +317,8 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        ToolAdmin: !Ref ToolAdmin
-        ToolPassword: !Ref ToolPassword
+#        ToolAdmin: !Ref ToolAdmin
+#        ToolPassword: !Ref ToolPassword
         VPCCIDR: !Ref VPCCIDR
         ClientInstall: !Ref ClientInstall
         QSS3BucketName: !Ref QSS3BucketName
@@ -324,6 +365,22 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3KeyPrefix:  !Ref QSS3KeyPrefix
+        SSLdbReadAuth: !Join
+          - ''
+          - - Fn::Base64: !Sub
+                - '{"type":"ddb","domain":"${Domain}","region":"${Region}","ak":"${AccessKey}","sk":"${SecretKey}"}'
+                - Domain: !Ref NubevaDDBTable
+                  Region: !Ref AWS::Region
+                  AccessKey: !Ref NubevaDecryptorAccessKey
+                  SecretKey: !GetAtt NubevaDecryptorAccessKey.SecretAccessKey
+        SSLdbWriteAuth: !Join
+          - ''
+          - - Fn::Base64: !Sub
+                - '{"type":"ddb","domain":"${Domain}","region":"${Region}","ak":"${AccessKey}","sk":"${SecretKey}"}'
+                - Domain: !Ref NubevaDDBTable
+                  Region: !Ref AWS::Region
+                  AccessKey: !Ref NubevaSensorAccessKey
+                  SecretKey: !GetAtt NubevaSensorAccessKey.SecretAccessKey
   ZeekStack:
     Condition: ZeekInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -348,6 +405,22 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3KeyPrefix:  !Ref QSS3KeyPrefix
+        SSLdbReadAuth: !Join
+          - ''
+          - - Fn::Base64: !Sub
+                - '{"type":"ddb","domain":"${Domain}","region":"${Region}","ak":"${AccessKey}","sk":"${SecretKey}"}'
+                - Domain: !Ref NubevaDDBTable
+                  Region: !Ref AWS::Region
+                  AccessKey: !Ref NubevaDecryptorAccessKey
+                  SecretKey: !GetAtt NubevaDecryptorAccessKey.SecretAccessKey
+        SSLdbWriteAuth: !Join
+          - ''
+          - - Fn::Base64: !Sub
+                - '{"type":"ddb","domain":"${Domain}","region":"${Region}","ak":"${AccessKey}","sk":"${SecretKey}"}'
+                - Domain: !Ref NubevaDDBTable
+                  Region: !Ref AWS::Region
+                  AccessKey: !Ref NubevaSensorAccessKey
+                  SecretKey: !GetAtt NubevaSensorAccessKey.SecretAccessKey
   NubevaDDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
