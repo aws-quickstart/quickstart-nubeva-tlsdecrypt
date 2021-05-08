@@ -505,8 +505,8 @@ Resources:
               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
             07_suricataAccess:
               command: "usermod -a -G suricata logstash"
-#            08_installSuricataConfig:
-#              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata.yaml -O /etc/suricata/suricata.yaml"
+            08_installSuricataConfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata.yaml -O /etc/suricata/suricata.yaml"
 
           services:
             sysvinit:
