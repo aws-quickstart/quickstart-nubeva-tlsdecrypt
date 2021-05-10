@@ -460,10 +460,7 @@ Resources:
     Properties:
       Users:
         - !Ref NubevaSKISensorUser
-      PolicyName: !Join
-        - '-'
-        - - 'NuKeyWriter'
-          - !Ref NubevaDDBTable
+      PolicyName: "NuKeyWriter"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -478,10 +475,7 @@ Resources:
     Properties:
       Users:
         - !Ref NubevaSKIDecryptorUser
-      PolicyName: !Join
-        - '-'
-        - - 'NuKeyReader'
-          - !Ref NubevaDDBTable
+      PolicyName: "NuKeyReader"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:

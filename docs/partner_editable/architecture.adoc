@@ -6,8 +6,12 @@ AWS Cloud.
 [#architecture1]
 .Quick Start architecture for Nubeva SKI on AWS
 //Sending updated pptx
+//old image
 //[link=https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png]
 //image::https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png[Architecture,width=648,height=439]
+//new image..pptx also included
+[link=../images/architecture_diagram.png]
+image::../images/architecture_diagram.png[architecture_diagram,width=648,height=850]
 
 The Quick Start sets up the following:
 

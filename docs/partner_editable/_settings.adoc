@@ -5,5 +5,5 @@
 :doc-year: 2020
 :partner-contributors: Erik Freeland, Nubeva
 :quickstart-contributors: Dylan Owen and Roy Rodan, Amazon Web Services
-:deployment_time: 25 minutes
+:deployment_time: 31 minutes
 :default_deployment_region: us-east-2
