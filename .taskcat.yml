@@ -3,6 +3,7 @@ project:
   name: quickstart-nubeva-tlsdecrypt
   owner: erik@nubeva.com
   s3_regional_buckets: True
+  shorten_stack_name: true
   regions:
   # - ap-northeast-1
   # - ap-northeast-2

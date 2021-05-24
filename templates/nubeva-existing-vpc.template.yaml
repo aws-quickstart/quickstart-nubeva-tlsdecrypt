@@ -438,12 +438,20 @@ Resources:
   NubevaSKISensorUser:
     Type: AWS::IAM::User
     Properties:
-      UserName: 'Nubeva-Sensor'
+#      UserName: 'Nubeva-Sensor'
+      UserName: !Join
+        - '-'
+        - - 'NuAgent'
+          - !Ref NubevaDDBTable
       Path: "/"
   NubevaSKIDecryptorUser:
     Type: AWS::IAM::User
     Properties:
-      UserName: 'Nubeva-Decryptor'
+      UserName: !Join
+        - '-'
+        - - 'NuRx'
+          - !Ref NubevaDDBTable
+#      UserName: 'Nubeva-Decryptor'
       Path: "/"
   NubevaSensorAccessKey:
     Type: AWS::IAM::AccessKey
@@ -460,7 +468,11 @@ Resources:
     Properties:
       Users:
         - !Ref NubevaSKISensorUser
-      PolicyName: "NuKeyWriter"
+#      PolicyName: "NuKeyWriter"
+      PolicyName: !Join
+        - '-'
+        - - 'NuKeyWriter'
+          - !Ref NubevaDDBTable
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -475,7 +487,11 @@ Resources:
     Properties:
       Users:
         - !Ref NubevaSKIDecryptorUser
-      PolicyName: "NuKeyReader"
+#      PolicyName: "NuKeyReader"
+      PolicyName: !Join
+        - '-'
+        - - 'NuKeyReader'
+          - !Ref NubevaDDBTable
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -490,7 +506,11 @@ Resources:
     Properties:
       Groups:
         - !Ref NubevaSKIAdministrator
-      PolicyName: "NuKeyAdmin"
+#      PolicyName: "NuKeyAdmin"
+      PolicyName: !Join
+        - '-'
+        - - 'NuKeyAdmin'
+          - !Ref NubevaDDBTable
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
