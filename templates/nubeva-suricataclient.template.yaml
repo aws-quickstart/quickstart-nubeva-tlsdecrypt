@@ -26,6 +26,7 @@ Parameters:
   SSLdbWriteAuth:
     Description: Nubeva Sensor Parameter
     Type: String
+    NoEcho: true
   SuricataELBTrafficMirrorTarget:
     Description: Suricata ELB TMT Info
     Type: String

@@ -68,9 +68,11 @@ Parameters:
   SSLdbReadAuth:
     Description: Nubeva Decryptor Parameter
     Type: String
+    NoEcho: true
   SSLdbWriteAuth:
     Description: Nubeva Sensor Parameter
     Type: String
+    NoEcho: true
   ClientInstall:
     AllowedValues:
     - true
