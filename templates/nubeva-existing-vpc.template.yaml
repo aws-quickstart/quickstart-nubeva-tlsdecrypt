@@ -434,7 +434,6 @@ Resources:
   NubevaSKIAdministrator:
     Type: AWS::IAM::Group
     Properties :
-      GroupName: 'NubevaSKIAdministrators'
       GroupName: !Join
         - '-'
         - - 'NubevaSKIAdmin'
