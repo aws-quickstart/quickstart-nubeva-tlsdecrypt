@@ -154,12 +154,12 @@ Parameters:
     ConstraintDescription: must contain only 8-32 alphanumeric characters
   BastionAMIOS:
     AllowedValues:
-    - Amazon-Linux-HVM
+    - Amazon-Linux2-HVM
 #restricting choice to fix bug
 #    - CentOS-7-HVM
 #    - Ubuntu-Server-14.04-LTS-HVM
 #    - Ubuntu-Server-16.04-LTS-HVM
-    Default: Amazon-Linux-HVM
+    Default: Amazon-Linux2-HVM
     Description: Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.
     Type: String
   BastionInstanceType:

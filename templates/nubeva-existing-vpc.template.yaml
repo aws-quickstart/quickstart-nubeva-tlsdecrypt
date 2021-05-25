@@ -435,10 +435,13 @@ Resources:
     Type: AWS::IAM::Group
     Properties :
       GroupName: 'NubevaSKIAdministrators'
+      GroupName: !Join
+        - '-'
+        - - 'NubevaSKIAdmin'
+          - !Ref NubevaDDBTable
   NubevaSKISensorUser:
     Type: AWS::IAM::User
     Properties:
-#      UserName: 'Nubeva-Sensor'
       UserName: !Join
         - '-'
         - - 'NuAgent'
@@ -451,7 +454,6 @@ Resources:
         - '-'
         - - 'NuRx'
           - !Ref NubevaDDBTable
-#      UserName: 'Nubeva-Decryptor'
       Path: "/"
   NubevaSensorAccessKey:
     Type: AWS::IAM::AccessKey
