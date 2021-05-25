@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Nubeva TLS Decrypt & Open-Source Tools in a new VPC (qs-1qsdipn35).
+Description: Deploys Nubeva SKI & Open-Source Tools in a new VPC (qs-1qsdipn35).
 Metadata:
   QuickStartDocumentation:
     EntrypointName: "Launch into a new VPC"
@@ -22,7 +22,6 @@ Metadata:
       Parameters:
       - APIKey
       - ArkimeInstall
-      - NtopInstall
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -46,8 +45,6 @@ Metadata:
     ParameterLabels:
       ArkimeInstall:
         default: Install Arkime ASG
-      NtopInstall:
-        default: Install ntop ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -104,13 +101,6 @@ Parameters:
     - false
     Description: Choose to install Arkime.
     Type: String
-  NtopInstall:
-    Default: true
-    AllowedValues:
-    - true
-    - false
-    Description: Choose to install ntop.
-    Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
@@ -164,10 +154,11 @@ Parameters:
     ConstraintDescription: must contain only 8-32 alphanumeric characters
   BastionAMIOS:
     AllowedValues:
-      - Amazon-Linux2-HVM
-      - CentOS-7-HVM
-      - Ubuntu-Server-18.04-LTS-HVM
-      - SUSE-SLES-15-HVM
+    - Amazon-Linux2-HVM
+#restricting choice to fix bug
+#    - CentOS-7-HVM
+#    - Ubuntu-Server-14.04-LTS-HVM
+#    - Ubuntu-Server-16.04-LTS-HVM
     Default: Amazon-Linux2-HVM
     Description: Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.
     Type: String
@@ -283,7 +274,7 @@ Parameters:
     Description: Type of EC2 instance for the node instances.
     Type: String
   NumberOfNodes:
-    Default: 2
+    Default: 1
     Description: Number of EC2 instance nodes in each Auto Scaling group.
     Type: Number
   MaximumNodes:
@@ -293,6 +284,7 @@ Parameters:
   APIKey:
     Description: Token for your Nubeva account.
     Type: String
+
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -370,7 +362,6 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
         ArkimeInstall: !Ref ArkimeInstall
-        NtopInstall: !Ref NtopInstall
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
         ZeekInstall: !Ref ZeekInstall

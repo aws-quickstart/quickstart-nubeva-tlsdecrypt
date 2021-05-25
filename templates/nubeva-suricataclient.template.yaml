@@ -1,0 +1,253 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploys TLSGen SuricataClient for Suricata as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn72)
+Parameters:
+  APIKey:
+    Description: "The Token for your Nubeva account"
+    Type: String
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC to install into.
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+  PrivateSubnet1ID:
+    Description: Subnet Id for Private Subnet1
+    Type: AWS::EC2::Subnet::Id
+  SuricataClientInstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.micro
+  KeyPairName:
+    Description: Name of an existing key pair, which allows you to securely connect to your instance after it launches.
+    Type: AWS::EC2::KeyPair::KeyName
+  SSLdbWriteAuth:
+    Description: Nubeva Sensor Parameter
+    Type: String
+    NoEcho: true
+  SuricataELBTrafficMirrorTarget:
+    Description: Suricata ELB TMT Info
+    Type: String
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - SuricataClientInstanceType
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
+
+Resources:
+  SuricataClientSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Suricata Client Security Group
+      VpcId: !Ref 'VPCID'
+  SuricataClientSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SuricataClientSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  SuricataClientSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "SuricataClientSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+  SuricataTrafficMirrorSession:
+    Type: "AWS::EC2::TrafficMirrorSession"
+    DependsOn: SuricataClient
+    Properties:
+      Description: "Suricata Client to Suricata ELB"
+      NetworkInterfaceId: !Ref SuricataClientInterface
+      TrafficMirrorTargetId: !Ref SuricataELBTrafficMirrorTarget
+      TrafficMirrorFilterId: !Ref SuricataTrafficMirrorFilter
+      SessionNumber: 1
+  SuricataTrafficMirrorFilter:
+    Type: "AWS::EC2::TrafficMirrorFilter"
+    Properties:
+      Description: "All traffic mirror filter"
+  SuricataIngressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL ingress traffic"
+      TrafficMirrorFilterId: !Ref SuricataTrafficMirrorFilter
+      TrafficDirection: "ingress"
+      RuleNumber: 10
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
+  SuricataEgressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL egress traffic"
+      TrafficMirrorFilterId: !Ref SuricataTrafficMirrorFilter
+      TrafficDirection: "egress"
+      RuleNumber: 20
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
+  SuricataClientInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref PrivateSubnet1ID
+      Description: Outbound Interface on Source
+      GroupSet:
+      - !Ref SuricataClientSecurityGroup
+  SuricataClient:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallNubevaSKISensor"
+          Start:
+            - "StartSource"
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              wget: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallNubevaSKISensor:
+          files:
+            /opt/nuagent/sensor_create:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "sensorid": "i-0216d54994df6bcc1x631140662218946579075626",
+                        "account_id": "default",
+                        "plan_id": "default"
+                    }
+                }
+            /opt/nuagent/sensor_login:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "user_id": "default",
+                        "token": "default",
+                        "expires": 31536000
+                    }
+                }
+            /opt/nuagent/sensor_get:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "SslCredObj": "",
+                        "SrcGroups": [
+                                {
+                                        "_type": "custom.srcgroup",
+                                        "sensorlist_list_custom_sensor": [
+                                        "i-0216d54994df6bcc1x631140662218946579075626"
+                                        ],
+                                "ssl": true,
+                                "_id": "1234567890AAAA"
+                                }
+                        ]
+                    }
+                }
+          commands:
+            01_dockergroup:
+              command: "usermod -a -G docker ec2-user"
+            02_install_sensor:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/ --nutoken ${APIKey} --sslcredobj ${SSLdbWriteAuth}
+
+        StartSource:
+          commands:
+            01_copycrontab:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/tlsgencronjob -O /etc/cron.d/tlscronjob"
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel -y
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataClient --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataClient
+      InstanceType: !Ref SuricataClientInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref SuricataClientInterface
+          DeviceIndex: '0'
+      KeyName:
+        Ref: KeyPairName
+      Tags:
+      - Key: Name
+        Value: !Sub "Suricata Client-${AWS::StackName}"
