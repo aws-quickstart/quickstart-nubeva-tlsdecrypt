@@ -438,14 +438,14 @@ Resources:
       GroupName: !Join
         - '-'
         - - 'NubevaSKIAdmin'
-          - !Ref NubevaDDBTable
+          - !Ref AWS::StackName
   NubevaSKISensorUser:
     Type: AWS::IAM::User
     Properties:
       UserName: !Join
         - '-'
         - - 'NuAgent'
-          - !Ref NubevaDDBTable
+          - !Ref AWS::StackName
       Path: "/"
   NubevaSKIDecryptorUser:
     Type: AWS::IAM::User
@@ -453,7 +453,7 @@ Resources:
       UserName: !Join
         - '-'
         - - 'NuRx'
-          - !Ref NubevaDDBTable
+          - !Ref AWS::StackName
       Path: "/"
   NubevaSensorAccessKey:
     Type: AWS::IAM::AccessKey
@@ -470,11 +470,10 @@ Resources:
     Properties:
       Users:
         - !Ref NubevaSKISensorUser
-#      PolicyName: "NuKeyWriter"
       PolicyName: !Join
         - '-'
         - - 'NuKeyWriter'
-          - !Ref NubevaDDBTable
+          - !Ref AWS::StackName
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -489,11 +488,10 @@ Resources:
     Properties:
       Users:
         - !Ref NubevaSKIDecryptorUser
-#      PolicyName: "NuKeyReader"
       PolicyName: !Join
         - '-'
         - - 'NuKeyReader'
-          - !Ref NubevaDDBTable
+          - !Ref AWS::StackName
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -512,7 +510,7 @@ Resources:
       PolicyName: !Join
         - '-'
         - - 'NuKeyAdmin'
-          - !Ref NubevaDDBTable
+          - !Ref AWS::StackName
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
