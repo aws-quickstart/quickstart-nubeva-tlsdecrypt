@@ -1,12 +1,17 @@
 Deploying this Quick Start for a new virtual private cloud (VPC) with
-*default parameters* builds the following Nubeva network and security monitoring environment in the
+*default parameters* builds the following Nubeva SKI network and security monitoring environment in the
 AWS Cloud.
 
 // Replace this example diagram with your own. Send us your source PowerPoint file. Be sure to follow our guidelines here : http://(we should include these points on our contributors giude)
 [#architecture1]
-.Quick Start architecture for _{partner-product-name}_ on AWS
-[link=https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png]
-image::https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png[Architecture,width=648,height=439]
+.Quick Start architecture for Nubeva SKI on AWS
+//Sending updated pptx
+//old image
+//[link=https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png]
+//image::https://d1.awsstatic.com/partner-network/QuickStart/nubeva-tls-decrypt-architecture.51d8abe28801924553866e18a5f255bf3418be63.png[Architecture,width=648,height=439]
+//new image..pptx also included
+[link=../images/architecture_diagram.png]
+image::../images/architecture_diagram.png[architecture_diagram,width=648,height=850]
 
 The Quick Start sets up the following:
 
@@ -16,9 +21,9 @@ provide you with your own virtual network on AWS.*
 * Elastic Load Balancing (ELB) for each open-source tool, to provide scaling for the tool
 operation itself and for inbound packet mirroring using Amazon VPC traffic mirrors or
 internal replication.
-* Amazon Elasticsearch Service (Amazon ES) for the open-source tools that require
-Elasticsearch, Moloch, or for managing the logs from Zeek and Suricata.
-* An Amazon S3 bucket for Moloch packet capture (PCAP) storage.
+* Amazon DynamoDB for key storage.
+* Amazon Elasticsearch Service (Amazon ES) for managing the logs from Zeek and Suricata.
+//* An Amazon S3 bucket for Arkime packet capture (PCAP) storage.
 * Amazon VPC traffic mirroring targets connected to each open-source load balancer.
 * In the public subnets:
 ** Managed network address translation (NAT) gateways to allow outbound
@@ -28,12 +33,9 @@ internet access for resources in the subnets.*
 ** A source instance in an Auto Scaling group (of size 2). This is a sample instance
 you can use to monitor TLS traffic. After deployment, use the Nubeva SaaS
 console to add more instances to monitor.
-** The source instance has a container-based Nubeva TLS Decrypt agent deployed.
-This agent listens through all available interfaces, discovers TLS session keys,
-and, optionally, mirrors a copy of the packet stream to the open-source tools for
-analysis.
-** Moloch packet capture in an Auto Scaling group (of size 2).
-** Ntop network analysis in an Auto Scaling group (of size 2).
+** The source instance has a container-based Nubeva SKI agent deployed.
+This agent listens through all available interfaces & discovers TLS session keys.
+//** Arkime packet capture in an Auto Scaling group (of size 2).
 ** Suricata signature detection in an Auto Scaling group (of size 2).
 ** Wireshark packet analysis in an Auto Scaling group (of size 2).
 ** Zeek anomaly detection in an Auto Scaling group (of size 2).

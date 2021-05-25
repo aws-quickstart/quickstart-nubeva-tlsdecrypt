@@ -6,7 +6,9 @@
 |VPCs |1
 |AWS Identity and Access Management (IAM) security groups |8
 |IAM roles |6
-|Auto Scaling groups |5
-|Elastic Load Balancers |5
-|m5.large instances |10
+|Auto Scaling groups |3
+|Elastic Load Balancers |3
+|m5.large instances |6
+|t3.micro instances |3
+|DynamoDB |1
 |===

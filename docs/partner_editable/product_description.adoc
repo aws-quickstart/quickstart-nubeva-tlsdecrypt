@@ -1,15 +1,14 @@
 // Replace the content in <>
-// Briefly describe the software. Use consistent and clear branding. 
+// Briefly describe the software. Use consistent and clear branding.
 // Include the benefits of using the software on AWS, and provide details on usage scenarios.
 
-Nubeva’s TLS visibility solution is a software as a service (SaaS) that provides complete
+Nubeva’s SKI architecture provides a visibility solution that provides complete
 packet visibility of any public cloud with TLS decryption capabilities. All the open-source
-tools in this solution are complemented by Nubeva TLS Decrypt, which provides additional
+tools in this solution are complemented by Nubeva SKI sensors, which provides additional
 intelligence and insight into encrypted data.
 
-Container-based Nubeva TLS Decrypt sensors are deployed on your monitored instances,
-which capture TLS session keys  — as well as associated packet traffic for any instance where
-Amazon VPC traffic mirroring isn’t available — as they flow through these instances. The
-packets are sent through a secure channel to be analyzed and visualized by the open-source
+Container-based Nubeva SKI sensors are deployed on your monitored instances,
+which capture TLS session keys as they flow through these instances. The
+packets are sent using VPC traffic mirrors to be analyzed and visualized by the open-source
 tools you choose. This provides clear visibility of your network traffic so you can identify
 unexpected network behavior, perform network analysis, and detect intrusions.
