@@ -1,5 +1,22 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Deploys TLSGen SuricataClient for Suricata as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn72)
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - SuricataClientInstanceType
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E9101
 Parameters:
   APIKey:
     Description: "The Token for your Nubeva account"
@@ -30,20 +47,6 @@ Parameters:
   SuricataELBTrafficMirrorTarget:
     Description: Suricata ELB TMT Info
     Type: String
-
-Metadata:
-  AWS::CloudFormation::Interface:
-    ParameterGroups:
-      - Label:
-          default: "Network Configuration"
-        Parameters:
-          - VPCID
-          - RemoteAccessCIDR
-      - Label:
-          default: "Autoscaling Configuration"
-        Parameters:
-          - KeyPairName
-          - SuricataClientInstanceType
 
 Mappings:
   AWSAMIRegionMap:

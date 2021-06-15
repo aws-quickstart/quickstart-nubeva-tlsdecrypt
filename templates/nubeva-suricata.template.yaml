@@ -1,5 +1,28 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys Suricata as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn6k)
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Nubeva configuration
+        Parameters:
+        - APIKey
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - NodeInstanceType
+          - NumberOfNodes
+          - MaximumNodes
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E9101
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -102,26 +125,6 @@ Parameters:
       can include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
     Type: String
-
-Metadata:
-  AWS::CloudFormation::Interface:
-    ParameterGroups:
-      - Label:
-          default: Nubeva configuration
-        Parameters:
-        - APIKey
-      - Label:
-          default: "Network Configuration"
-        Parameters:
-          - VPCID
-          - RemoteAccessCIDR
-      - Label:
-          default: "Autoscaling Configuration"
-        Parameters:
-          - KeyPairName
-          - NodeInstanceType
-          - NumberOfNodes
-          - MaximumNodes
 
 Mappings:
   AWSAMIRegionMap:
@@ -266,8 +269,56 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: '*'
-            Action: 'es:*'
-            Resource: '*'
+            Action: 
+              - es:AcceptInboundCrossClusterSearchConnection
+              - es:AddTags
+              - es:AssociatePackage
+              - es:CancelElasticsearchServiceSoftwareUpdate
+              - es:CreateElasticsearchDomain
+              - es:CreateElasticsearchServiceRole
+              - es:CreateOutboundCrossClusterSearchConnection
+              - es:CreatePackage
+              - es:DeleteElasticsearchDomain
+              - es:DeleteElasticsearchServiceRole
+              - es:DeleteInboundCrossClusterSearchConnection
+              - es:DeleteOutboundCrossClusterSearchConnection
+              - es:DeletePackage
+              - es:DescribeElasticsearchDomain
+              - es:DescribeElasticsearchDomainConfig
+              - es:DescribeElasticsearchDomains
+              - es:DescribeElasticsearchInstanceTypeLimits
+              - es:DescribeInboundCrossClusterSearchConnections
+              - es:DescribeOutboundCrossClusterSearchConnections
+              - es:DescribePackages
+              - es:DescribeReservedElasticsearchInstanceOfferings
+              - es:DescribeReservedElasticsearchInstances
+              - es:DissociatePackage
+              - es:ESCrossClusterGet
+              - es:ESHttpDelete
+              - es:ESHttpGet
+              - es:ESHttpHead
+              - es:ESHttpPatch
+              - es:ESHttpPost
+              - es:ESHttpPut
+              - es:GetCompatibleElasticsearchVersions
+              - es:GetPackageVersionHistory
+              - es:GetUpgradeHistory
+              - es:GetUpgradeStatus
+              - es:ListDomainNames
+              - es:ListDomainsForPackage
+              - es:ListElasticsearchInstanceTypeDetails
+              - es:ListElasticsearchInstanceTypes
+              - es:ListElasticsearchVersions
+              - es:ListPackagesForDomain
+              - es:ListTags
+              - es:PurchaseReservedElasticsearchInstanceOffering
+              - es:RejectInboundCrossClusterSearchConnection
+              - es:RemoveTags
+              - es:StartElasticsearchServiceSoftwareUpdate
+              - es:UpdateElasticsearchDomainConfig
+              - es:UpdatePackage
+              - es:UpgradeElasticsearchDomain
+            Resource: !Sub 'arn:${AWS::Partition}:es:${AWS::Region}:${AWS::AccountId}:domain/*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
       VPCOptions:
