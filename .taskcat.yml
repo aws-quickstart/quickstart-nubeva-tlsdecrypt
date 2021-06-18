@@ -43,7 +43,7 @@ tests:
      ToolPassword: $[taskcat_genpass_10]
      QSS3KeyPrefix: "quickstart-nubeva-tlsdecrypt/"
      QSS3BucketName: $[taskcat_autobucket]
-     QSS3BucketRegion: "us-east-1"
+     QSS3BucketRegion: "$[taskcat_current_region]"
   # existing-VPC:
   #   template: ./templates/nubeva-existing-vpc.template.yaml
   #   parameters:
