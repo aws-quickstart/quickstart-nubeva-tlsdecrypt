@@ -28,7 +28,7 @@ tests:
      AvailabilityZones: $[taskcat_genaz_2]
      KeyPairName: $[taskcat_getkeypair]
      ToolAdmin: "tooladmin"
-     ArkimeInstall: "true"
+     ArkimeInstall: "false"
      NtopInstall: "true"
      WiresharkInstall: "true"
      SuricataInstall: "true"
