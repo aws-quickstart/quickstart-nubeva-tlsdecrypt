@@ -1,9 +1,11 @@
 :quickstart-project-name: quickstart-nubeva-tlsdecrypt
 :partner-product-name: Nubeva TLS Decrypt
+:partner-product-short-name: TLS Decrypt
 :partner-company-name: Nubeva
-:doc-month: February
-:doc-year: 2020
+:doc-month: June
+:doc-year: 2021
 :partner-contributors: Erik Freeland, {partner-company-name}
-:quickstart-contributors: Dylan Owen and Roy Rodan, Amazon Web Services
-:deployment_time: 25 minutes
-:default_deployment_region: us-east-2
+:quickstart-contributors: Dylan Owen, Amazon Web Services
+:deployment_time: 30 minutes
+:default_deployment_region: us-east-1
+:parameters_as_appendix:

@@ -1,5 +1,28 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Zeek as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn5u)
+Description: Deploys Zeek as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn5u)
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Nubeva configuration
+        Parameters:
+        - APIKey
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCID
+          - RemoteAccessCIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - KeyPairName
+          - NodeInstanceType
+          - NumberOfNodes
+          - MaximumNodes
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E9101
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -25,7 +48,7 @@ Parameters:
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
-    Default: 2
+    Default: 1
   MaximumNodes:
     Type: Number
     Default: 6
@@ -65,26 +88,43 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
-
-Metadata:
-  AWS::CloudFormation::Interface:
-    ParameterGroups:
-      - Label:
-          default: Nubeva configuration
-        Parameters:
-        - APIKey
-      - Label:
-          default: "Network Configuration"
-        Parameters:
-          - VPCID
-          - RemoteAccessCIDR
-      - Label:
-          default: "Autoscaling Configuration"
-        Parameters:
-          - KeyPairName
-          - NodeInstanceType
-          - NumberOfNodes
-          - MaximumNodes
+  SSLdbReadAuth:
+    Description: Nubeva Decryptor Parameter
+    Type: String
+    NoEcho: true
+  SSLdbWriteAuth:
+    Description: Nubeva Sensor Parameter
+    Type: String
+    NoEcho: true
+  ClientInstall:
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install TLS generation clients.
+    Type: String
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: "The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value."
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-nubeva-tlsdecrypt/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
 
 Mappings:
   AWSAMIRegionMap:
@@ -123,6 +163,12 @@ Mappings:
     sa-east-1:
       awslinux2: "ami-058943e7d9b9cabfb"
 
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  ClientInstallTrue: !Equals
+    - !Ref ClientInstall
+    - 'true'
+
 Resources:
   ZeekESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -133,7 +179,7 @@ Resources:
         - FromPort: 443
           IpProtocol: tcp
           ToPort: 443
-          CidrIp: !Ref 'VPCCIDR'
+          CidrIp: !Ref 'RemoteAccessCIDR'
   ZeekSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -211,7 +257,7 @@ Resources:
     Properties:
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
-        InstanceCount: !Ref NumberOfNodes
+        InstanceCount: 2
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
           - InstanceType: !Ref NodeInstanceType
@@ -231,8 +277,56 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: '*'
-            Action: 'es:*'
-            Resource: '*'
+            Action: 
+              - es:AcceptInboundCrossClusterSearchConnection
+              - es:AddTags
+              - es:AssociatePackage
+              - es:CancelElasticsearchServiceSoftwareUpdate
+              - es:CreateElasticsearchDomain
+              - es:CreateElasticsearchServiceRole
+              - es:CreateOutboundCrossClusterSearchConnection
+              - es:CreatePackage
+              - es:DeleteElasticsearchDomain
+              - es:DeleteElasticsearchServiceRole
+              - es:DeleteInboundCrossClusterSearchConnection
+              - es:DeleteOutboundCrossClusterSearchConnection
+              - es:DeletePackage
+              - es:DescribeElasticsearchDomain
+              - es:DescribeElasticsearchDomainConfig
+              - es:DescribeElasticsearchDomains
+              - es:DescribeElasticsearchInstanceTypeLimits
+              - es:DescribeInboundCrossClusterSearchConnections
+              - es:DescribeOutboundCrossClusterSearchConnections
+              - es:DescribePackages
+              - es:DescribeReservedElasticsearchInstanceOfferings
+              - es:DescribeReservedElasticsearchInstances
+              - es:DissociatePackage
+              - es:ESCrossClusterGet
+              - es:ESHttpDelete
+              - es:ESHttpGet
+              - es:ESHttpHead
+              - es:ESHttpPatch
+              - es:ESHttpPost
+              - es:ESHttpPut
+              - es:GetCompatibleElasticsearchVersions
+              - es:GetPackageVersionHistory
+              - es:GetUpgradeHistory
+              - es:GetUpgradeStatus
+              - es:ListDomainNames
+              - es:ListDomainsForPackage
+              - es:ListElasticsearchInstanceTypeDetails
+              - es:ListElasticsearchInstanceTypes
+              - es:ListElasticsearchVersions
+              - es:ListPackagesForDomain
+              - es:ListTags
+              - es:PurchaseReservedElasticsearchInstanceOffering
+              - es:RejectInboundCrossClusterSearchConnection
+              - es:RemoveTags
+              - es:StartElasticsearchServiceSoftwareUpdate
+              - es:UpdateElasticsearchDomainConfig
+              - es:UpdatePackage
+              - es:UpgradeElasticsearchDomain
+            Resource: !Sub 'arn:${AWS::Partition}:es:${AWS::Region}:${AWS::AccountId}:domain/*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
       VPCOptions:
@@ -300,7 +394,7 @@ Resources:
         - GroupInServiceInstances
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "Zeek-${AWS::StackName}"
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
@@ -380,7 +474,7 @@ Resources:
           Install:
             - "InstallServices"
             - "SetupElastic"
-            - "InstallNurxAgent"
+            - "InstallNubevaDecryptor"
             - "InstallZeek"
           Start:
             - "StartZeek"
@@ -389,12 +483,23 @@ Resources:
           commands:
             01_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
+#apt update
+#sudo apt upgrade -y
+#sudo apt install -y libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
+#echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/security:zeek.list
+#curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/security_zeek.gpg > /dev/null
+#sudo apt update
+#sudo apt install zeek
+
         InstallServices:
           packages:
             yum:
               libpcap-devel: []
               openssl-devel: []
-              python-devel: []
+              python3-devel: []
+              python3: []
+              python3-libs: []
+              swig: []
               zlib-devel: []
               java-1.8.0-openjdk: []
               wget: []
@@ -412,26 +517,49 @@ Resources:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
             03_get_ZeekEepo_info:
               command: "wget -nv https://download.opensuse.org/repositories/security:zeek/CentOS_7/security:zeek.repo -O /etc/yum.repos.d/security:zeek.repo"
-        InstallNurxAgent:
+        InstallNubevaDecryptor:
+          files:
+            /opt/nurx/rx_create:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "rxid": "rx-1234567890",
+                        "account_id": "default",
+                        "plan_id": "default",
+                        "message": "Hello"
+                    }
+                }
+            /opt/nurx/rx_login:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "user_id": "default",
+                        "token": "default",
+                        "expires": 31536000
+                    }
+                }
+            /opt/nurx/rx_get:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "SslCredObj": "eyJ0eXBlIjoic2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9",
+                        "Mtu": 65535
+                    }
+                }
           commands:
-            01_download_and_install:
+            01_dockergroup:
+              command: "sudo usermod -a -G docker ec2-user"
+            02_launch_decryptor:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-        #InstallVXLANInterface:
-        #  commands:
-        #    01_createVXLAN:
-        #      command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
-        #    02_interfaceUp:
-        #      command: "ip link set vxlan555 up"
-        #    03_autoLaunchVXLAN:
-        #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
-        #    04_addsmorerclocalupdate:
-        #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken ${APIKey} --sslcredobj ${SSLdbReadAuth}
         InstallZeek:
           packages:
             yum:
-              zeek-lts: []
+              zeek-core: []
               logstash: []
           commands:
             01_configLogstash:
@@ -450,6 +578,8 @@ Resources:
               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
             06_zeekAccess:
               command: "usermod -a -G zeek logstash"
+            07_zeekLogs:
+              command: "mkdir /opt/zeek/logs && chgrp zeek /opt/zeek/logs"
           services:
             sysvinit:
               logstash:
@@ -493,6 +623,23 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: 100
+  ZeekClientStack:
+    Condition: ClientInstallTrue
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-zeekclient.template.yaml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        APIKey: !Ref APIKey
+        ZeekELBTrafficMirrorTarget: !Ref ZeekELBTrafficMirrorTarget
+        SSLdbWriteAuth: !Ref SSLdbWriteAuth
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation

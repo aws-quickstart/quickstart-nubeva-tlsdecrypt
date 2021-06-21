@@ -13,9 +13,8 @@
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
 |Parameter label (name) |Default value|Description|Nubeva token
-(`APIKey`)|`**__Requires input__**`|Token for your Nubeva account.|Install Arkime ASG
-(`ArkimeInstall`)|`True`|Choose to install Arkime.|Install ntop ASG
-(`NtopInstall`)|`True`|Choose to install ntop.|Install Wireshark ASG
+(`APIKey`)|`**__Requires input__**`|Token for your Nubeva account.|Install Wireshark ASG
+(`ArkimeInstall`)|`True`|Choose to install Arkime.|Install Wireshark ASG
 (`WiresharkInstall`)|`True`|Choose to install Wireshark.|Install Suricata ASG
 (`SuricataInstall`)|`True`|Choose to install Suricata.|Install Zeek ASG
 (`ZeekInstall`)|`True`|Choose to install Zeek.|Install TLS generation clients
@@ -30,7 +29,7 @@
 |Parameter label (name) |Default value|Description|SSH key name
 (`KeyPairName`)|`**__Requires input__**`|Name of an existing key pair, which allows you to securely connect to your instance after it launches.|Node instance type
 (`NodeInstanceType`)|`m5.large`|Type of EC2 instance for the node instances.|Number of nodes
-(`NumberOfNodes`)|`2`|Number of tool node instances. The default is one for each of the two Availability Zones.|Maximum nodes per tool
+(`NumberOfNodes`)|`1`|Number of tool node instances. The default is one for each of the two Availability Zones.|Maximum nodes per tool
 (`MaximumNodes`)|`6`|Maximum number of EC2 instance nodes in the tool Auto Scaling group.
 |===
 .AWS Quick Start configuration
