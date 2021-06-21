@@ -3,7 +3,7 @@ project:
   name: quickstart-nubeva-tlsdecrypt
   owner: erik@nubeva.com
   s3_regional_buckets: true
-  shorten_stack_name: true
+  #shorten_stack_name: true
   regions:
     - ap-northeast-1
     - ap-northeast-2
@@ -37,7 +37,7 @@ tests:
      ToolPassword: $[taskcat_genpass_10]
      QSS3KeyPrefix: "quickstart-nubeva-tlsdecrypt/"
      QSS3BucketName: $[taskcat_autobucket]
-     QSS3BucketRegion: "$[taskcat_current_region]"
+     QSS3BucketRegion: $[taskcat_current_region]
   # existing-VPC:
   #   template: ./templates/nubeva-existing-vpc.template.yaml
   #   parameters:
