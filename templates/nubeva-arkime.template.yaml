@@ -314,7 +314,7 @@ Resources:
     Type: AWS::Elasticsearch::Domain
     DependsOn: ArkimeELB
     Properties:
-      ElasticsearchVersion: '7.9'
+      ElasticsearchVersion: '7.10'
       ElasticsearchClusterConfig:
         InstanceCount: 2
         InstanceType: !Sub
@@ -336,7 +336,7 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: '*'
-            Action: 
+            Action:
               - es:AcceptInboundCrossClusterSearchConnection
               - es:AddTags
               - es:AssociatePackage
