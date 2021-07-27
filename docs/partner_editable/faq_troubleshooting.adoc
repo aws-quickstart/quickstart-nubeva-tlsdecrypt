@@ -21,6 +21,6 @@ For additional information, see https://docs.aws.amazon.com/AWSCloudFormation/la
 Follow these steps: 
 
 . Check DynamoDB for keys. If you have items in the DynamoDB table, then at least one sensor is extracting keys and forwarding them.
-. Check client Docker logs: ``docker logs nubeva-agent``
-. Check Decryptor Docker logs: ``docker logs nubeva-rx``
-. Check Decryptor interfaces: ``ifconfig``
+. Check client Docker logs by running the following command: ``docker logs nubeva-agent``
+. Check Decryptor Docker logs by running the following command: ``docker logs nubeva-rx``
+. Check Decryptor interfaces by running the following command: ``ifconfig``
