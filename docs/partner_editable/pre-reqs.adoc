@@ -9,7 +9,7 @@
 . Navigate to https://www.nubeva.com, and choose *Login* from the main menu.
 . First-time users are prompted to create an account. You can use one of the OAuth
 partners to log in.
-. Copy in the Nubeva token.
+. Copy and paste the {partner-company-name} token.
 
 [#nubeva_saas]
 .Copy the Nubeva token

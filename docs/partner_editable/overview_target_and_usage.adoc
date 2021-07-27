@@ -2,18 +2,16 @@
 // Identify your target audience and explain how/why they would use this Quick Start.
 //Avoid borrowing text from third-party websites (copying text from AWS service documentation is fine). Also, avoid marketing-speak, focusing instead on the technical aspect.
 
-This Quick Start reference deployment guide provides step-by-step instructions for
+This Quick Start reference deployment guide provides instructions for
 deploying an out-of-band, open-source monitoring stack for AWS. Launched tools come
-with the Nubeva Session Key Intercept (SKI) platform for TLS decryption pre-configured on the
-AWS Cloud. The stack includes the open-source tools Suricata, Wireshark,
-and Zeek.
+with the {partner-company-name} Session Key Intercept (SKI) platform for TLS decryption pre-configured on the AWS Cloud. The stack includes the following open-source tools:
 
-//* **Arkime** is a large-scale, open-source, indexed packet-capture-and-search system.
-* **Suricata** is a high-performance engine that comprises a network intrusion detection
+* Arkime -- A large-scale, open-source, indexed packet-capture-and-search system.
+* Suricata -- A high-performance engine that comprises a network intrusion detection
 system (IDS), an intrusion prevention system (IPS), and network security
 monitoring (NSM).
-* **Wireshark** is a free, open-source packet analyzer for network troubleshooting.
-* **Zeek** is a powerful network analysis framework used for intrusion detection by
+* Wireshark -- A free, open-source packet analyzer for network troubleshooting.
+* Zeek -- A powerful network analysis framework used for intrusion detection by
 looking at anomalous network activity to find suspicious data flows.
 
 This Quick Start is for users who want to identify malicious activity, insider threats, and
