@@ -3,23 +3,21 @@
 
 == Test the deployment
 
-By default, this Quick Start includes TLS clients that generate standard web traffic as
-well as simulated attacks. In addition, VPC traffic mirrors are created between a client and its respective tool.  To validate the deployment and view the simulated
-threats, follow these steps:
+By default, this Quick Start includes TLS clients that generate standard web traffic and simulated attacks. Also, VPC traffic mirrors are created between a client and its respective tool. To validate the deployment and view the simulated
+threats, follow these steps. Each tool should be accessed directly.
 
-Each tool should be accessed directly:
-
-. Wireshark: Connect to the wireshark console using the link listed on the
-output of the CloudFormation stack, https://elbaddress:14500. The user name and
-password are the default wireshark/wireshark credentials. Monitor the nurx0 interface
+. Arkime: For alerts, connect to the interface using the link listed on
+the output of the CloudFormation stack.
+. Wireshark: Connect to the Wireshark console using the link listed on the
+output of the CloudFormation stack: https://elbaddress:14500. The default user name and
+password are wireshark/wireshark. Monitor the nurx0 interface
 for decrypted cloud traffic.
 
-NOTE: This tool uses the default credentials! Tooladmin/Toolpassword parameters are not supported
+NOTE: This tool uses the default credentials. Note that Tooladmin/Toolpassword credentials are not supported.
 
-[start=2]
+[start=3]
 . Suricata: For alerts, connect to the Kibana interface using the link listed on
 the output of the CloudFormation stack.
-
 . Zeek: For alerts, connect to the Kibana interface using the link listed on
 the output of the CloudFormation stack.
 

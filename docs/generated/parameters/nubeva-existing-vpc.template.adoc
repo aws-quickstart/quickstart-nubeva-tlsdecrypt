@@ -7,21 +7,21 @@
 (`VPCCIDR`)|`10.0.0.0/16`|CIDR block for the VPC.|Private subnet 1 ID
 (`PrivateSubnet1ID`)|`**__Requires input__**`|ID of the private subnet in Availability Zone 1 in your existing VPC (for example, subnet-fe9a8b32).|Private subnet 2 ID
 (`PrivateSubnet2ID`)|`**__Requires input__**`|ID of the private subnet in Availability Zone 2 in your existing VPC (for example, subnet-be8b01ea).|Allowed external access CIDR
-(`RemoteAccessCIDR`)|`**__Requires input__**`|CIDR IP range permitted to access the instances. We recommend that you set this value to a trusted IP range.
+(`RemoteAccessCIDR`)|`**__Requires input__**`|CIDR IP range permitted to access the instances. Set this value to a trusted IP range.
 |===
 .Nubeva configuration
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
 |Parameter label (name) |Default value|Description|Nubeva token
-(`APIKey`)|`**__Requires input__**`|Token for your Nubeva account.|Install Wireshark ASG
+(`APIKey`)|`**__Requires input__**`|Token for your Nubeva account.|Install Arkime ASG
 (`ArkimeInstall`)|`True`|Choose to install Arkime.|Install Wireshark ASG
 (`WiresharkInstall`)|`True`|Choose to install Wireshark.|Install Suricata ASG
 (`SuricataInstall`)|`True`|Choose to install Suricata.|Install Zeek ASG
 (`ZeekInstall`)|`True`|Choose to install Zeek.|Install TLS generation clients
 (`ClientInstall`)|`True`|Choose to install TLS generation clients.|Administrator name
 (`ToolAdmin`)|`tooladmin`|User name associated with the administrator account for the created tools.|Administrator password
-(`ToolPassword`)|`**__Requires input__**`|Must contain only 8-32 alphanumeric characters.|Install Elasticsearch service-linked role
-(`AddESRole`)|`False`|Choose to install Elasticsearch service-linked role.
+(`ToolPassword`)|`**__Requires input__**`|Password must contain 8-32 alphanumeric characters.|Install Elasticsearch service-linked role
+(`AddESRole`)|`False`|Choose to install Elasticsearch Service linked role.
 |===
 .Auto Scaling group configuration
 [width="100%",cols="16%,11%,73%",options="header",]
@@ -36,7 +36,7 @@
 [width="100%",cols="16%,11%,73%",options="header",]
 |===
 |Parameter label (name) |Default value|Description|Quick Start S3 bucket name
-(`QSS3BucketName`)|`aws-quickstart`|S3 bucket name for the Quick Start assets. This string can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).|Quick Start S3 bucket Region
-(`QSS3BucketRegion`)|`us-east-1`|The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.|Quick Start S3 key prefix
-(`QSS3KeyPrefix`)|`quickstart-nubeva-tlsdecrypt/`|S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).
+(`QSS3BucketName`)|`aws-quickstart`|Name of the S3 bucket for your copy of the Quick Start assets. Keep the default name unless you are customizing the template. Changing the name updates code references to point to a new Quick Start location. This name can include numbers, lowercase letters, uppercase letters, and hyphens, but do not start or end with a hyphen (-). See https://aws-quickstart.github.io/option1.html.|Quick Start S3 bucket Region
+(`QSS3BucketRegion`)|`us-east-1`|AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. Keep the default Region unless you are customizing the template. Changing this Region updates code references to point to a new Quick Start location. When using your own bucket, specify the Region. See https://aws-quickstart.github.io/option1.html.|Quick Start S3 key prefix
+(`QSS3KeyPrefix`)|`quickstart-nubeva-tlsdecrypt/`|S3 key prefix that is used to simulate a directory for your copy of the Quick Start assets. Keep the default prefix unless you are customizing the template. Changing this prefix updates code references to point to a new Quick Start location. This prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slashes (/). End with a forward slash. See https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html and https://aws-quickstart.github.io/option1.html.
 |===

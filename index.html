@@ -848,8 +848,8 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_customer_responsibility">Customer responsibility</a></li>
 <li><a href="#_parameter_reference">Parameter reference</a>
 <ul class="sectlevel2">
-<li><a href="#_launch_into_a_new_vpc">Launch into a new VPC</a></li>
-<li><a href="#_launch_into_an_existing_vpc">Launch into an existing VPC</a></li>
+<li><a href="#_parameters_for_launching_into_an_existing_vpc">Parameters for launching into an existing VPC</a></li>
+<li><a href="#_parameters_for_launching_into_a_new_vpc">Parameters for launching into a new VPC</a></li>
 </ul>
 </li>
 <li><a href="#_send_us_feedback">Send us feedback</a></li>
@@ -870,9 +870,9 @@ p.footer-text a{color:#d7d8d8}
 </div>
 </div>
 <div class="paragraph text-center">
-<p><strong>June 2021</strong><br>
+<p><strong>July 2021</strong><br>
 <em>Erik Freeland, Nubeva</em><br>
-<em>Dylan Owen, Amazon Web Services</em></p>
+<em>Dylan Owen, AWS Integration &amp; Automation team</em></p>
 </div>
 <div class="admonitionblock tip text-left">
 <table>
@@ -896,24 +896,25 @@ report bugs, or submit feature ideas for this Quick Start.
 <h2 id="_overview">Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This Quick Start reference deployment guide provides step-by-step instructions for
+<p>This Quick Start reference deployment guide provides instructions for
 deploying an out-of-band, open-source monitoring stack for AWS. Launched tools come
-with the Nubeva Session Key Intercept (SKI) platform for TLS decryption pre-configured on the
-AWS Cloud. The stack includes the open-source tools Suricata, Wireshark,
-and Zeek.</p>
+with the Nubeva Session Key Intercept (SKI) platform for TLS decryption pre-configured on the AWS Cloud. The stack includes the following open-source tools:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Suricata</strong> is a high-performance engine that comprises a network intrusion detection
+<p>Arkime&#8201;&#8212;&#8201;A large-scale, open-source, indexed packet-capture-and-search system.</p>
+</li>
+<li>
+<p>Suricata&#8201;&#8212;&#8201;A high-performance engine that comprises a network intrusion detection
 system (IDS), an intrusion prevention system (IPS), and network security
 monitoring (NSM).</p>
 </li>
 <li>
-<p><strong>Wireshark</strong> is a free, open-source packet analyzer for network troubleshooting.</p>
+<p>Wireshark&#8201;&#8212;&#8201;A free, open-source packet analyzer for network troubleshooting.</p>
 </li>
 <li>
-<p><strong>Zeek</strong> is a powerful network analysis framework used for intrusion detection by
+<p>Zeek&#8201;&#8212;&#8201;A powerful network analysis framework used for intrusion detection by
 looking at anomalous network activity to find suspicious data flows.</p>
 </li>
 </ul>
@@ -941,16 +942,12 @@ Amazon may share user-deployment information with the AWS Partner that collabora
 <h2 id="_nubeva_tls_decrypt_on_aws">Nubeva TLS Decrypt on AWS</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Nubeva’s SKI architecture provides a visibility solution that provides complete
-packet visibility of any public cloud with TLS decryption capabilities. All the open-source
-tools in this solution are complemented by Nubeva SKI sensors, which provides additional
-intelligence and insight into encrypted data.</p>
+<p>Nubeva’s SKI architecture provides complete packet visibility of any public cloud with TLS decryption capabilities. All open-source tools in this solution are complemented by Nubeva SKI sensors, which provide additional intelligence and insight into encrypted data.</p>
 </div>
 <div class="paragraph">
-<p>Container-based Nubeva SKI sensors are deployed on your monitored instances,
-which capture TLS session keys as they flow through these instances. The
-packets are sent using VPC traffic mirrors to be analyzed and visualized by the open-source
-tools you choose. This provides clear visibility of your network traffic so you can identify
+<p>Container-based Nubeva SKI sensors are deployed on your monitored instances and capture TLS session keys as they flow through these instances. The
+packets are sent using VPC traffic mirrors that are analyzed and visualized by your chosen open-source
+tools. This flow provides clear visibility of your network traffic so you can identify
 unexpected network behavior, perform network analysis, and detect intrusions.</p>
 </div>
 </div>
@@ -987,7 +984,7 @@ After you deploy the Quick Start, create <a href="https://docs.aws.amazon.com/aw
 <div class="sectionbody">
 <div class="paragraph">
 <p>This Quick Start requires an account on the Nubeva SaaS console, as described in the
-<a href="#_deployment_steps">Deployment Steps</a>, later in this guide.</p>
+<a href="#_deployment_steps">Deployment Steps</a> section later in this guide.</p>
 </div>
 </div>
 </div>
@@ -995,13 +992,13 @@ After you deploy the Quick Start, create <a href="https://docs.aws.amazon.com/aw
 <h2 id="_architecture">Architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Deploying this Quick Start for a new virtual private cloud (VPC) with
-<strong>default parameters</strong> builds the following Nubeva SKI network and security monitoring environment in the
+<p>Deploying this Quick Start for a new virtual private cloud VPC with
+default parameters builds the following Nubeva SKI network and security monitoring environment in the
 AWS Cloud.</p>
 </div>
 <div id="architecture1" class="imageblock">
 <div class="content">
-<a class="image" href="../images/architecture_diagram.png"><img src="images/architecture_diagram.png" alt="architecture_diagram" width="648" height="850"></a>
+<a class="image" href="../images/nubeva-tls-decrypt-architecture-diagram.png"><img src="images/nubeva-tls-decrypt-architecture-diagram.png" alt="nubeva-tls-decrypt-architecture-diagram"></a>
 </div>
 <div class="title">Figure 1. Quick Start architecture for Nubeva SKI on AWS</div>
 </div>
@@ -1018,29 +1015,20 @@ AWS Cloud.</p>
 provide you with your own virtual network on AWS.*</p>
 </li>
 <li>
-<p>Elastic Load Balancing (ELB) for each open-source tool, to provide scaling for the tool
-operation itself and for inbound packet mirroring using Amazon VPC traffic mirrors or
+<p>Elastic Load Balancing (ELB) for each open-source tool to provide scaling for both tool
+operation and inbound packet mirroring using Amazon VPC traffic mirrors or
 internal replication.</p>
-</li>
-<li>
-<p>Amazon DynamoDB for key storage.</p>
-</li>
-<li>
-<p>Amazon Elasticsearch Service (Amazon ES) for managing the logs from Zeek and Suricata.</p>
-</li>
-<li>
-<p>Amazon VPC traffic mirroring targets connected to each open-source load balancer.</p>
 </li>
 <li>
 <p>In the public subnets:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the subnets.*</p>
+<p>A bastion host for all inbound connectivity.*</p>
 </li>
 <li>
-<p>Bastion host for all inbound connectivity.*</p>
+<p>Managed network address translation (NAT) gateways to allow outbound
+internet access for resources in the subnets.*</p>
 </li>
 </ul>
 </div>
@@ -1050,25 +1038,35 @@ internet access for resources in the subnets.*</p>
 <div class="ulist">
 <ul>
 <li>
-<p>A source instance in an Auto Scaling group (of size 2). This is a sample instance
-you can use to monitor TLS traffic. After deployment, use the Nubeva SaaS
-console to add more instances to monitor.</p>
+<p>Arkime packet capture in an Auto Scaling group (size 2).</p>
 </li>
 <li>
-<p>The source instance has a container-based Nubeva SKI agent deployed.
+<p>Suricata signature detection in an Auto Scaling group (size 2).</p>
+</li>
+<li>
+<p>Wireshark packet analysis in an Auto Scaling group (size 2).</p>
+</li>
+<li>
+<p>Zeek anomaly detection in an Auto Scaling group (size 2).</p>
+</li>
+<li>
+<p>Amazon VPC traffic-mirroring targets connected to each open-source load balancer.</p>
+</li>
+<li>
+<p>A sample source instance in an Auto Scaling group (size 2) used for monitoring TLS traffic. After deployment, use the Nubeva SaaS console to add more instances to monitor. The source instance has a container-based Nubeva SKI agent deployed.
 This agent listens through all available interfaces &amp; discovers TLS session keys.</p>
-</li>
-<li>
-<p>Suricata signature detection in an Auto Scaling group (of size 2).</p>
-</li>
-<li>
-<p>Wireshark packet analysis in an Auto Scaling group (of size 2).</p>
-</li>
-<li>
-<p>Zeek anomaly detection in an Auto Scaling group (of size 2).</p>
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p>Amazon DynamoDB for key storage.</p>
+</li>
+<li>
+<p>Amazon Elasticsearch Service (Amazon ES) for managing the logs from Zeek and Suricata.</p>
+</li>
+<li>
+<p>An Amazon Simple Storage Service (Amazon S3) bucket for Arkime packet capture (PCAP) storage.</p>
 </li>
 </ul>
 </div>
@@ -1251,7 +1249,7 @@ Certain Regions are available on an opt-in basis. For more information, see <a h
 partners to log in.</p>
 </li>
 <li>
-<p>Copy in the Nubeva token.</p>
+<p>Copy and paste the Nubeva token.</p>
 </li>
 </ol>
 </div>
@@ -1295,7 +1293,7 @@ partners to log in.</p>
 <p>Sign in to your AWS account at <a href="https://aws.amazon.com" class="bare">https://aws.amazon.com</a> with an IAM user role that has the necessary permissions. For details, see <a href="_planning_the_deployment">Planning the deployment</a> earlier in this guide.</p>
 </li>
 <li>
-<p>Make sure that your AWS account is configured correctly &amp; you have your Nubeva token, as discussed in the <a href="#pre_reqs">Preequisites</a> section.</p>
+<p>Confirm that your AWS account is configured correctly and that you have your Nubeva token, as discussed in the <a href="#pre_reqs">Preequisites</a> section.</p>
 </li>
 </ol>
 </div>
@@ -1354,7 +1352,7 @@ If you’re deploying Nubeva SKI into an existing VPC, make sure that your VPC h
 </div>
 </li>
 <li>
-<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This is where the network infrastructure for Nubeva TLS Decrypt will be built. The template is launched in the us-east-1 Region by default.</p>
+<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This is where the network infrastructure for Nubeva TLS Decrypt is built. The template is launched in the us-east-1 Region by default.</p>
 </li>
 <li>
 <p>On the <strong>Create stack</strong> page, keep the default setting for the template URL, and then choose <strong>Next</strong>.</p>
@@ -1386,19 +1384,19 @@ If you’re deploying Nubeva SKI into an existing VPC, make sure that your VPC h
 <h2 id="_test_the_deployment">Test the deployment</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>By default, this Quick Start includes TLS clients that generate standard web traffic as
-well as simulated attacks. In addition, VPC traffic mirrors are created between a client and its respective tool.  To validate the deployment and view the simulated
-threats, follow these steps:</p>
-</div>
-<div class="paragraph">
-<p>Each tool should be accessed directly:</p>
+<p>By default, this Quick Start includes TLS clients that generate standard web traffic and simulated attacks. Also, VPC traffic mirrors are created between a client and its respective tool. To validate the deployment and view the simulated
+threats, follow these steps. Each tool should be accessed directly.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Wireshark: Connect to the wireshark console using the link listed on the
-output of the CloudFormation stack, <a href="https://elbaddress:14500" class="bare">https://elbaddress:14500</a>. The user name and
-password are the default wireshark/wireshark credentials. Monitor the nurx0 interface
+<p>Arkime: For alerts, connect to the interface using the link listed on
+the output of the CloudFormation stack.</p>
+</li>
+<li>
+<p>Wireshark: Connect to the Wireshark console using the link listed on the
+output of the CloudFormation stack: <a href="https://elbaddress:14500" class="bare">https://elbaddress:14500</a>. The default user name and
+password are wireshark/wireshark. Monitor the nurx0 interface
 for decrypted cloud traffic.</p>
 </li>
 </ol>
@@ -1410,13 +1408,13 @@ for decrypted cloud traffic.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-This tool uses the default credentials! Tooladmin/Toolpassword parameters are not supported
+This tool uses the default credentials. Note that Tooladmin/Toolpassword credentials are not supported.
 </td>
 </tr>
 </table>
 </div>
 <div class="olist arabic">
-<ol class="arabic" start="2">
+<ol class="arabic" start="3">
 <li>
 <p>Suricata: For alerts, connect to the Kibana interface using the link listed on
 the output of the CloudFormation stack.</p>
@@ -1436,7 +1434,7 @@ the output of the CloudFormation stack.</p>
 <p><strong>Q.</strong> I encountered a <strong>CREATE_FAILED</strong> error when I launched the Quick Start.</p>
 </div>
 <div class="paragraph">
-<p><strong>A.</strong> If AWS CloudFormation fails to create the stack, we recommend that you relaunch the template with <strong>Rollback on failure</strong> set to <strong>No</strong>. (This setting is under <strong>Advanced</strong> in the AWS CloudFormation console, <strong>Options</strong> page.) With this setting, the stack’s state is retained and the instance is left running, so you can troubleshoot the issue. (For Windows, look at the log files in %ProgramFiles%\Amazon\EC2ConfigService and C:\cfn\log.)</p>
+<p><strong>A.</strong> If AWS CloudFormation fails to create the stack, relaunch the template with <strong>Rollback on failure</strong> set to <strong>No</strong>. This setting is located under <strong>Advanced</strong> in the AWS CloudFormation Management Console on the <strong>Options</strong> page. With this setting, the stack’s state is retained and the instance is left running, so you can troubleshoot the issue. (For Windows, look at the log files in %ProgramFiles%\Amazon\EC2ConfigService and C:\cfn\log.)</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1445,7 +1443,7 @@ the output of the CloudFormation stack.</p>
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, you continue to incur AWS charges for this stack. Please make sure to delete the stack when you finish troubleshooting.
+When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, you continue to incur AWS charges for this stack. Make sure to delete the stack when you finish troubleshooting.
 </td>
 </tr>
 </table>
@@ -1457,26 +1455,29 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 <p><strong>Q.</strong> I encountered a size limitation error when I deployed the AWS CloudFormation templates.</p>
 </div>
 <div class="paragraph">
-<p><strong>A.</strong> We recommend that you launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information about AWS CloudFormation quotas, see the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html">AWS documentation</a>.</p>
+<p><strong>A.</strong> Launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information about AWS CloudFormation quotas, see <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html">AWS CloudFormation quotas</a> in the AWS documentation.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_troubleshooting">Troubleshooting</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Follow these steps:</p>
+</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Check DynamoDB for keys: If you have items in the DynamoDB table, then at least one sensor is extracting keys and forwarding them.</p>
+<p>Check DynamoDB for keys. If you have items in the DynamoDB table, then at least one sensor is extracting keys and forwarding them.</p>
 </li>
 <li>
-<p>Check Client Docker logs: <code>docker logs nubeva-agent</code></p>
+<p>Check client Docker logs by running the following command: <code>docker logs nubeva-agent</code></p>
 </li>
 <li>
-<p>Check Decryptor Docker logs: <code>docker logs nubeva-rx</code></p>
+<p>Check Decryptor Docker logs by running the following command: <code>docker logs nubeva-rx</code></p>
 </li>
 <li>
-<p>Check Decryptor interfaces: <code>ifconfig</code></p>
+<p>Check Decryptor interfaces by running the following command: <code>ifconfig</code></p>
 </li>
 </ol>
 </div>
@@ -1506,7 +1507,7 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 </table>
 </div>
 <div class="sect2">
-<h3 id="_launch_into_a_new_vpc">Launch into a new VPC</h3>
+<h3 id="_parameters_for_launching_into_an_existing_vpc">Parameters for launching into an existing VPC</h3>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. VPC network configuration</caption>
 <colgroup>
@@ -1523,10 +1524,10 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Availability Zones
-(<code>AvailabilityZones</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VPC ID
+(<code>VPCID</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of Availability Zones to use for the subnets in the VPC. Two Availability Zones are used for this deployment.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID of your existing VPC (for example, vpc-0343606e).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">VPC CIDR
@@ -1535,46 +1536,22 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 <td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for the VPC.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 1 CIDR
-(<code>PrivateSubnet1CIDR</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.16.0/20</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for private subnet 1 located in Availability Zone 1.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 1 ID
+(<code>PrivateSubnet1ID</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID of the private subnet in Availability Zone 1 in your existing VPC (for example, subnet-fe9a8b32).</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 2 CIDR
-(<code>PrivateSubnet2CIDR</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.32.0/20</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for private subnet 2 located in Availability Zone 2.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Public subnet 1 CIDR
-(<code>PublicSubnet1CIDR</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.48.0/20</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for the public (DMZ) subnet 1 located in Availability Zone 1.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Public subnet 2 CIDR
-(<code>PublicSubnet2CIDR</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.64.0/20</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 2 ID
+(<code>PrivateSubnet2ID</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID of the private subnet in Availability Zone 2 in your existing VPC (for example, subnet-be8b01ea).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Allowed external access CIDR
 (<code>RemoteAccessCIDR</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bastion AMI operating system
-(<code>BastionAMIOS</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Amazon-Linux2-HVM</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bastion instance type
-(<code>BastionInstanceType</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t3.small</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Amazon EC2 instance type for the bastion instances.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR IP range permitted to access the instances. Set this value to a trusted IP range.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1639,215 +1616,18 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 <td class="tableblock halign-left valign-top"><p class="tableblock">Administrator password
 (<code>ToolPassword</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">must contain only 8-32 alphanumeric characters</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Install Elasticsearch Service Linked Role
-(<code>AddESRole</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>False</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Elasticsearch Service Linked Role.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. Auto Scaling group configuration</caption>
-<colgroup>
-<col style="width: 16%;">
-<col style="width: 11%;">
-<col style="width: 73%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter label (name)</th>
-<th class="tableblock halign-left valign-top">Default value</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SSH key name
-(<code>KeyPairName</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Name of an existing key pair, which allows you to securely connect to your instance after it launches.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Tool instance type
-(<code>NodeInstanceType</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>m5.large</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Type of EC2 instance for the node instances.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Desired nodes per tool
-(<code>NumberOfNodes</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Number of EC2 instance nodes in each Auto Scaling group.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum nodes per tool
-(<code>MaximumNodes</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>6</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of EC2 instance nodes in each Auto Scaling group.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. AWS Quick Start configuration</caption>
-<colgroup>
-<col style="width: 16%;">
-<col style="width: 11%;">
-<col style="width: 73%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter label (name)</th>
-<th class="tableblock halign-left valign-top">Default value</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 bucket name
-(<code>QSS3BucketName</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>aws-quickstart</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 bucket name for the Quick Start assets. This string can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 bucket Region
-(<code>QSS3BucketRegion</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>us-east-1</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 key prefix
-(<code>QSS3KeyPrefix</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>quickstart-nubeva-tlsdecrypt/</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect2">
-<h3 id="_launch_into_an_existing_vpc">Launch into an existing VPC</h3>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. VPC network configuration</caption>
-<colgroup>
-<col style="width: 16%;">
-<col style="width: 11%;">
-<col style="width: 73%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter label (name)</th>
-<th class="tableblock halign-left valign-top">Default value</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">VPC ID
-(<code>VPCID</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ID of your existing VPC (for example, vpc-0343606e).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">VPC CIDR
-(<code>VPCCIDR</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.0.0/16</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for the VPC.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 1 ID
-(<code>PrivateSubnet1ID</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ID of the private subnet in Availability Zone 1 in your existing VPC (for example, subnet-fe9a8b32).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 2 ID
-(<code>PrivateSubnet2ID</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ID of the private subnet in Availability Zone 2 in your existing VPC (for example, subnet-be8b01ea).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allowed external access CIDR
-(<code>RemoteAccessCIDR</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR IP range permitted to access the instances. We recommend that you set this value to a trusted IP range.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 6. Nubeva configuration</caption>
-<colgroup>
-<col style="width: 16%;">
-<col style="width: 11%;">
-<col style="width: 73%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter label (name)</th>
-<th class="tableblock halign-left valign-top">Default value</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Nubeva token
-(<code>APIKey</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Token for your Nubeva account.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Install Wireshark ASG
-(<code>ArkimeInstall</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Arkime.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Install Wireshark ASG
-(<code>WiresharkInstall</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Wireshark.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Install Suricata ASG
-(<code>SuricataInstall</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Suricata.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Install Zeek ASG
-(<code>ZeekInstall</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Zeek.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Install TLS generation clients
-(<code>ClientInstall</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install TLS generation clients.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Administrator name
-(<code>ToolAdmin</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tooladmin</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">User name associated with the administrator account for the created tools.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Administrator password
-(<code>ToolPassword</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Must contain only 8-32 alphanumeric characters.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password must contain 8-32 alphanumeric characters.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Install Elasticsearch service-linked role
 (<code>AddESRole</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>False</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Elasticsearch service-linked role.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Elasticsearch Service linked role.</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 7. Auto Scaling group configuration</caption>
+<caption class="title">Table 3. Auto Scaling group configuration</caption>
 <colgroup>
 <col style="width: 16%;">
 <col style="width: 11%;">
@@ -1888,6 +1668,227 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. AWS Quick Start configuration</caption>
+<colgroup>
+<col style="width: 16%;">
+<col style="width: 11%;">
+<col style="width: 73%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter label (name)</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 bucket name
+(<code>QSS3BucketName</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>aws-quickstart</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the S3 bucket for your copy of the Quick Start assets. Keep the default name unless you are customizing the template. Changing the name updates code references to point to a new Quick Start location. This name can include numbers, lowercase letters, uppercase letters, and hyphens, but do not start or end with a hyphen (-). See <a href="https://aws-quickstart.github.io/option1.html" class="bare">https://aws-quickstart.github.io/option1.html</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 bucket Region
+(<code>QSS3BucketRegion</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>us-east-1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. Keep the default Region unless you are customizing the template. Changing this Region updates code references to point to a new Quick Start location. When using your own bucket, specify the Region. See <a href="https://aws-quickstart.github.io/option1.html" class="bare">https://aws-quickstart.github.io/option1.html</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 key prefix
+(<code>QSS3KeyPrefix</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>quickstart-nubeva-tlsdecrypt/</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 key prefix that is used to simulate a directory for your copy of the Quick Start assets. Keep the default prefix unless you are customizing the template. Changing this prefix updates code references to point to a new Quick Start location. This prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slashes (/). End with a forward slash. See <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html" class="bare">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html</a> and <a href="https://aws-quickstart.github.io/option1.html" class="bare">https://aws-quickstart.github.io/option1.html</a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_parameters_for_launching_into_a_new_vpc">Parameters for launching into a new VPC</h3>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. VPC network configuration</caption>
+<colgroup>
+<col style="width: 16%;">
+<col style="width: 11%;">
+<col style="width: 73%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter label (name)</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Availability Zones
+(<code>AvailabilityZones</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of Availability Zones to use for the subnets in the VPC. Two Availability Zones are used for this deployment.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VPC CIDR
+(<code>VPCCIDR</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.0.0/16</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for the VPC.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 1 CIDR
+(<code>PrivateSubnet1CIDR</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.16.0/20</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for private subnet 1 located in Availability Zone 1.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Private subnet 2 CIDR
+(<code>PrivateSubnet2CIDR</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.32.0/20</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for private subnet 2 located in Availability Zone 2.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Public subnet 1 CIDR
+(<code>PublicSubnet1CIDR</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.48.0/20</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for the public (DMZ) subnet 1 located in Availability Zone 1.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Public subnet 2 CIDR
+(<code>PublicSubnet2CIDR</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10.0.64.0/20</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allowed external access CIDR
+(<code>RemoteAccessCIDR</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CIDR IP range that is permitted to access the instances. Set this value to a trusted IP range.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bastion AMI operating system
+(<code>BastionAMIOS</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Amazon-Linux2-HVM</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bastion instance type
+(<code>BastionInstanceType</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t3.small</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Amazon EC2 instance type for the bastion instances.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. Nubeva configuration</caption>
+<colgroup>
+<col style="width: 16%;">
+<col style="width: 11%;">
+<col style="width: 73%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter label (name)</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nubeva token
+(<code>APIKey</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Token for your Nubeva account.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install Arkime ASG
+(<code>ArkimeInstall</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Arkime.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install Wireshark ASG
+(<code>WiresharkInstall</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Wireshark.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install Suricata ASG
+(<code>SuricataInstall</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Suricata.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install Zeek ASG
+(<code>ZeekInstall</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Zeek.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install TLS generation clients
+(<code>ClientInstall</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install TLS generation clients.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Administrator name
+(<code>ToolAdmin</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tooladmin</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User name associated with the administrator account for the created tools.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Administrator password
+(<code>ToolPassword</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password contains 8-32 alphanumeric characters.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install Elasticsearch Service Linked Role
+(<code>AddESRole</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>False</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Choose to install Elasticsearch Service linked role.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 7. Auto Scaling group configuration</caption>
+<colgroup>
+<col style="width: 16%;">
+<col style="width: 11%;">
+<col style="width: 73%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter label (name)</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SSH key name
+(<code>KeyPairName</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of an existing key pair, which allows you to securely connect to your instance after it launches.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tool instance type
+(<code>NodeInstanceType</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>m5.large</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Type of EC2 instance for the node instances.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Desired nodes per tool
+(<code>NumberOfNodes</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of EC2 instance nodes in each Auto Scaling group.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum nodes per tool
+(<code>MaximumNodes</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>6</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of EC2 instance nodes in each Auto Scaling group.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 8. AWS Quick Start configuration</caption>
 <colgroup>
 <col style="width: 16%;">
@@ -1906,19 +1907,19 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 <td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 bucket name
 (<code>QSS3BucketName</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>aws-quickstart</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 bucket name for the Quick Start assets. This string can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the S3 bucket for your copy of the Quick Start assets. Keep the default name unless you are customizing the template. Changing the name updates code references to point to a new Quick Start location. This name can include numbers, lowercase letters, uppercase letters, and hyphens, but do not start or end with a hyphen (-). See <a href="https://aws-quickstart.github.io/option1.html" class="bare">https://aws-quickstart.github.io/option1.html</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 bucket Region
 (<code>QSS3BucketRegion</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>us-east-1</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. Keep the default Region unless you are customizing the template. Changing this Region updates code references to point to a new Quick Start location. When using your own bucket, specify the Region. See <a href="https://aws-quickstart.github.io/option1.html" class="bare">https://aws-quickstart.github.io/option1.html</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Quick Start S3 key prefix
 (<code>QSS3KeyPrefix</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>quickstart-nubeva-tlsdecrypt/</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 key prefix that is used to simulate a directory for your copy of the Quick Start assets. Keep the default prefix unless you are customizing the template. Changing this prefix updates code references to point to a new Quick Start location. This prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slashes (/). End with a forward slash. See <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html" class="bare">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html</a> and <a href="https://aws-quickstart.github.io/option1.html" class="bare">https://aws-quickstart.github.io/option1.html</a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1973,7 +1974,7 @@ and to share your customizations with others.</p>
 </html>
 <!--
 repo commit:
-902061cadcb69dd2fd75e77f4bd71b1c6a5a80da
+33e8810b5563f4c42c1b3a1e0c1da1b117d0f29d
 
 submodule config:
  65f80e33e522df2db773d415faf97a7fadf2f5e3 docs/boilerplate (heads/main)
