@@ -21,14 +21,10 @@ provide you with your own virtual network on AWS.*
 * Elastic Load Balancing (ELB) for each open-source tool to provide scaling for both tool
 operation and inbound packet mirroring using Amazon VPC traffic mirrors or
 internal replication.
-* Amazon DynamoDB for key storage.
-* Amazon Elasticsearch Service (Amazon ES) for managing the logs from Zeek and Suricata.
-* An Amazon Simple Storage Service (Amazon S3) bucket for Arkime packet capture (PCAP) storage.
-* Amazon VPC traffic-mirroring targets connected to each open-source load balancer.
 * In the public subnets:
+** A bastion host for all inbound connectivity.*
 ** Managed network address translation (NAT) gateways to allow outbound
 internet access for resources in the subnets.*
-** A bastion host for all inbound connectivity.*
 * In the private subnets:
 ** A sample source instance in an Auto Scaling group (size 2) used for monitoring TLS traffic. After deployment, use the {partner-company-name} SaaS console to add more instances to monitor. The source instance has a container-based {partner-company-name} SKI agent deployed.
 This agent listens through all available interfaces & discovers TLS session keys.
@@ -36,6 +32,10 @@ This agent listens through all available interfaces & discovers TLS session keys
 ** Suricata signature detection in an Auto Scaling group (size 2).
 ** Wireshark packet analysis in an Auto Scaling group (size 2).
 ** Zeek anomaly detection in an Auto Scaling group (size 2).
+* Amazon DynamoDB for key storage.
+* Amazon Elasticsearch Service (Amazon ES) for managing the logs from Zeek and Suricata.
+* An Amazon Simple Storage Service (Amazon S3) bucket for Arkime packet capture (PCAP) storage.
+* Amazon VPC traffic-mirroring targets connected to each open-source load balancer.
 
 *The template that deploys the Quick Start into an existing VPC skips
 the components marked by asterisks and prompts you for your existing VPC
