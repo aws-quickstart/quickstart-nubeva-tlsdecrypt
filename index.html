@@ -1192,6 +1192,25 @@ Certain Regions are available on an opt-in basis. For more information, see <a h
 </div>
 </div>
 <div class="sect3">
+<h4 id="_deployment_options">Deployment options</h4>
+<div class="paragraph">
+<p>This Quick Start provides two deployment options:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Deploy Nubeva SKI into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components. It then deploys Nubeva SKI into this new VPC.</p>
+</li>
+<li>
+<p><strong>Deploy Nubeva SKI into an existing VPC</strong>. This option provisions Nubeva SKI in your existing AWS infrastructure.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and Nubeva SKI settings, as discussed later in this guide.</p>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_prepare_your_nubeva_account">Prepare your Nubeva account</h4>
 <div class="olist arabic">
 <ol class="arabic">
@@ -1212,25 +1231,6 @@ partners to log in.</p>
 <a class="image" href="../images/nubeva_sass.png"><img src="images/nubeva_sass.png" alt="nubeva_saas" width="648" height="439"></a>
 </div>
 <div class="title">Figure 2. Copy the Nubeva token</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_deployment_options">Deployment options</h4>
-<div class="paragraph">
-<p>This Quick Start provides two deployment options:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Deploy Nubeva SKI into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components. It then deploys Nubeva SKI into this new VPC.</p>
-</li>
-<li>
-<p><strong>Deploy Nubeva SKI into an existing VPC</strong>. This option provisions Nubeva SKI in your existing AWS infrastructure.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and Nubeva SKI settings, as discussed later in this guide.</p>
 </div>
 </div>
 </div>
@@ -1928,10 +1928,10 @@ and to share your customizations with others.</p>
 </html>
 <!--
 repo commit:
-18bdd756c6d1d2b2bc8033d26fa5fb27341e8ba2
+c6d4bea5bfd05ca9f1f1d1df97c45d4c40edc5ed
 
 submodule config:
- 4ee94d6b60ec455e5b452e8ad9841eb825704b70 docs/boilerplate (heads/main)
+ eea042d0b9c005d2549a71349e5f28b02c81af75 docs/boilerplate (heads/main)
  ffc7af4e59a09dbf52199a3ecf70f3805abeff48 submodules/quickstart-aws-vpc (v1.0-58-gffc7af4)
- b9950be657d8a8c76e71fca157b4952a587342f4 submodules/quickstart-linux-bastion (heads/main)
+ 9aa7aedb1b35a28a1b0f7d8773319f75cce4b787 submodules/quickstart-linux-bastion (heads/main)
 -->
